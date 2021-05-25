@@ -5,3 +5,21 @@ coverage.json
 secret.json
 .DS_Store
 
+key.json
+key_kovan.json
+key_mainnet.json
+.env
+artifacts/
+cache/
+
+# others
+contractsFlat
+test_archive1
+test_archive2
+test_harvestFinance
+abi
+archives
+yarn-error.log
+removed.c
+rNotes.c
+deployOld
