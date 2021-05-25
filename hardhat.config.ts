@@ -167,10 +167,10 @@ const config: HardhatUserConfig = {
       },
     ],
     overrides: {
-      // "contracts/ERC20PresetFixedSupply.sol": {
-      //   version: "0.8.4",
-      //   settings: { }
-      // }
+      "contracts/RewardPool.sol": {
+        version: "0.5.16",
+        settings: { }
+      },
     },
   },
   namedAccounts: {

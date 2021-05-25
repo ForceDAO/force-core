@@ -4,12 +4,12 @@ import "@openzeppelin/contracts/math/Math.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "../../Controllable.sol";
-import "../../hardworkInterface/IStrategy.sol";
-import "../../uniswap/interfaces/IUniswapV2Router02.sol";
+import "../Controllable.sol";
+import "../hardworkInterface/IStrategy.sol";
+import "../uniswap/interfaces/IUniswapV2Router02.sol";
 import "./IdleToken.sol";
-import "../RewardTokenProfitNotifier.sol";
-import "../../hardworkInterface/IVault.sol";
+import "../strategies/RewardTokenProfitNotifier.sol";
+import "../hardworkInterface/IVault.sol";
 
 contract IdleFinanceStrategy is IStrategy, RewardTokenProfitNotifier {
 
