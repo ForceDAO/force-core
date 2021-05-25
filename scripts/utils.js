@@ -8,6 +8,7 @@ const { ethers } = require("ethers");
 const log1 = console.log;
 const logDeployment = (instCtrt, network) => {
   let explorerUrl = "\nhttps://"+network+".etherscan.io/address/"+instCtrt.address;
+  //log1("network:", network);
 
   if(network === "polygonmainnet"){
     explorerUrl = "\nhttps://explorer-mainnet.maticvigil.com/address/"+instCtrt.address+"/contracts";

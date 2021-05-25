@@ -18,7 +18,13 @@ const { logDeployment, toWei, fromWei } = require("./scripts/utils.js");
 require("./scripts/accounts.task.js");
 require("./scripts/balance.task.js");
 require("./scripts/balance2.task.ts");
-require("./scripts/storage.task.js");
+require("./scripts/deploy01-Storage.task.js");
+require("./scripts/deploy02-ForceProfitSharing.task.js");
+require("./scripts/deploy03-FeeRewardForwarder.task.js");
+require("./scripts/deploy04-Controller.task.js");
+require("./scripts/deploy05-Vault.task.js");
+require("./scripts/deploy15-NoMintRewardPool.task.js");
+require("./scripts/deploy19-StaticsHelper.task");
 
 const mnemonic1 = process.env.MNEMONIC1 || "";
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
