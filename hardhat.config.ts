@@ -11,14 +11,13 @@ import { ethers } from "ethers";
 require("@nomiclabs/hardhat-web3");
 require('hardhat-contract-sizer');
 require("dotenv").config();
-const { logDeployment, toWei, fromWei } = require("./scripts/utils.js");
-//const { deployContract } = require("./scripts/deploy1.js");
+//const { logDeployment, toWei, fromWei } = require("./scripts/utils.js");
 
 require("./scripts/accounts.task.js");
 require("./scripts/balance.task.js");
 require("./scripts/balance2.task.ts");
 require("./scripts/deploy01-Storage.task.js");
-require("./scripts/deploy02-ForceProfitSharing.task.js");
+require("./scripts/deploy02-FarmRwToken.task.js");
 require("./scripts/deploy03-FeeRewardForwarder.task.js");
 require("./scripts/deploy04-Controller.task.js");
 require("./scripts/deploy05-Vault.task.js");

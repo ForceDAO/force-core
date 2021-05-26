@@ -1,8 +1,8 @@
 const { logDeployment, toWei, fromWei, log1 } = require("./utils");
 
 // npx hardhat compile
-// npx hardhat deploy-StaticsHelper --network polygonmumbai
-task("deploy-StaticsHelper", "Deploys a new StaticsHelper contract")
+// npx hardhat deploy-staticsHelper --network polygonmumbai
+task("deploy-staticsHelper", "Deploys a new StaticsHelper contract")
   .setAction(async (args, hre) => {
     log1("\n---------== deploy-StaticsHelper");
     const ctrtName = "StaticsHelper";

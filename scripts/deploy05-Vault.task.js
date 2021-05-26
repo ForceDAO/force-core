@@ -1,8 +1,8 @@
 const { logDeployment, toWei, fromWei, log1 } = require("./utils");
 
 // npx hardhat compile
-// npx hardhat deploy-Vault --network polygonmumbai
-task("deploy-Vault", "Deploys a new Vault contract")
+// npx hardhat deploy-vault --network polygonmumbai
+task("deploy-vault", "Deploys a new Vault contract")
   .setAction(async (args, hre) => {
     log1("---------== deploy-Vault");
     const ctrtName = "Vault";

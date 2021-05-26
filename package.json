@@ -16,7 +16,6 @@
     "deploy:x:kovan": "npx hardhat run scripts/deploy1.js --network kovan",
     "deploy:x:rinkeby": "npx hardhat run scripts/deploy1.js --network rinkeby",
     "deploy:x:polygonmumbai": "npx hardhat run scripts/deploy1.js --network polygonmumbai",
-    "deploy:rinkeby:verify": "npx hardhat verify --contract contracts/geyser/TokenGeyser.sol:TokenGeyser --network rinkeby 0x42b38ca3E09c92CA82FA3659Ca039188A6A076ac 0xB48E9b22Dace65F6A2B409871e154B85f4ED8B80 0x2c31b10ca416b82cec4c5e93c615ca851213d48d 3 33 5256000 1 0x837b73e6e8F04e3E4685C41b9a8c6F2bebc9E70F",
     "test:12": "npx hardhat test test/12_Controller02.test.js",
     "coverage": "npx hardhat coverage --testfiles 'test/*.js'",
     "localnode": "npx hardhat node",

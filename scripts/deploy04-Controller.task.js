@@ -1,8 +1,8 @@
 const { logDeployment, toWei, fromWei, log1 } = require("./utils");
 
 // npx hardhat compile
-// npx hardhat deploy-Controller --network polygonmumbai
-task("deploy-Controller", "Deploys a new Controller contract")
+// npx hardhat deploy-controller --network polygonmumbai
+task("deploy-controller", "Deploys a new Controller contract")
   .setAction(async (args, hre) => {
     log1("---------== part1: deploy-Storage");
     let ctrtName, ctrtPath;
