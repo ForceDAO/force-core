@@ -16,10 +16,12 @@ cache/
 contractsFlat
 test_archive1
 test_archive2
-test_harvestFinance
+test-HF-Harvest
 abi
 archives
 yarn-error.log
 removed.c
 rNotes.c
 deployOld
+aPictures1
+scripts/hardhat.configOld.ts

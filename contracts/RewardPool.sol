@@ -41,7 +41,7 @@
 
 // File: @openzeppelin/contracts/math/Math.sol
 
-pragma solidity ^0.5.16;
+pragma solidity ^0.5.0;
 
 import "./Controllable.sol";
 import "./hardworkInterface/IController.sol";
@@ -76,7 +76,7 @@ library Math {
 
 // File: @openzeppelin/contracts/math/SafeMath.sol
 
-
+pragma solidity ^0.5.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -235,6 +235,7 @@ library SafeMath {
 
 // File: @openzeppelin/contracts/GSN/Context.sol
 
+pragma solidity ^0.5.0;
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -264,6 +265,7 @@ contract Context {
 
 // File: @openzeppelin/contracts/ownership/Ownable.sol
 
+pragma solidity ^0.5.0;
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -341,6 +343,7 @@ contract Ownable is Context {
 
 // File: @openzeppelin/contracts/token/ERC20/IERC20.sol
 
+pragma solidity ^0.5.0;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP. Does not include
@@ -419,6 +422,7 @@ interface IERC20 {
 
 // File: @openzeppelin/contracts/utils/Address.sol
 
+pragma solidity ^0.5.5;
 
 /**
  * @dev Collection of functions related to the address type
@@ -488,6 +492,10 @@ library Address {
 }
 
 // File: @openzeppelin/contracts/token/ERC20/SafeERC20.sol
+
+pragma solidity ^0.5.0;
+
+
 
 
 /**
@@ -562,6 +570,9 @@ library SafeERC20 {
 
 // File: contracts/IRewardDistributionRecipient.sol
 
+pragma solidity ^0.5.0;
+
+
 
 contract IRewardDistributionRecipient is Ownable {
     address rewardDistribution;
@@ -586,6 +597,10 @@ contract IRewardDistributionRecipient is Ownable {
 }
 
 // File: contracts/CurveRewards.sol
+
+pragma solidity ^0.5.0;
+
+
 
 
 /*

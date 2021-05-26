@@ -55,28 +55,12 @@ const OptionType = { Put: 1, Call: 2 };
 const addr0 = "0x0000000000000000000000000000000000000000";
 
 //--------------------------== toWei & fromWei
-const fromWeiE = (weiAmount, dp = 18) => {
-  try {
-    return ethers.utils.formatUnits(weiAmount.toString(), parseInt(dp));
-  } catch (err) {
-    console.error("fromWeiE() failed:", err);
-    return -1;
-  }
-}//input: BN or string, dp = 6 or 18 number, output: string
-
-const toWeiE = (amount, dp = 18) => {
-  try {
-    return ethers.utils.parseUnits(amount.toString(), parseInt(dp));
-  } catch (err) {
-    console.error("toWeiE() failed:", err);
-    return -1;
-  }
-}//input: string, output: Bn
-
-const fromWei = (weiAmount) => fromWeiE(weiAmount);
+const fromWei = (weiAmount, dp = 18) => ethers.utils.formatUnits(weiAmount.toString(), parseInt(dp));
+//weiAmount: BN or string, dp = 6 or 18 number, output: string
 //web3.utils.fromWei(weiAmount.toString(), "ether");
 
-const toWei = (amount) => toWeiE(amount);
+const toWei = (amount, dp = 18) => ethers.utils.parseUnits(amount.toString(), parseInt(dp));
+//input: string, output: Bn
 //web3.utils.toWei(amount.toString(), "ether");
 
 //--------------------== JSONRPC

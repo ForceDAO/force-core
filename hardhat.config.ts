@@ -1,9 +1,8 @@
 import { task, HardhatUserConfig } from "hardhat/config";
-import "@nomiclabs/hardhat-ethers";
+//import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import 'hardhat-deploy';
-import 'hardhat-deploy-ethers';
-require("@nomiclabs/hardhat-ethers");
+//import 'hardhat-deploy-ethers';
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-web3";
 import "solidity-coverage"
@@ -34,9 +33,6 @@ const POLYGON_PRIVATE_KEY = process.env.POLYGON_PRIVATE_KEY;
 const MAINNET_PRIVATE_KEY = process.env.MAINNET_PRIVATE_KEY;
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 const MATICVIGIL_APP_ID = process.env.MATICVIGIL_APP_ID;
-
-let AlchemyApiKey = "", blockNumberX = 0, network = "";
-const log1 = console.log;
 
 const networkID = process.env.NETWORKID;
 
