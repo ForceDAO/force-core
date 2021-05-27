@@ -33,44 +33,6 @@ const MAINNET_PRIVATE_KEY = process.env.MAINNET_PRIVATE_KEY;
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 const MATICVIGIL_APP_ID = process.env.MATICVIGIL_APP_ID;
 
-const networkID = process.env.NETWORKID;
-
-
-const MAX_UNLOCK_SCHEDULES = 3;
-const START_BONUS = 21;
-const BONUS_PERIOD_SEC = 20250;
-const INITIAL_SHARES_PER_TOKEN = 1000000;
-const STORAGE_ADDRESS = "0x837b73e6e8F04e3E4685C41b9a8c6F2bebc9E70F";
-const LP_TOKEN_ADDRESS = "0xB48E9b22Dace65F6A2B409871e154B85f4ED8B80";
-const FORCE_TOKEN_ADDRESS = "0x2c31b10ca416b82cec4c5e93c615ca851213d48d";
-
-const DURATION = 604800;//7 days in seconds
-const REWARD_DISTRIBUTION = process.env.RINKEBY_ADDRESS;
-const SOURCEVAULT = process.env.RINKEBY_ADDRESS;//used in migrate()
-const MIGRATIONSTRATEGY = process.env.RINKEBY_ADDRESS;//used in pullFromStrategy
-
-
-// //npx hardhat deploy-notifyHelper --network polygonmumbai
-// task("deploy-notifyHelper", "Deploys a new contract")
-// .setAction(
-//   async (args, hre) => {
-//     log1("---------== deploy-notifyHelper");
-//     const contractName = "notifyHelper"
-//     const contractPath = "notifyHelper";//strategies/sushiHODL
-//     log1("contractPath:", contractPath, ", contractName:", contractName);
-//     const factoryCtrt = await hre.ethers.getContractFactory(contractName);
-//     log1("check1");
-//     const arg1 = process.env.STORAGE_ADDRESS || "";
-//     const arg2 = process.env.FEEREWARDFORWARDER || "";
-//     const arg3 = process.env.FARM || "";
-//     const instCtrt = await factoryCtrt.deploy(arg1, arg2, arg3);
-//     logDeployment(instCtrt, network);
-//     log1(
-//       `npx hardhat verify --contract contracts/${contractPath}.sol:${contractName} --network ${network} ${arg1} ${arg2} ${arg3}`
-//     );
-//   }
-// );
-
 
 //---------------------==
 // You need to export an object to set up your config

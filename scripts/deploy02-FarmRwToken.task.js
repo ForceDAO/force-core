@@ -1,31 +1,41 @@
-const {
-  logDeployment,
-  toWei,
-  fromWei,
-  log1,timeForwardInSeconds, 
-} = require("./utils");
+const { logDeployment, log1 } = require("./utils");
 
 // npx hardhat compile
 // npx hardhat deploy-farmRwToken --network polygonmumbai
 // farm === IRewardPool(_pool).rewardToken(),
 task("deploy-farmRwToken", "Deploys a new FarmRwToken contract")
-.addParam("addr", "addr")
 .setAction(
   async (args, hre) => {
-    log1("---------== deploy-FarmRwToken");
-    const owner = process.env.OWNER || "";
-    log1("owner:", owner);
+    // const storage = process.env.STORAGE || "";
+    // log1("storage:", storage);
+    // if(storage === "") {
+    //   log1("storage invalid");
+    //   return;
+    // }
+    log1("---------== part1: deploy-Storage");
+    let ctrtName, ctrtPath;
+    ctrtName = "Storage"
+    ctrtPath = "Storage"
+    log1("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
+    const factoryStorage = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
+    const instStorage = await factoryStorage.deploy();
+    logDeployment(instStorage, hre.network.name);
+    //.addParam("storage", "storage")
+    const addrStorage = instStorage.address;
+    //const addrStorage = "0x0BF9041BAA9320b47E00B97725569eC1ddD7DdB2";
 
-    const ctrtName = "FarmRwToken";
-    const ctrtPath = "FarmRwToken";
+    log1("---------== deploy-FarmRwToken");
+    ctrtName = "RewardToken";
+    ctrtPath = "RewardToken";
     log1("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
 
-    const factoryCtrt = await hre.ethers.getContractFactory(
-      `${ctrtName}`
-    );//contracts/${ctrtPath}.sol:${ctrtName}
+    const factoryFarmRwToken = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
     log1("check2");
-    const instCtrt = await factoryCtrt.deploy(owner);
-    logDeployment(instCtrt, hre.network.name);
+    const instFarmRwToken = await factoryFarmRwToken.deploy(addrStorage);
+    logDeployment(instFarmRwToken, hre.network.name);
+    const addrFarmRwToken = "0x27CfC18Df50dc0D4e0EBF8CFad66622A08611FC9";
+    //const addrFarmRwToken = instFarmRwToken.address;
+
   }
 );
 

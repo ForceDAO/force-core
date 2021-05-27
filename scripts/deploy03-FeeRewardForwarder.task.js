@@ -1,14 +1,19 @@
 const {
-  logDeployment,
-  toWei,
-  fromWei,
-  log1,
+  logDeployment,  log1,
 } = require("./utils");
 
 // npx hardhat compile
-// npx hardhat deploy-feeRewardForwarder --network polygonmumbai --storage 0x... --farmRwToken 0x..
+// npx hardhat deploy-feeRewardForwarder --network polygonmumbai
+// --storage 0x... --farmRwToken 0x..
 task("deploy-feeRewardForwarder", "Deploys a new FeeRewardForwarder contract")
   .setAction(async (args, hre) => {
+    log1("---------== check args");
+    const owner = process.env.OWNER || "";
+    log1("args:", args, ", owner:", owner);
+    if(owner === "") {
+      log1("owner invalid");
+      return;
+    }
     log1("---------== part1: deploy-Storage");
     let ctrtName, ctrtPath;
     ctrtName = "Storage"
@@ -17,30 +22,29 @@ task("deploy-feeRewardForwarder", "Deploys a new FeeRewardForwarder contract")
     const factoryStorage = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
     const instStorage = await factoryStorage.deploy();
     logDeployment(instStorage, hre.network.name);
+    const addrStorage = instStorage.address;
+    //const addrStorage = "0x0BF9041BAA9320b47E00B97725569eC1ddD7DdB2";
 
     log1("---------== part2: deploy-FarmRwToken");
-    ctrtName = "FarmRwToken";
-    ctrtPath = "FarmRwToken";
+    ctrtName = "RewardToken";
+    ctrtPath = "RewardToken";
     log1("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
 
-    const factoryFarmRwToken = await hre.ethers.getContractFactory(
-      `${ctrtName}`
-    );//contracts/${ctrtPath}.sol:${ctrtName}
+    const factoryFarmRwToken = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
     log1("check2");
-    const instFarmRwToken = await factoryFarmRwToken.deploy(owner);
+    const instFarmRwToken = await factoryFarmRwToken.deploy(addrStorage);
     logDeployment(instFarmRwToken, hre.network.name);
-
+    const addrFarmRwToken = instFarmRwToken.address;
+    
     log1("---------== deploy-FeeRewardForwarder");
-    const owner = process.env.OWNER || "";
-    log1("args:", args, ", owner:", owner);
     ctrtName = "FeeRewardForwarder";
     ctrtPath = "FeeRewardForwarder";
     log1("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
 
-    const factoryFeeRwForwarder = await hre.ethers.getContractFactory(`${ctrtName}`); //contracts/${ctrtPath}.sol:${ctrtName}
+    const factoryFeeRwForwarder = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
     log1("check2");
-    const instCtrt = await factoryFeeRwForwarder.deploy(instStorage.address, owner, instFarmRwToken);
-    logDeployment(instCtrt, hre.network.name);
+    const instFeeRewardForwarder = await factoryFeeRwForwarder.deploy(addrStorage, owner, addrFarmRwToken);
+    logDeployment(instFeeRewardForwarder, hre.network.name);
   });
 
 module.exports;

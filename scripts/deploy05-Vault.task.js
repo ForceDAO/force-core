@@ -1,4 +1,4 @@
-const { logDeployment, toWei, fromWei, log1 } = require("./utils");
+const { logDeployment, log1 } = require("./utils");
 
 // npx hardhat compile
 // npx hardhat deploy-vault --network polygonmumbai
@@ -9,10 +9,11 @@ task("deploy-vault", "Deploys a new Vault contract")
     const ctrtPath = "Vault";
     log1("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
 
-    const factoryCtrt = await hre.ethers.getContractFactory(`${ctrtName}`); //contracts/${ctrtPath}.sol:${ctrtName}
+    const factoryCtrt = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
     log1("check2");
     const instCtrt = await factoryCtrt.deploy();
     logDeployment(instCtrt, hre.network.name);
+    //const addrVault = "0x31c797dE59B3c4D0168d206Cb39287713fae628d";
   });
 
 module.exports;

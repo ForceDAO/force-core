@@ -1,9 +1,18 @@
-const { logDeployment, toWei, fromWei, log1 } = require("./utils");
+const { logDeployment, log1 } = require("./utils");
 
 // npx hardhat compile
 // npx hardhat deploy-controller --network polygonmumbai
 task("deploy-controller", "Deploys a new Controller contract")
   .setAction(async (args, hre) => {
+    log1("---------== check args");
+    const owner = process.env.OWNER || "";
+    const treasury = process.env.TREASURY || "";
+    log1("args:", args, "\nowner:", owner, "\ntreasury:", treasury);
+    if(owner === "" || treasury === "") {
+      log1("owner or treasury invalid");
+      return;
+    }
+
     log1("---------== part1: deploy-Storage");
     let ctrtName, ctrtPath;
     ctrtName = "Storage"
@@ -12,36 +21,37 @@ task("deploy-controller", "Deploys a new Controller contract")
     const factoryStorage = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
     const instStorage = await factoryStorage.deploy();
     logDeployment(instStorage, hre.network.name);
+    const addrStorage = instStorage.address;
+    //const addrStorage = "0x0BF9041BAA9320b47E00B97725569eC1ddD7DdB2";
 
     log1("---------== deploy-FeeRewardForwarder");
-    const owner = process.env.OWNER;
-    log1("args:", args, ", owner:", owner);
     ctrtName = "FeeRewardForwarder";
     ctrtPath = "FeeRewardForwarder";
     log1("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
 
-    const factoryFeeRwForwarder = await hre.ethers.getContractFactory(`${ctrtName}`); //contracts/${ctrtPath}.sol:${ctrtName}
+    const factoryFeeRwForwarder = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
     log1("check2");
-    const instFeeRwForwarder= await factoryFeeRwForwarder.deploy();
-    //const instFeeRwForwarder = await factoryFeeRwForwarder.deploy(args.storage, owner, args.forceProfitSharing);
-    logDeployment(instFeeRwForwarder, hre.network.name);
+    const instFeeRewardForwarder = await factoryFeeRwForwarder.deploy(addrStorage, owner, addrFarmRwToken);
+    logDeployment(instFeeRewardForwarder, hre.network.name);
+    const addrFeeRewardForwarder = instFeeRewardForwarder.address;
+    //const addrFeeRewardForwarder = "0xde7B9F355231C33B2B425f1f107197Ba34a941B7";
 
     log1("---------== deploy-Controller");
-    const treasury = process.env.TREASURY || "";
     log1("args:", args, "\ntreasury:",treasury );
     ctrtName = "Controller";
     ctrtPath = "Controller";
     log1("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
-    const factoryController = await hre.ethers.getContractFactory(`${ctrtName}`); //contracts/${ctrtPath}.sol:${ctrtName}
-    log1("check2");
+    const factoryController = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
+    log1("check3");
     const instController = await factoryController.deploy(
-      instStorage.address,
-      instFeeRwForwarder.address,
-      treasury
+      addrStorage,
+      addrFeeRewardForwarder
     );
     logDeployment(instController, hre.network.name);
+    const addrController = instController.address;
 
-    await instStorage.setController(instController.address);
+    await instStorage.setController(addrController);
+    log1("check4");
   });
 
 module.exports;

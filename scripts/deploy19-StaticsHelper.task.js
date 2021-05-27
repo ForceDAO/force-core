@@ -1,4 +1,4 @@
-const { logDeployment, toWei, fromWei, log1 } = require("./utils");
+const { logDeployment, log1 } = require("./utils");
 
 // npx hardhat compile
 // npx hardhat deploy-staticsHelper --network polygonmumbai
@@ -9,9 +9,10 @@ task("deploy-staticsHelper", "Deploys a new StaticsHelper contract")
     const ctrtPath = "StaticsHelper";
     log1("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
 
-    const factoryCtrt = await hre.ethers.getContractFactory(`${ctrtName}`); //contracts/${ctrtPath}.sol:${ctrtName}
+    const factoryStaticsHelper = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
     log1("check2");
-    const StaticsHelperInstance = await factoryCtrt.deploy();
+    const instStaticsHelper = await factoryStaticsHelper.deploy();
+    logDeployment(instStaticsHelper, hre.network.name);
 
     const priceFeeds = [
       {
@@ -75,25 +76,31 @@ task("deploy-staticsHelper", "Deploys a new StaticsHelper contract")
         pool: '0x469034dc349101007903A0e99F2A2569c2130CbB',
       },
     ];
+
+    log1("\n---------== setPriceFeed");
     for (let i = 0; i < priceFeeds.length; i += 1) {
-      await StaticsHelperInstance.setPriceFeed(
+      await instStaticsHelper.setPriceFeed(
         priceFeeds[i].token,
         priceFeeds[i].feed,
       );
     }
+
+    log1("\n---------== setLpSubToken");
     for (let i = 0; i < lpTokens.length; i += 1) {
-      await StaticsHelperInstance.setLpSubToken(
+      await instStaticsHelper.setLpSubToken(
         lpTokens[i].token,
         lpTokens[i].subToken,
       );
     }
+
+    log1("\n---------== setRewardPool");
     for (let i = 0; i < stakingPools.length; i += 1) {
-      await StaticsHelperInstance.setRewardPool(
+      await instStaticsHelper.setRewardPool(
         stakingPools[i].vault,
         stakingPools[i].pool,
       );
     }
-
+    log1("The End");
   });
 
 module.exports;
