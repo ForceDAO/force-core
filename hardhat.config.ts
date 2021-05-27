@@ -130,7 +130,7 @@ const config: HardhatUserConfig = {
       },
     ],
     overrides: {
-      "contracts/RewardPool.sol": {
+      "contracts/Storage.sol": {
         version: "0.5.16",
         settings: { }
       },
