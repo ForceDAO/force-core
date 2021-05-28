@@ -14,7 +14,7 @@ import "./hardworkInterface/IUpgradeSource.sol";
 import "./ControllableInit.sol";
 import "./VaultStorage.sol";
 
-contract Vault is ERC20, ERC20Detailed, IVault, IUpgradeSource, ControllableInit, VaultStorage {
+contract Vault is ERC20,  IVault, IUpgradeSource, ControllableInit, VaultStorage {
   using SafeERC20 for IERC20;
   using Address for address;
   using SafeMath for uint256;
@@ -54,15 +54,15 @@ contract Vault is ERC20, ERC20Detailed, IVault, IUpgradeSource, ControllableInit
     require(_toInvestDenominator != 0, "cannot divide by 0");
 
     ERC20Detailed.initialize(
-      string(abi.encodePacked("FARM_", ERC20Detailed(_underlying).symbol())),
-      string(abi.encodePacked("f", ERC20Detailed(_underlying).symbol())),
-      ERC20Detailed(_underlying).decimals()
+      string(abi.encodePacked("FARM_", ERC20(_underlying).symbol())),
+      string(abi.encodePacked("f", ERC20(_underlying).symbol())),
+      ERC20(_underlying).decimals()
     );
     ControllableInit.initialize(
       _storage
     );
 
-    uint256 underlyingUnit = 10 ** uint256(ERC20Detailed(address(_underlying)).decimals());
+    uint256 underlyingUnit = 10 ** uint256(ERC20(address(_underlying)).decimals());
     uint256 implementationDelay = 12 hours;
     uint256 strategyChangeDelay = 12 hours;
     VaultStorage.initialize(

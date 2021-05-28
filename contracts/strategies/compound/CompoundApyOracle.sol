@@ -1,8 +1,8 @@
 pragma solidity 0.5.16;
 
 import "@openzeppelin/contracts/math/Math.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../../compound/ComptrollerInterface.sol";
 import "../../compound/CTokenInterfaces.sol";
@@ -14,7 +14,7 @@ contract CompoundApyOracle is Ownable {
 
   using SafeMath for uint256;
 
-  ERC20Detailed public underlying;
+  ERC20 public underlying;
   CompleteCToken public ctoken;
   ComptrollerInterface public comptroller;
 
@@ -32,7 +32,7 @@ contract CompoundApyOracle is Ownable {
   ) public {
     comptroller = ComptrollerInterface(_comptroller);
     // COMP: 0xc00e94Cb662C3520282E6f5717214004A7f26888
-    underlying = ERC20Detailed(_underlying);
+    underlying = ERC20(_underlying);
     ctoken = CompleteCToken(_ctoken);
     compPrice = 150 * (10 ** uint256(underlying.decimals()));
   }

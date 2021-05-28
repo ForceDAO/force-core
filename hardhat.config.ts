@@ -130,8 +130,8 @@ const config: HardhatUserConfig = {
       },
     ],
     overrides: {
-      "contracts/Storage.sol": {
-        version: "0.5.16",
+      "contracts/Storage1.sol": {
+        version: "0.7.6",
         settings: { }
       },
     },

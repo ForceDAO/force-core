@@ -1,16 +1,14 @@
 pragma solidity 0.5.16;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20Capped.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
 import "./Governable.sol";
 
-contract RewardToken is ERC20, ERC20Detailed, ERC20Capped, Governable {
+contract RewardToken is ERC20, ERC20Capped, Governable {
 
   uint256 public constant HARD_CAP = 5 * (10 ** 6) * (10 ** 18);
 
   constructor(address _storage) public
-  ERC20Detailed("FARM Reward Token", "FARM", 18)
+  ERC20("FARM Reward Token", "FARM")
   ERC20Capped(HARD_CAP)
   Governable(_storage) {
     // msg.sender should not be a minter

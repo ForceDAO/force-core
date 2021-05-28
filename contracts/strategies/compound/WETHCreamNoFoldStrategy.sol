@@ -2,7 +2,7 @@ pragma solidity 0.5.16;
 
 import "@openzeppelin/contracts/math/Math.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./CompoundInteractor.sol";
 import "./CompleteCToken.sol";
@@ -26,12 +26,12 @@ contract WETHCreamNoFoldStrategy is IStrategy, RewardTokenProfitNotifier, Compou
   event ProfitNotClaimed();
   event TooLowBalance();
 
-  ERC20Detailed public underlying;
+  ERC20 public underlying;
   CompleteCToken public ctoken;
   ComptrollerInterface public comptroller;
 
   address public vault;
-  ERC20Detailed public comp; // this will be Cream
+  ERC20 public comp; // this will be Cream
 
   address public uniswapRouterV2;
   uint256 public suppliedInWETH;
@@ -72,8 +72,8 @@ contract WETHCreamNoFoldStrategy is IStrategy, RewardTokenProfitNotifier, Compou
   CompoundInteractor(_underlying, _ctoken, _comptroller) public {
     require(_underlying == address(_weth), "Weth strategy needs to have WETH as underlying");
     comptroller = ComptrollerInterface(_comptroller);
-    comp = ERC20Detailed(_comp);
-    underlying = ERC20Detailed(_underlying);
+    comp = ERC20(_comp);
+    underlying = ERC20(_underlying);
     ctoken = CompleteCToken(_ctoken);
     vault = _vault;
     uniswapRouterV2 = _uniswap;

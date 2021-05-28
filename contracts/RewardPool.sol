@@ -262,7 +262,7 @@ contract Context {
     }
 }
 
-// File: @openzeppelin/contracts/ownership/Ownable.sol
+// File: @openzeppelin/contracts/access/Ownable.sol
 
 
 /**

@@ -2,7 +2,7 @@ pragma solidity 0.5.16;
 
 import "@openzeppelin/contracts/math/Math.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./CompoundInteractor.sol";
 import "./CompleteCToken.sol";
@@ -23,12 +23,12 @@ contract CompoundWETHFoldStrategy is IStrategy, RewardTokenProfitNotifier, Compo
   event ProfitNotClaimed();
   event TooLowBalance();
 
-  ERC20Detailed public underlying;
+  ERC20 public underlying;
   CompleteCToken public ctoken;
   ComptrollerInterface public comptroller;
 
   address public vault;
-  ERC20Detailed public comp; // this will be Cream or Comp
+  ERC20 public comp; // this will be Cream or Comp
 
   address public uniswapRouterV2;
   uint256 public suppliedInUnderlying;
@@ -77,8 +77,8 @@ contract CompoundWETHFoldStrategy is IStrategy, RewardTokenProfitNotifier, Compo
   CompoundInteractor(_underlying, _ctoken, _comptroller) public {
     require(IVault(_vault).underlying() == _underlying, "vault does not support underlying");
     comptroller = ComptrollerInterface(_comptroller);
-    comp = ERC20Detailed(_comp);
-    underlying = ERC20Detailed(_underlying);
+    comp = ERC20(_comp);
+    underlying = ERC20(_underlying);
     ctoken = CompleteCToken(_ctoken);
     vault = _vault;
     uniswapRouterV2 = _uniswap;

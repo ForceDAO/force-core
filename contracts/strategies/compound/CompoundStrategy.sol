@@ -2,7 +2,7 @@ pragma solidity 0.5.16;
 
 import "@openzeppelin/contracts/math/Math.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./CompoundInteractor.sol";
 import "./CompleteCToken.sol";
@@ -18,14 +18,14 @@ contract CompoundStrategy is IStrategy, ProfitNotifier, CompoundInteractor {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
-  ERC20Detailed public underlying;
+  ERC20 public underlying;
   CompleteCToken public ctoken;
   ComptrollerInterface public comptroller;
 
   uint256 constant mantissaScale = 10 ** 18;
   uint256 constant mantissaHalfScale = 10 ** 9;
   address public vault;
-  ERC20Detailed public comp;
+  ERC20 public comp;
 
   address public uniswapRouterV2;
   uint256 public ratioNumerator;
@@ -69,8 +69,8 @@ contract CompoundStrategy is IStrategy, ProfitNotifier, CompoundInteractor {
   CompoundInteractor(_underlying, _ctoken, _comptroller) public {
     comptroller = ComptrollerInterface(_comptroller);
     // COMP: 0xc00e94Cb662C3520282E6f5717214004A7f26888
-    comp = ERC20Detailed(_comp);
-    underlying = ERC20Detailed(_underlying);
+    comp = ERC20(_comp);
+    underlying = ERC20(_underlying);
     ctoken = CompleteCToken(_ctoken);
     vault = _vault;
     ratioNumerator = 0;

@@ -2,8 +2,8 @@ pragma solidity 0.5.16;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+//import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./Governable.sol";
 
 /*
@@ -110,9 +110,9 @@ contract DelayMinter is Governable {
     uint256 toTarget = amount.mul(lpRatio).div(totalRatio);
     uint256 toOperator = amount.mul(operationRatio).div(totalRatio);
     uint256 toTeam = amount.sub(toTarget).sub(toOperator);
-    ERC20Mintable(token).mint(target, toTarget);
-    ERC20Mintable(token).mint(operator, toOperator);
-    ERC20Mintable(token).mint(team, toTeam);
+    ERC20(token).mint(target, toTarget);
+    ERC20(token).mint(operator, toOperator);
+    ERC20(token).mint(team, toTeam);
 
     // clear out so that it prevents governance from reusing the announcement
     // it also saves gas and we can reuse the announcements even if the id overflowed
@@ -139,6 +139,6 @@ contract DelayMinter is Governable {
   }
 
   function renounceMinting() public onlyGovernance {
-    ERC20Mintable(token).renounceMinter();
+    ERC20(token).renounceMinter();
   }
 }

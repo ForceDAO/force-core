@@ -1,20 +1,19 @@
-pragma solidity 0.5.16;
-
+//SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 import "@openzeppelin/contracts/token/ERC20/ERC20Capped.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
-import "./Governable.sol";
+import "./Governable1.sol";
 
-contract Grain is ERC20, ERC20Detailed, ERC20Capped, ERC20Burnable, Governable {
+contract Grain is ERC20, ERC20Capped, ERC20Burnable, Governable1 {
 
   // IOU TOKEN: 30938517.224397506697899427
   //            30939517.000000000000000000 (a buffer of 1000 IOUs)
   uint256 public constant MAX_AMOUNT = 30939517000000000000000000;
 
   constructor(address _storage) public
-  ERC20Detailed("GRAIN Token", "GRAIN", 18)
+  ERC20("GRAIN Token", "GRAIN")
   ERC20Capped(MAX_AMOUNT)
-  Governable(_storage) {
+  Governable1(_storage) {
     // msg.sender should not be a minter
     renounceMinter();
     // governance will become the only minter

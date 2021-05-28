@@ -6,14 +6,14 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../hardworkInterface/IStrategy.sol";
 import "../hardworkInterface/IController.sol";
 import "../hardworkInterface/IVault.sol";
 import "../Governable.sol";
 import "../Controllable.sol";
 
-contract NoopVault is ERC20, ERC20Detailed, IVault, Controllable {
+contract NoopVault is ERC20,  IVault, Controllable {
   using SafeERC20 for IERC20;
   using Address for address;
   using SafeMath for uint256;
@@ -43,17 +43,17 @@ contract NoopVault is ERC20, ERC20Detailed, IVault, Controllable {
       address _underlying,
       uint256 _toInvestNumerator,
       uint256 _toInvestDenominator
-  ) ERC20Detailed(
-    string(abi.encodePacked("Chad_", ERC20Detailed(_underlying).name())),
-    string(abi.encodePacked("chad", ERC20Detailed(_underlying).symbol())),
-    ERC20Detailed(_underlying).decimals()
+  ) ERC20(
+    string(abi.encodePacked("Chad_", ERC20(_underlying).name())),
+    string(abi.encodePacked("chad", ERC20(_underlying).symbol())),
+    ERC20(_underlying).decimals()
   ) Controllable(_storage) public {
     underlying = IERC20(_underlying);
     require(_toInvestNumerator <= _toInvestDenominator, "cannot invest more than 100%");
     require(_toInvestDenominator != 0, "cannot divide by 0");
     vaultFractionToInvestDenominator = _toInvestDenominator;
     vaultFractionToInvestNumerator = _toInvestNumerator;
-    underlyingUnit = 10 ** uint256(ERC20Detailed(address(underlying)).decimals());
+    underlyingUnit = 10 ** uint256(ERC20(address(underlying)).decimals());
   }
 
   function addStrategy(address _strategy) public {

@@ -1,14 +1,14 @@
 pragma solidity 0.5.16;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract NoopYVault is ERC20, ERC20Detailed, ERC20Mintable, ERC20Burnable {
+contract NoopYVault is ERC20,  ERC20Mintable, ERC20Burnable {
 
   IERC20 underlying;
 
-  constructor(address _underlying, uint8 decim) public ERC20Detailed("Mock Token", "MOCK", decim) {
+  constructor(address _underlying, uint8 decim) public ERC20("Mock Token", "MOCK", decim) {
     underlying = IERC20(_underlying);
   }
 
