@@ -1,6 +1,7 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "./oz-upgrades/Initializable.sol";
 
 contract VaultStorage is Initializable {
 

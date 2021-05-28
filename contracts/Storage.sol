@@ -1,11 +1,12 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
 contract Storage {
 
   address public governance;
   address public controller;
 
-  constructor() public {
+  constructor() {
     governance = msg.sender;
   }
 

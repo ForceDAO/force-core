@@ -1,7 +1,8 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
 import "./hardworkInterface/IUpgradeSource.sol";
-import "@openzeppelin/upgrades/contracts/upgradeability/BaseUpgradeabilityProxy.sol";
+import "./oz-upgrades/BaseUpgradeabilityProxy.sol";
 
 contract VaultProxy is BaseUpgradeabilityProxy {
 

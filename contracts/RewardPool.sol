@@ -39,9 +39,10 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 */
 
-// File: @openzeppelin/contracts/math/Math.sol
+// File: @openzeppelin/contracts/utils/math/Math.sol
 
-pragma solidity ^0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
 import "./Controllable.sol";
 import "./hardworkInterface/IController.sol";
@@ -74,7 +75,7 @@ library Math {
     }
 }
 
-// File: @openzeppelin/contracts/math/SafeMath.sol
+// File: @openzeppelin/contracts/utils/math/SafeMath.sol
 
 
 
@@ -262,7 +263,7 @@ contract Context {
     }
 }
 
-// File: @openzeppelin/contracts/ownership/Ownable.sol
+// File: @openzeppelin/contracts/access/Ownable.sol
 
 
 /**
@@ -487,7 +488,7 @@ library Address {
     }
 }
 
-// File: @openzeppelin/contracts/token/ERC20/SafeERC20.sol
+// File: @openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 
 /**

@@ -19,7 +19,6 @@ require("./scripts/deploy03-FeeRewardForwarder.task.js");
 require("./scripts/deploy04-Controller.task.js");
 require("./scripts/deploy05-Vault.task.js");
 require("./scripts/deploy15-NoMintRewardPool.task.js");
-require("./scripts/deploy19-StaticsHelper.task");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
 const RINKEBY_PRIVATE_KEY = process.env.RINKEBY_PRIVATE_KEY;
@@ -96,7 +95,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.5.16",
+        version: "0.8.0",
         settings: {
           optimizer: {
             enabled: true,
@@ -106,10 +105,6 @@ const config: HardhatUserConfig = {
       },
     ],
     overrides: {
-      "contracts/Storage.sol": {
-        version: "0.5.16",
-        settings: { }
-      },
     },
   },
   namedAccounts: {

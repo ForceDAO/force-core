@@ -1,17 +1,18 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/math/Math.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
+import "./oz-contractsEthereumPackageSol8/Math.sol";
+import "./oz-contractsEthereumPackageSol8/SafeMath.sol";
+import "./oz-contractsEthereumPackageSol8/SafeERC20.sol";
+import "./oz-contractsEthereumPackageSol8/IERC20.sol";
+import "./oz-contractsEthereumPackageSol8/ERC20.sol";
+
 import "./hardworkInterface/IStrategy.sol";
 import "./hardworkInterface/IStrategyV2.sol";
 import "./hardworkInterface/IVault.sol";
 import "./hardworkInterface/IController.sol";
 import "./hardworkInterface/IUpgradeSource.sol";
-import "./ControllableInit.sol";
+//import "./ControllableInit.sol";
 import "./VaultStorage.sol";
 
 contract Vault is ERC20, ERC20Detailed, IVault, IUpgradeSource, ControllableInit, VaultStorage {
