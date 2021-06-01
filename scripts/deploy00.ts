@@ -3,8 +3,8 @@
 // When running the script with `hardhat run <script>` you'll find the Hardhat Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
 const ethers = hre.ethers;
-
-const { logDeployment, toWei, fromWei, timeForwardInSeconds, log1, addr0 } = require("../test_fork/utils");
+const addr0 = "0x0000000000000000000000000000000000000000";
+const { logDeployment, timeForwardInSeconds, log1 } = require("../test_fork/utils");
 
 async function main() {
   //const deployContract = async(choice) => {
@@ -15,7 +15,7 @@ async function main() {
   const [owner, user1, user2, ...addrs] = await ethers.getSigners();
   log1("owner:", owner.address);
   const balance = await owner.getBalance();
-  log1("owner balance:", fromWei(balance));
+  log1("owner balance:", ethers.utils.formatUnits(balance.toString(), 18));
 
   let nodeUrlRpc, ctrtName, factoryCtrt, instCtrt,ctrtFilePath, contractName, tokenName, tokenSymbol, decimals, network;
 

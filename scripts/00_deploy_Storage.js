@@ -17,7 +17,7 @@ npx hardhat deploy --tags Storage --network polygonmumbai
 */
 const hre = require("hardhat");
 const ethers = hre.ethers;
-const { logDeployment, toWei, fromWei, timeForwardInSeconds, log1, addr0 } = require("../test_fork/utils");
+const { logDeployment, log1 } = require("../test_fork/utils");
 
 const ctrtName = "Storage";
 const deployer = "0xF7Cff794396F15619628625C1778FFe880ee5326";
@@ -37,7 +37,8 @@ module.exports = async ({
   const [owner, user1, user2, ...addrs] = await ethers.getSigners();
   log1("owner:", owner.address);
   const balance = await owner.getBalance();
-  log1("owner balance:", fromWei(balance));
+  
+  log1("owner balance:", ethers.utils.formatUnits(balance.toString(), 18));
 
   //await ethers.getContract("ContractName");
 
