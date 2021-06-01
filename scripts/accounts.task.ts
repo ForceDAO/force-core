@@ -4,9 +4,8 @@ import "@nomiclabs/hardhat-ethers";
 // npx hardhat accounts
 task("accounts", "Prints the list of accounts", async (args, hre) => {
   const accounts = await hre.ethers.getSigners();
-  let balance = 0;
   for (const account of accounts) {
-    balance = await account.getBalance();
+    let balance = await account.getBalance();
     console.log(account.address, ethers.utils.formatEther(balance), "ETH");
   }
 });
