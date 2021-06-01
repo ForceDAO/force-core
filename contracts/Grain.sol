@@ -3,21 +3,24 @@ pragma solidity 0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 import "./Governable.sol";
 
-contract RewardToken is ERC20, ERC20Capped, ERC20PresetMinterPauser, Governable {
+contract Grain is ERC20, ERC20Capped, ERC20Burnable, ERC20PresetMinterPauser, Governable {
 
-  uint256 public constant HARD_CAP = 5 * (10 ** 6) * (10 ** 18);
+  // IOU TOKEN: 30938517.224397506697899427
+  //            30939517.000000000000000000 (a buffer of 1000 IOUs)
+  uint256 public constant MAX_AMOUNT = 30939517000000000000000000;
 
   constructor(address _storage)
-  ERC20PresetMinterPauser("FARM Reward Token", "FARM")
-  ERC20Capped(HARD_CAP)
-  Governable(_storage) {
+  ERC20PresetMinterPauser("GRAIN Token", "GRAIN")
+  ERC20Capped(MAX_AMOUNT)
+  Governable(_storage) {//ERC20 decimals = 18
     // msg.sender should not be a minter
-    renounceRole(MINTER_ROLE, msg.sender);//RoleByte is defined in MinterPauser @oz/contracts/access/AccessControl.sol
-    //renounceMinter();//from MinterRole.sol
 
+    renounceRole(MINTER_ROLE, msg.sender);
+    //renounceMinter();
     // governance will become the only minter
     _setupRole(MINTER_ROLE, governance());
     //_addMinter(governance());
@@ -36,4 +39,5 @@ contract RewardToken is ERC20, ERC20Capped, ERC20PresetMinterPauser, Governable 
     require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
     super._mint(account, amount);
   }
+
 }

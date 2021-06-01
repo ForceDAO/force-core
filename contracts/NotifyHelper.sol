@@ -1,4 +1,5 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
 import "./Controllable.sol";
 import "./RewardPool.sol";
@@ -18,7 +19,7 @@ contract NotifyHelper is Controllable {
   mapping (address => bool) public alreadyNotified;
 
   constructor(address _storage, address _feeRewardForwarder, address _farm)
-  Controllable(_storage) public {
+  Controllable(_storage) {
     feeRewardForwarder = _feeRewardForwarder;
     farm = _farm;
   }

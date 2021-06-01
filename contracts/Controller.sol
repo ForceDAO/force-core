@@ -30,7 +30,7 @@ contract Controller is IController, Governable {
     // even if an EOA is being added to the greyList, he/she will still be able
     // to interact with the whole system as if nothing happened.
     // Only smart contracts will be affected by being added to the greyList.
-    mapping (address => bool) public greyList;
+    mapping (address => bool) public override greyList;
 
     // All vaults that we have
     mapping (address => bool) public vaults;
@@ -38,8 +38,8 @@ contract Controller is IController, Governable {
     // Rewards for hard work. Nullable.
     HardRewards public hardRewards;
 
-    uint256 public constant profitSharingNumerator = 5;
-    uint256 public constant profitSharingDenominator = 100;
+    uint256 public constant override profitSharingNumerator = 5;
+    uint256 public constant override profitSharingDenominator = 100;
 
     event SharePriceChangeLog(
       address indexed vault,
@@ -85,7 +85,7 @@ contract Controller is IController, Governable {
     }
 
     constructor(address _storage, address _feeRewardForwarder)
-    Governable(_storage) public {
+    Governable(_storage) {
         require(_feeRewardForwarder != address(0), "feeRewardForwarder should not be empty");
         feeRewardForwarder = _feeRewardForwarder;
     }
@@ -100,7 +100,7 @@ contract Controller is IController, Governable {
       hardWorkers[_worker] = false;
     }
 
-    function hasVault(address _vault) external returns (bool) {
+    function hasVault(address _vault) external view override returns (bool) {
       return vaults[_vault];
     }
 
@@ -118,7 +118,7 @@ contract Controller is IController, Governable {
       feeRewardForwarder = _feeRewardForwarder;
     }
 
-    function addVaultAndStrategy(address _vault, address _strategy) external onlyGovernance {
+    function addVaultAndStrategy(address _vault, address _strategy) external override onlyGovernance {
         require(_vault != address(0), "new vault shouldn't be empty");
         require(!vaults[_vault], "vault already exists");
         require(_strategy != address(0), "new strategy shouldn't be empty");
@@ -137,7 +137,7 @@ contract Controller is IController, Governable {
         uint256 hint,
         uint256 deviationNumerator,
         uint256 deviationDenominator
-    ) external
+    ) external override 
     confirmSharePrice(_vault, hint, deviationNumerator, deviationDenominator)
     onlyHardWorkerOrGovernance
     validVault(_vault) {
@@ -184,18 +184,18 @@ contract Controller is IController, Governable {
     }
 
     // transfers token in the controller contract to the governance
-    function salvage(address _token, uint256 _amount) external onlyGovernance {
+    function salvage(address _token, uint256 _amount) external override onlyGovernance {
         IERC20(_token).safeTransfer(governance(), _amount);
     }
 
-    function salvageStrategy(address _strategy, address _token, uint256 _amount) external onlyGovernance {
+    function salvageStrategy(address _strategy, address _token, uint256 _amount) external override onlyGovernance {
         // the strategy is responsible for maintaining the list of
         // salvagable tokens, to make sure that governance cannot come
         // in and take away the coins
         IStrategy(_strategy).salvage(governance(), _token, _amount);
     }
 
-    function notifyFee(address underlying, uint256 fee) external {
+    function notifyFee(address underlying, uint256 fee) external override {
       if (fee > 0) {
         IERC20(underlying).safeTransferFrom(msg.sender, address(this), fee);
         IERC20(underlying).safeApprove(feeRewardForwarder, 0);

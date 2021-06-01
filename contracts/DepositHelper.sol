@@ -1,4 +1,5 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -30,7 +31,7 @@ contract DepositHelper is Controllable {
   }
 
   constructor(address _storage)
-  Controllable(_storage) public {}
+  Controllable(_storage) {}
 
   /*
   * Transfers tokens of all kinds

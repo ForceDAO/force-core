@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: MIT
 // https://etherscan.io/address/0xDCB6A51eA3CA5d3Fd898Fd6564757c7aAeC3ca92#code
 
 /**
@@ -41,7 +42,7 @@
 
 // File: @openzeppelin/contracts/utils/math/Math.sol
 
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "./Controllable.sol";
 import "./hardworkInterface/IController.sol";
@@ -76,7 +77,7 @@ library Math {
 
 // File: @openzeppelin/contracts/utils/math/SafeMath.sol
 
-pragma solidity ^0.5.0;
+//pragma solidity ^0.5.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -235,7 +236,7 @@ library SafeMath {
 
 // File: @openzeppelin/contracts/GSN/Context.sol
 
-pragma solidity ^0.5.0;
+//pragma solidity ^0.5.0;
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -250,10 +251,10 @@ pragma solidity ^0.5.0;
 contract Context {
     // Empty internal constructor, to prevent people from mistakenly deploying
     // an instance of this contract, which should be used via inheritance.
-    constructor () internal { }
+    constructor () { }
     // solhint-disable-previous-line no-empty-blocks
 
-    function _msgSender() internal view returns (address payable) {
+    function _msgSender() internal view returns (address) {
         return msg.sender;
     }
 
@@ -265,7 +266,7 @@ contract Context {
 
 // File: @openzeppelin/contracts/access/Ownable.sol
 
-pragma solidity ^0.5.0;
+//pragma solidity ^0.5.0;
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -284,7 +285,7 @@ contract Ownable is Context {
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
-    constructor () internal {
+    constructor () {
         _owner = _msgSender();
         emit OwnershipTransferred(address(0), _owner);
     }
@@ -343,7 +344,7 @@ contract Ownable is Context {
 
 // File: @openzeppelin/contracts/token/ERC20/IERC20.sol
 
-pragma solidity ^0.5.0;
+//pragma solidity ^0.5.0;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP. Does not include
@@ -422,7 +423,7 @@ interface IERC20 {
 
 // File: @openzeppelin/contracts/utils/Address.sol
 
-pragma solidity ^0.5.5;
+//pragma solidity ^0.5.5;
 
 /**
  * @dev Collection of functions related to the address type
@@ -461,7 +462,7 @@ library Address {
      * _Available since v2.4.0._
      */
     function toPayable(address account) internal pure returns (address payable) {
-        return address(uint160(account));
+        return payable(account);
     }
 
     /**
@@ -486,14 +487,14 @@ library Address {
         require(address(this).balance >= amount, "Address: insufficient balance");
 
         // solhint-disable-next-line avoid-call-value
-        (bool success, ) = recipient.call.value(amount)("");
+        (bool success, ) = recipient.call{ value: amount }("");
         require(success, "Address: unable to send value, recipient may have reverted");
     }
 }
 
 // File: @openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
-pragma solidity ^0.5.0;
+//pragma solidity ^0.5.0;
 
 
 
@@ -570,18 +571,18 @@ library SafeERC20 {
 
 // File: contracts/IRewardDistributionRecipient.sol
 
-pragma solidity ^0.5.0;
+//pragma solidity ^0.5.0;
 
 
 
-contract IRewardDistributionRecipient is Ownable {
+abstract contract IRewardDistributionRecipient is Ownable {
     address rewardDistribution;
 
-    constructor(address _rewardDistribution) public {
+    constructor(address _rewardDistribution) {
         rewardDistribution = _rewardDistribution;
     }
 
-    function notifyRewardAmount(uint256 reward) external;
+    function notifyRewardAmount(uint256 reward) external virtual;
 
     modifier onlyRewardDistribution() {
         require(_msgSender() == rewardDistribution, "Caller is not reward distribution");
@@ -598,7 +599,7 @@ contract IRewardDistributionRecipient is Ownable {
 
 // File: contracts/CurveRewards.sol
 
-pragma solidity ^0.5.0;
+//pragma solidity ^0.5.0;
 
 
 
@@ -628,13 +629,13 @@ contract LPTokenWrapper {
         return _balances[account];
     }
 
-    function stake(uint256 amount) public {
+    function stake(uint256 amount) public virtual {
         _totalSupply = _totalSupply.add(amount);
         _balances[msg.sender] = _balances[msg.sender].add(amount);
         lpToken.safeTransferFrom(msg.sender, address(this), amount);
     }
 
-    function withdraw(uint256 amount) public {
+    function withdraw(uint256 amount) public virtual {
         _totalSupply = _totalSupply.sub(amount);
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
         lpToken.safeTransfer(msg.sender, amount);
@@ -649,8 +650,9 @@ contract LPTokenWrapper {
 */
 
 contract ExclusiveRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Controllable {
-
+    using SafeMath for uint256;
     using Address for address;
+    using SafeERC20 for IERC20;
 
     IERC20 public rewardToken;
     uint256 public duration; // making it not a constant is less gas efficient, but portable
@@ -685,7 +687,7 @@ contract ExclusiveRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Co
         address _lpToken,
         uint256 _duration,
         address _rewardDistribution,
-        address _storage) public
+        address _storage)
     IRewardDistributionRecipient(_rewardDistribution)
     Controllable(_storage) // only used for referencing the grey list
     {
@@ -731,14 +733,14 @@ contract ExclusiveRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Co
     }
 
     // stake visibility is public as overriding LPTokenWrapper's stake() function
-    function stake(uint256 amount) public updateReward(msg.sender) {
+    function stake(uint256 amount) public override updateReward(msg.sender) {
         require(msg.sender == exclusiveAddress, "Must be the exclusiveAddress to stake");
         require(amount > 0, "Cannot stake 0");
         super.stake(amount);
         emit Staked(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) public updateReward(msg.sender) {
+    function withdraw(uint256 amount) public override updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
         super.withdraw(amount);
         emit Withdrawn(msg.sender, amount);
@@ -771,12 +773,12 @@ contract ExclusiveRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Co
     }
 
     function notifyRewardAmount(uint256 reward)
-        external
+        external override
         onlyRewardDistribution
         updateReward(address(0))
     {
         // overflow fix according to https://sips.synthetix.io/sips/sip-77
-        require(reward < uint(-1) / 1e18, "the notified reward cannot invoke multiplication overflow");
+        require(reward < type(uint).max / 1e18, "the notified reward cannot invoke multiplication overflow");//uint(-1)
         
         if (block.timestamp >= periodFinish) {
             rewardRate = reward.div(duration);

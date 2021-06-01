@@ -56,7 +56,7 @@ contract FeeRewardForwarder is Governable {
 
   event TokenPoolSet(address token, address pool);
 
-  constructor(address _storage, address _farm, address _grain) public Governable(_storage) {
+  constructor(address _storage, address _farm, address _grain) Governable(_storage) {
     require(_grain != address(0), "_grain not defined");
     require(_farm != address(0), "_farm not defined");
     grain = _grain;

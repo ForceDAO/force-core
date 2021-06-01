@@ -1,4 +1,5 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
 import "./AutoStake.sol";
 import "./Controllable.sol";
@@ -39,7 +40,7 @@ contract AutoStakeMultiAsset is Controllable {
   event DecreaseInFarm();
 
 
-  constructor(address _storage, address _pool, address _lpToken, address _greylistEscrow, address _autostake, address _farm) public
+  constructor(address _storage, address _pool, address _lpToken, address _greylistEscrow, address _autostake, address _farm)
   Controllable(_storage)
   {
     rewardPool = NoMintRewardPool(_pool);

@@ -1,4 +1,5 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
 import "./RewardPool.sol";
 import "./Controllable.sol";
@@ -27,7 +28,7 @@ contract AutoStake is Controllable {
 
   event SmartContractRecorded(address indexed smartContractAddress, address indexed smartContractInitiator);
 
-  constructor(address _storage, address pool, address token, address _greylistEscrow) public
+  constructor(address _storage, address pool, address token, address _greylistEscrow)
   Controllable(_storage)
   {
     rewardPool = NoMintRewardPool(pool);

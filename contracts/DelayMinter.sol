@@ -1,4 +1,5 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity 0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -33,6 +34,7 @@ import "./Governable.sol";
 
 contract DelayMinter is Governable {
   using SafeMath for uint256;
+  bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");//from ERC20PresetMinterPauser
 
   struct MintingAnnouncement{
     address target;
@@ -66,7 +68,7 @@ contract DelayMinter is Governable {
   event NewOperator(address operator);
 
   constructor(address _storage, address _token, uint256 _delay, address _team, address _operator)
-  Governable(_storage) public {
+  Governable(_storage) {
     token = _token;
     require(token != address(0), "token not set");
     delay = _delay;
@@ -110,9 +112,9 @@ contract DelayMinter is Governable {
     uint256 toTarget = amount.mul(lpRatio).div(totalRatio);
     uint256 toOperator = amount.mul(operationRatio).div(totalRatio);
     uint256 toTeam = amount.sub(toTarget).sub(toOperator);
-    ERC20Mintable(token).mint(target, toTarget);
-    ERC20Mintable(token).mint(operator, toOperator);
-    ERC20Mintable(token).mint(team, toTeam);
+    ERC20PresetMinterPauser(token).mint(target, toTarget);
+    ERC20PresetMinterPauser(token).mint(operator, toOperator);
+    ERC20PresetMinterPauser(token).mint(team, toTeam);
 
     // clear out so that it prevents governance from reusing the announcement
     // it also saves gas and we can reuse the announcements even if the id overflowed
@@ -139,6 +141,6 @@ contract DelayMinter is Governable {
   }
 
   function renounceMinting() public onlyGovernance {
-    ERC20Mintable(token).renounceMinter();
+    ERC20PresetMinterPauser(token).renounceRole(MINTER_ROLE, msg.sender);//renounceMinter();
   }
 }

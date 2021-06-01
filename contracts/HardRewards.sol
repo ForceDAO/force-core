@@ -23,7 +23,7 @@ contract HardRewards is Controllable {
   mapping(address => uint256) public lastReward;
 
   constructor(address _storage, address _token)
-  Controllable(_storage) public {
+  Controllable(_storage) {
     token = IERC20(_token);
   }
 

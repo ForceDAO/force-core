@@ -4,6 +4,7 @@ import 'hardhat-deploy';
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-web3";
 import "solidity-coverage"
+import '@openzeppelin/hardhat-upgrades';
 require("@nomiclabs/hardhat-truffle5");
 import { ethers } from "ethers";
 require("@nomiclabs/hardhat-web3");
