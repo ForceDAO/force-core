@@ -1,3 +1,6 @@
+import { task, types } from "hardhat/config";
+import "@nomiclabs/hardhat-ethers";
+
 // npx hardhat accounts
 task("accounts", "Prints the list of accounts", async (args, hre) => {
   const accounts = await hre.ethers.getSigners();

@@ -1,4 +1,6 @@
 const { logDeployment, log1, } = require("./utils");
+import { task, types } from "hardhat/config";
+import "@nomiclabs/hardhat-ethers";
 
 // npx hardhat compile
 // npx hardhat deploy-storage --network polygonmumbai

@@ -11,15 +11,15 @@ require("@nomiclabs/hardhat-web3");
 require('hardhat-contract-sizer');
 require("dotenv").config();
 
-require("./scripts/accounts.task.js");
-require("./scripts/balance.task.js");
+require("./scripts/accounts.task.ts");
+require("./scripts/balance.task.ts");
 require("./scripts/balance2.task.ts");
-require("./scripts/deploy01-Storage.task.js");
-require("./scripts/deploy02-FarmRwToken.task.js");
-require("./scripts/deploy03-FeeRewardForwarder.task.js");
-require("./scripts/deploy04-Controller.task.js");
-require("./scripts/deploy05-Vault.task.js");
-require("./scripts/deploy15-NoMintRewardPool.task.js");
+require("./scripts/deploy01-Storage.task.ts");
+require("./scripts/deploy02-FarmRwToken.task.ts");
+require("./scripts/deploy03-FeeRewardForwarder.task.ts");
+require("./scripts/deploy04-Controller.task.ts");
+require("./scripts/deploy05-Vault.task.ts");
+require("./scripts/deploy15-NoMintRewardPool.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
 const RINKEBY_PRIVATE_KEY = process.env.RINKEBY_PRIVATE_KEY;

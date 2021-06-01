@@ -18,4 +18,3 @@ task("balance2", "query balance of an Account")
   });
 
 module.exports;
-
