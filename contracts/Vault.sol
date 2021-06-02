@@ -36,7 +36,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     return Storage(_storage()).governance();
   }
 
-  // Only smart contracts will be affected by this modifier
+  //  Only smart contracts will be affected by this modifier
   modifier defense() {
     require(
       (msg.sender == tx.origin) ||                // If it is a normal user and not smart contract,
