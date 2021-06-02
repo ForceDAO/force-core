@@ -1,12 +1,14 @@
 import { task, types } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
+import { Logger } from "tslog";
+const log: Logger = new Logger();
 
 // npx hardhat accounts
 task("accounts", "Prints the list of accounts", async (args, hre) => {
   const accounts = await hre.ethers.getSigners();
   for (const account of accounts) {
     let balance = await account.getBalance();
-    console.log(account.address, hre.ethers.utils.formatEther(balance), "ETH");
+    log.info(account.address, hre.ethers.utils.formatEther(balance), "ETH");
   }
 });
 module.exports;

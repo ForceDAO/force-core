@@ -1,7 +1,6 @@
-import { logDeployment } from "./utils";
+import { logDeployment } from "./deploymentLogUtils";
 import { task, types } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
-
 import { Logger } from "tslog";
 const log: Logger = new Logger();
 
