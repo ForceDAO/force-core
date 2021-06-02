@@ -1,7 +1,7 @@
-const {
-  logDeployment,  log1,
-} = require("./utils");
+import { logDeployment } from "./utils";
 import { task, types } from "hardhat/config";
+import { Logger } from "tslog";
+const log: Logger = new Logger();
 
 // npx hardhat compile
 // npx hardhat deploy-feeRewardForwarder --network polygonmumbai

@@ -1,6 +1,8 @@
-const { logDeployment, log1 } = require("./utils");
+import { logDeployment } from "./utils";
 import { task, types } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
+import { Logger } from "tslog";
+const log: Logger = new Logger();
 
 // npx hardhat compile
 // npx hardhat deploy-farmRwToken --network polygonmumbai
