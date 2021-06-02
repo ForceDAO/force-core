@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -141,6 +141,6 @@ contract DelayMinter is Governable {
   }
 
   function renounceMinting() public onlyGovernance {
-    ERC20PresetMinterPauser(token).renounceRole(MINTER_ROLE, msg.sender);//renounceMinter();
+    ERC20PresetMinterPauser(token).renounceRole(MINTER_ROLE, address(this));
   }
 }

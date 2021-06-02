@@ -6,7 +6,7 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
   const accounts = await hre.ethers.getSigners();
   for (const account of accounts) {
     let balance = await account.getBalance();
-    console.log(account.address, ethers.utils.formatEther(balance), "ETH");
+    console.log(account.address, hre.ethers.utils.formatEther(balance), "ETH");
   }
 });
 module.exports;

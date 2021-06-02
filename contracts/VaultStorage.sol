@@ -1,7 +1,9 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 
-contract VaultStorage {
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
+contract VaultStorage is Initializable {
 
   bytes32 internal constant _STRATEGY_SLOT = 0xf1a169aa0f736c2813818fdfbdc5755c31e0839c8f49831a16543496b28574ea;
   bytes32 internal constant _UNDERLYING_SLOT = 0x1994607607e11d53306ef62e45e3bd85762c58d9bf38b5578bc4a258a26a7371;
@@ -40,7 +42,7 @@ contract VaultStorage {
     uint256 __underlyingUnit,
     uint256 _implementationChangeDelay,
     uint256 _strategyChangeDelay
-  ) public {
+  ) public initializer {
     _setUnderlying(__underlying);
     _setVaultFractionToInvestNumerator(_toInvestNumerator);
     _setVaultFractionToInvestDenominator(_toInvestDenominator);

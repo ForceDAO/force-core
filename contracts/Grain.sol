@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -16,23 +16,18 @@ contract Grain is ERC20, ERC20Capped, ERC20Burnable, ERC20PresetMinterPauser, Go
   constructor(address _storage)
   ERC20PresetMinterPauser("GRAIN Token", "GRAIN")
   ERC20Capped(MAX_AMOUNT)
-  Governable(_storage) {//ERC20 decimals = 18
-    // msg.sender should not be a minter
-
+  Governable(_storage) {
     renounceRole(MINTER_ROLE, msg.sender);
-    //renounceMinter();
-    // governance will become the only minter
     _setupRole(MINTER_ROLE, governance());
-    //_addMinter(governance());
   }
 
   /**
   * Overrides adding new minters so that only governance can authorized them.
   */
   function addMinter(address _minter) public onlyGovernance {
-    super._setupRole(MINTER_ROLE, _minter);// from access/accessControl.sol
-    //super.addMinter(_minter);
+    super._setupRole(MINTER_ROLE, _minter);
   }
+
   function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20PresetMinterPauser) { }
 
   function _mint(address account, uint256 amount) internal override(ERC20, ERC20Capped) {

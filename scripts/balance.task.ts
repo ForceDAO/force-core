@@ -3,7 +3,7 @@
 import { task, types } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 
-task("balance2", "query balance of an Account")
+task("balance", "query balance of an Account")
   .addPositionalParam(
         "address",
         "addressArg",

@@ -8,9 +8,10 @@ task("deploy-controller", "Deploys a new Controller contract")
     log1("---------== check args");
     const owner = process.env.OWNER || "";
     const treasury = process.env.TREASURY || "";
-    log1("args:", args, "\nowner:", owner, "\ntreasury:", treasury);
-    if(owner === "" || treasury === "") {
-      log1("owner or treasury invalid");
+    const addrFarmRwToken = process.env.RWTOKEN || "";
+    log1("args:", args, "\nowner:", owner, "\ntreasury:", treasury, "\naddrFarmRwToken:", addrFarmRwToken);
+    if(owner === "" || treasury === "" || addrFarmRwToken === "") {
+      log1("owner or treasury or addrFarmRwToken invalid");
       return;
     }
 

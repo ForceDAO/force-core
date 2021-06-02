@@ -39,10 +39,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 */
 
-// File: @openzeppelin/contracts/utils/math/Math.sol
+// File: @openzeppelin/contracts/math/Math.sol
 
-//SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity ^0.5.0;
 
 import "./Controllable.sol";
 import "./hardworkInterface/IController.sol";
@@ -75,9 +74,9 @@ library Math {
     }
 }
 
-// File: @openzeppelin/contracts/utils/math/SafeMath.sol
+// File: @openzeppelin/contracts/math/SafeMath.sol
 
-
+pragma solidity ^0.5.0;
 
 /**
  * @dev Wrappers over Solidity's arithmetic operations with added overflow
@@ -236,6 +235,7 @@ library SafeMath {
 
 // File: @openzeppelin/contracts/GSN/Context.sol
 
+pragma solidity ^0.5.0;
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -250,10 +250,10 @@ library SafeMath {
 contract Context {
     // Empty internal constructor, to prevent people from mistakenly deploying
     // an instance of this contract, which should be used via inheritance.
-    //constructor () internal { }
+    constructor () internal { }
     // solhint-disable-previous-line no-empty-blocks
 
-    function _msgSender() internal view returns (address) {
+    function _msgSender() internal view returns (address payable) {
         return msg.sender;
     }
 
@@ -263,8 +263,9 @@ contract Context {
     }
 }
 
-// File: @openzeppelin/contracts/access/Ownable.sol
+// File: @openzeppelin/contracts/ownership/Ownable.sol
 
+pragma solidity ^0.5.0;
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -283,7 +284,7 @@ contract Ownable is Context {
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
-    constructor () {
+    constructor () internal {
         _owner = _msgSender();
         emit OwnershipTransferred(address(0), _owner);
     }
@@ -342,6 +343,7 @@ contract Ownable is Context {
 
 // File: @openzeppelin/contracts/token/ERC20/IERC20.sol
 
+pragma solidity ^0.5.0;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP. Does not include
@@ -420,6 +422,7 @@ interface IERC20 {
 
 // File: @openzeppelin/contracts/utils/Address.sol
 
+pragma solidity ^0.5.5;
 
 /**
  * @dev Collection of functions related to the address type
@@ -458,7 +461,7 @@ library Address {
      * _Available since v2.4.0._
      */
     function toPayable(address account) internal pure returns (address payable) {
-        return payable(account);
+        return address(uint160(account));
     }
 
     /**
@@ -483,12 +486,16 @@ library Address {
         require(address(this).balance >= amount, "Address: insufficient balance");
 
         // solhint-disable-next-line avoid-call-value
-        (bool success, ) = recipient.call{ value: amount }("");
+        (bool success, ) = recipient.call.value(amount)("");
         require(success, "Address: unable to send value, recipient may have reverted");
     }
 }
 
-// File: @openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
+// File: @openzeppelin/contracts/token/ERC20/SafeERC20.sol
+
+pragma solidity ^0.5.0;
+
+
 
 
 /**
@@ -563,15 +570,18 @@ library SafeERC20 {
 
 // File: contracts/IRewardDistributionRecipient.sol
 
+pragma solidity ^0.5.0;
 
-abstract contract IRewardDistributionRecipient is Ownable {
+
+
+contract IRewardDistributionRecipient is Ownable {
     address rewardDistribution;
 
-    constructor(address _rewardDistribution) {
+    constructor(address _rewardDistribution) public {
         rewardDistribution = _rewardDistribution;
     }
 
-    function notifyRewardAmount(uint256 reward) external virtual;
+    function notifyRewardAmount(uint256 reward) external;
 
     modifier onlyRewardDistribution() {
         require(_msgSender() == rewardDistribution, "Caller is not reward distribution");
@@ -587,6 +597,10 @@ abstract contract IRewardDistributionRecipient is Ownable {
 }
 
 // File: contracts/CurveRewards.sol
+
+pragma solidity ^0.5.0;
+
+
 
 
 /*
@@ -614,13 +628,13 @@ contract LPTokenWrapper {
         return _balances[account];
     }
 
-    function stake(uint256 amount) public virtual {
+    function stake(uint256 amount) public {
         _totalSupply = _totalSupply.add(amount);
         _balances[msg.sender] = _balances[msg.sender].add(amount);
         lpToken.safeTransferFrom(msg.sender, address(this), amount);
     }
 
-    function withdraw(uint256 amount) public  virtual {
+    function withdraw(uint256 amount) public {
         _totalSupply = _totalSupply.sub(amount);
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
         lpToken.safeTransfer(msg.sender, amount);
@@ -628,7 +642,7 @@ contract LPTokenWrapper {
 
     // Harvest migrate
     // only called by the migrateStakeFor in the MigrationHelperRewardPool
-    function migrateStakeFor(address target, uint256 amountNewShare) internal  virtual {
+    function migrateStakeFor(address target, uint256 amountNewShare) internal  {
       _totalSupply = _totalSupply.add(amountNewShare);
       _balances[target] = _balances[target].add(amountNewShare);
     }
@@ -642,9 +656,8 @@ contract LPTokenWrapper {
 */
 
 contract NoMintRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Controllable {
-    using SafeMath for uint256;
+
     using Address for address;
-    using SafeERC20 for IERC20;
 
     IERC20 public rewardToken;
     uint256 public duration; // making it not a constant is less gas efficient, but portable
@@ -696,7 +709,7 @@ contract NoMintRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Contr
         address _rewardDistribution,
         address _storage,
         address _sourceVault,
-        address _migrationStrategy)
+        address _migrationStrategy) public
     IRewardDistributionRecipient(_rewardDistribution)
     Controllable(_storage) // only used for referencing the grey list
     {
@@ -734,7 +747,7 @@ contract NoMintRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Contr
     }
 
     // stake visibility is public as overriding LPTokenWrapper's stake() function
-    function stake(uint256 amount) public override updateReward(msg.sender) {
+    function stake(uint256 amount) public updateReward(msg.sender) {
         require(amount > 0, "Cannot stake 0");
         recordSmartContract();
 
@@ -742,7 +755,7 @@ contract NoMintRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Contr
         emit Staked(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) public override updateReward(msg.sender) {
+    function withdraw(uint256 amount) public updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
         super.withdraw(amount);
         emit Withdrawn(msg.sender, amount);
@@ -791,12 +804,12 @@ contract NoMintRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Contr
     }
 
     function notifyRewardAmount(uint256 reward)
-        external override 
+        external
         onlyRewardDistribution
         updateReward(address(0))
     {
         // overflow fix according to https://sips.synthetix.io/sips/sip-77
-        require(reward < type(uint).max / 1e18, "the notified reward cannot invoke multiplication overflow");//uint(-1)
+        require(reward < uint(-1) / 1e18, "the notified reward cannot invoke multiplication overflow");
 
         if (block.timestamp >= periodFinish) {
             rewardRate = reward.div(duration);
@@ -832,7 +845,7 @@ contract NoMintRewardPool is LPTokenWrapper, IRewardDistributionRecipient, Contr
     }
 
     // called only by migrate() 
-    function migrateStakeFor(address target, uint256 amountNewShare) internal override updateReward(target) {
+    function migrateStakeFor(address target, uint256 amountNewShare) internal updateReward(target) {
       super.migrateStakeFor(target, amountNewShare);
       emit Staked(target, amountNewShare);
     }

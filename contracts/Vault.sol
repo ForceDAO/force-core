@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -39,15 +39,16 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   // Only smart contracts will be affected by this modifier
   modifier defense() {
     require(
-      (msg.sender == tx.origin) ||
-      !IController(controller()).greyList(msg.sender),
-      "This smart contract has been grey listed"
-    );// If it is a normal user and not smart contract, then the requirement will pass
-    // If it is a smart contract, then // make sure that it is not on our greyList.
+      (msg.sender == tx.origin) ||                // If it is a normal user and not smart contract,
+      // then the requirement will pass
+      !IController(controller()).greyList(msg.sender), // If it is a smart contract, then
+      "This smart contract has been grey listed"  // make sure that it is not on our greyList.
+    );
     _;
   }
 
-  //constructor() {}
+  constructor() public {
+  }
 
   function controller() public view override(IVault, ControllableInit) returns (address) {
     return Storage(_storage()).controller();
@@ -58,19 +59,19 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     address _underlying,
     uint256 _toInvestNumerator,
     uint256 _toInvestDenominator
-  ) public {
+  ) public initializer {
     require(_toInvestNumerator <= _toInvestDenominator, "cannot invest more than 100%");
     require(_toInvestDenominator != 0, "cannot divide by 0");
 
     ERC20Upgradeable.__ERC20_init(
       string(abi.encodePacked("FARM_", ERC20Upgradeable(_underlying).symbol())),
       string(abi.encodePacked("f", ERC20Upgradeable(_underlying).symbol()))
-    );//, ERC20Upgradeable(_underlying).decimals()
+    );
     ControllableInit.initialize(
       _storage
     );
 
-    uint256 __underlyingUnit = 10 ** 18;//uint256(IERC20Upgradeable(address(_underlying)).decimals());
+    uint256 __underlyingUnit = 10 ** uint256(ERC20Upgradeable(address(_underlying)).decimals());
     uint256 implementationDelay = 12 hours;
     uint256 strategyChangeDelay = 12 hours;
     VaultStorage.initialize(
@@ -182,12 +183,12 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   }
 
   function canUpdateStrategy(address _strategy) public view returns(bool) {
-    return strategy() == address(0) ||
-    (_strategy == futureStrategy() &&
-    block.timestamp > strategyUpdateTime() &&
-    strategyUpdateTime() > 0); // no strategy was set yet // or the timelock has passed
+    return strategy() == address(0) // no strategy was set yet
+      || (_strategy == futureStrategy()
+          && block.timestamp > strategyUpdateTime()
+          && strategyUpdateTime() > 0); // or the timelock has passed
   }
-
+  
   /**
   * Indicates that the strategy update will happen in the future
   */
