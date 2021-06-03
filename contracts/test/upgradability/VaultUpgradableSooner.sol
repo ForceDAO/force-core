@@ -5,7 +5,7 @@ import "./VaultV2.sol";
 
 contract VaultUpgradableSooner is VaultV2 {
 
-  constructor() VaultV2() public {}
+  constructor() VaultV2() {}
 
   function overrideNextImplementationDelay(uint256 _nextImplementationDelay) public {
     _setNextImplementationDelay(_nextImplementationDelay);

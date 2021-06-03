@@ -13,12 +13,12 @@ contract MockMigrator is IMigrator {
   constructor(
     address _newVault,
     address _strategy
-  ) public {
+  ) {
     newVault = _newVault;
     strategy = _strategy;
   }
 
-  function pullFromStrategy() public {
+  function pullFromStrategy() public override {
     IERC20(newVault).safeTransferFrom(strategy, address(this), IERC20(newVault).balanceOf(strategy));
   }
 }

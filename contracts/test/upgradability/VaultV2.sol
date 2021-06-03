@@ -27,7 +27,7 @@ contract VaultV2 is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, 
   event StrategyAnnounced(address newStrategy, uint256 time);
   event StrategyChanged(address newStrategy, address oldStrategy);
 
-  constructor() public {
+  constructor() {
   }
 
   function controller() public view override(IVault, ControllableInit) returns (address) {
