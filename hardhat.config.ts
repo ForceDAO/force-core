@@ -20,10 +20,10 @@ require("./scripts/deploy04-Controller.task.ts");
 require("./scripts/deploy05-Vault.task.ts");
 require("./scripts/deploy15-NoMintRewardPool.task.ts");
 
-const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
-const deploymentPrvKey = process.env.DEPLOYMENT_PRIVATE_KEY;
+const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
+const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
-const MATICVIGIL_APP_ID = process.env.MATICVIGIL_APP_ID;
+const MATICVIGIL_APP_ID = process.env.MATICVIGIL_APP_ID || "";
 
 //---------------------==
 const config: HardhatUserConfig = {
@@ -41,7 +41,7 @@ const config: HardhatUserConfig = {
     polygonmumbai: {
       url: `https://rpc-mumbai.maticvigil.com/v1/${MATICVIGIL_APP_ID}`,
       chainId: 80001,
-      accounts: [`0x${deploymentPrvKey}`],
+      accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
       gasPrice: ethers.utils.parseUnits("10", "gwei").toNumber(),
       gas: 15e6,
       gasMultiplier: 10,
@@ -51,7 +51,7 @@ const config: HardhatUserConfig = {
     polygonmainnet: {
       url: `https://rpc-mainnet.maticvigil.com/v1/${MATICVIGIL_APP_ID}`,
       chainId: 137,
-      accounts: [`0x${deploymentPrvKey}`],
+      accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
       gasPrice: ethers.utils.parseUnits("10", "gwei").toNumber(),
       gas: 15e6,
       gasMultiplier: 10,
@@ -60,13 +60,13 @@ const config: HardhatUserConfig = {
     },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
-      accounts: [`0x${deploymentPrvKey}`],
+      accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
       gasPrice: ethers.utils.parseUnits("200", "gwei").toNumber(),
       gas: 7e6,
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
-      accounts: [`0x${deploymentPrvKey}`],
+      accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
       gasPrice: ethers.utils.parseUnits("20", "gwei").toNumber(),
       gas: 25e6,
       gasMultiplier: 10,
@@ -75,7 +75,7 @@ const config: HardhatUserConfig = {
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${INFURA_PROJECT_ID}`,
-      accounts: [`0x${deploymentPrvKey}`],
+      accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
       gasPrice: ethers.utils.parseUnits("20", "gwei").toNumber(),
       gas: 25e6,
       gasMultiplier: 10,

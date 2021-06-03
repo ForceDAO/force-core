@@ -14,7 +14,7 @@ import "../hardworkInterface/IVault.sol";
 import "../Governable.sol";
 import "../Controllable.sol";
 
-contract NoopVault is ERC20, IVault, Controllable {
+abstract contract NoopVault is ERC20, IVault, Controllable {
   using SafeERC20 for IERC20;
   using Address for address;
   using SafeMath for uint256;
@@ -23,8 +23,8 @@ contract NoopVault is ERC20, IVault, Controllable {
   event Deposit(address indexed beneficiary, uint256 amount);
   event Invest(uint256 amount);
 
-  IStrategy public strategy;
-  IERC20 public underlying;
+  IStrategy public strategyIStrategy;
+  IERC20 public underlyingIERC20;
 
   IStrategy[] public strategies;
 
@@ -48,12 +48,12 @@ contract NoopVault is ERC20, IVault, Controllable {
     string(abi.encodePacked("Chad_", ERC20(_underlying).name())),
     string(abi.encodePacked("chad", ERC20(_underlying).symbol()))
   ) Controllable(_storage) {
-    underlying = IERC20(_underlying);
+    underlyingIERC20 = IERC20(_underlying);
     require(_toInvestNumerator <= _toInvestDenominator, "cannot invest more than 100%");
     require(_toInvestDenominator != 0, "cannot divide by 0");
     vaultFractionToInvestDenominator = _toInvestDenominator;
     vaultFractionToInvestNumerator = _toInvestNumerator;
-    underlyingUnit = 10 ** uint256(ERC20(address(underlying)).decimals());
+    underlyingUnit = 10 ** uint256(ERC20(address(underlyingIERC20)).decimals());
   }
 
   function controller() public view override(IVault, Controllable) returns (address) {
@@ -80,7 +80,7 @@ contract NoopVault is ERC20, IVault, Controllable {
   }
 
   function underlyingBalanceInVault() view public override returns (uint256) {
-    return underlying.balanceOf(address(this));
+    return underlyingIERC20.balanceOf(address(this));
   }
 
   function underlyingBalanceWithInvestment() view public override returns (uint256) {
@@ -107,7 +107,7 @@ contract NoopVault is ERC20, IVault, Controllable {
         : underlyingUnit.mul(underlyingBalanceWithInvestment()).div(totalSupply());
   }
 
-  /* get the user's share (in underlying)
+  /* get the user's share (in underlyingIERC20)
   */
   function underlyingBalanceWithInvestmentForHolder(address holder) view external override returns (uint256) {
     if (totalSupply() == 0) {
@@ -161,16 +161,16 @@ contract NoopVault is ERC20, IVault, Controllable {
     if (underlyingAmountToWithdraw > underlyingBalanceInVault()) {
       // withdraw everything from the strategy to accurately check the share value
       uint256 missing = underlyingAmountToWithdraw.sub(underlyingBalanceInVault());
-      strategy.withdrawToVault(missing);
+      strategyIStrategy.withdrawToVault(missing);
       // recalculate to improve accuracy
       underlyingAmountToWithdraw = Math.min(underlyingBalanceWithInvestment()
           .mul(numberOfShares)
-          .div(totalSupply()), underlying.balanceOf(address(this)));
+          .div(totalSupply()), underlyingIERC20.balanceOf(address(this)));
     }
 
     _burn(msg.sender, numberOfShares);
 
-    underlying.safeTransfer(msg.sender, underlyingAmountToWithdraw);
+    underlyingIERC20.safeTransfer(msg.sender, underlyingAmountToWithdraw);
 
     // update the withdrawal amount for the holder
     withdrawals[msg.sender] = withdrawals[msg.sender].add(underlyingAmountToWithdraw);
@@ -187,7 +187,7 @@ contract NoopVault is ERC20, IVault, Controllable {
     _mint(beneficiary, toMint);
 
     uint256 oldActualBalance = underlyingBalanceInVault();
-    underlying.safeTransferFrom(sender, address(this), amount);
+    underlyingIERC20.safeTransferFrom(sender, address(this), amount);
 
     // confirm a successful transfer
     assert(underlyingBalanceInVault().sub(amount) >= oldActualBalance);

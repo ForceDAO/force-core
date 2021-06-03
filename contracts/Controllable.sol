@@ -19,7 +19,7 @@ contract Controllable is Governable {
     _;
   }
 
-  function controller() public view returns (address) {
+  function controller() public view virtual returns (address) {
     return store.controller();
   }
 }

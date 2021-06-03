@@ -8,7 +8,7 @@ contract MockGauge {
   IERC20 underlying;
   mapping(address => uint256) balances;
 
-  constructor(address _underlying) public {
+  constructor(address _underlying) {
     underlying = IERC20(_underlying);
   }
 

@@ -47,7 +47,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _;
   }
 
-  constructor() public {
+  constructor() {
   }
 
   function controller() public view override(IVault, ControllableInit) returns (address) {
@@ -208,7 +208,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _setFutureStrategy(address(0));
   }
 
-  function setStrategy(address _strategy) public override onlyControllerOrGovernance {
+  function setStrategy(address _strategy) public override virtual onlyControllerOrGovernance {
     require(canUpdateStrategy(_strategy),
       "The strategy exists and switch timelock did not elapse yet");
     require(_strategy != address(0), "new _strategy cannot be empty");

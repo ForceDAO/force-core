@@ -9,7 +9,7 @@ contract ThirdPartyContractThatCallsDepositHelper {
 
   address public depositHelper;
 
-  constructor(address _depositHelper) public {
+  constructor(address _depositHelper) {
     depositHelper = _depositHelper;
   }
 

@@ -12,7 +12,7 @@ contract MockRewardPool {
   address public token;
   address public rewardToken;
 
-  constructor (address _token, address _rewardToken) public {
+  constructor (address _token, address _rewardToken) {
     token = _token;
     rewardToken = _rewardToken;
   }

@@ -8,11 +8,11 @@ contract MockGreyListed {
 
   address public vault;
 
-  constructor(address _vault) public {
+  constructor(address _vault) {
     vault = _vault;
   }
 
-  function deposit(uint256 _token, uint256 _amount) public {
+  function deposit(address _token, uint256 _amount) public {
     IERC20(_token).approve(vault, _amount);
     IVault(vault).deposit(_amount);
   }

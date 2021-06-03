@@ -300,10 +300,10 @@ abstract contract ERC20Detailed is IERC20 {
      * these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name, string memory symbol, uint8 decimals) {
-        _name = name;
-        _symbol = symbol;
-        _decimals = decimals;
+    constructor (string memory __name, string memory __symbol, uint8 __decimals) {
+        _name = __name;
+        _symbol = __symbol;
+        _decimals = __decimals;
     }
 
     /**
@@ -534,7 +534,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         address _rewardsDistribution,
         address _rewardsToken,
         address _stakingToken
-    ) public {
+    ) {
         rewardsToken = IERC20(_rewardsToken);
         stakingToken = IERC20(_stakingToken);
         rewardsDistribution = _rewardsDistribution;
@@ -683,7 +683,7 @@ contract StakingRewardsFactory is Ownable {
     constructor(
         address _rewardsToken,
         uint _stakingRewardsGenesis
-    ) Ownable() public {
+    ) Ownable() {
         require(_stakingRewardsGenesis >= block.timestamp, 'StakingRewardsFactory::constructor: genesis too soon');
 
         rewardsToken = _rewardsToken;
