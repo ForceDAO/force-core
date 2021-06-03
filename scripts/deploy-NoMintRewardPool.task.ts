@@ -2,6 +2,8 @@ import { logDeployment } from "./deploymentLogUtils";
 import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
 const log: Logger = new Logger();
+require("dotenv").config();
+const addrStorage = process.env.STORAGE_CONTRACT_ADDRESS
 
 // npx hardhat compile
 // npx hardhat deploy-noMintRewardPool --network polygonmumbai
@@ -19,27 +21,12 @@ task("deploy-noMintRewardPool", "Deploys a new NoMintRewardPool contract")
       return;
     }
 
-    log.info("---------== part1: deploy-Storage");
-    let ctrtName, ctrtPath;
-    ctrtName = "Storage"
-    ctrtPath = "Storage"
-    log.info("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
-    const factoryStorage = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
-    const instStorage = await factoryStorage.deploy();
-    logDeployment(instStorage, hre.network.name);
-    const addrStorage = instStorage.address;
-    //const addrStorage = "0x0BF9041BAA9320b47E00B97725569eC1ddD7DdB2";
-    
+
     log.info("\n---------== deploy-NoMintRewardPool");
     const sourceVault = "0x0000000000000000000000000000000000000000";
     const migrationStrategy = "0x0000000000000000000000000000000000000000";
 
-    ctrtName = "NoMintRewardPool";
-    ctrtPath = "RewardPool";
-    log.info("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
-
-    const factoryNoMintRewardPool = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
-    log.info("check2");
+    const factoryNoMintRewardPool = await hre.ethers.getContractFactory(`contracts/RewardPool.sol:NoMintRewardPool`);
     const instNoMintRewardPool = await factoryNoMintRewardPool.deploy(
       rwToken,
       lpToken,
