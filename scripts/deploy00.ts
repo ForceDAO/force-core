@@ -4,7 +4,9 @@
 const hre = require("hardhat");
 const ethers = hre.ethers;
 const addr0 = "0x0000000000000000000000000000000000000000";
-const { logDeployment, timeForwardInSeconds, log1 } = require("../test_fork/utils");
+import { logDeployment } from "./deploymentLogUtils";
+import { Logger } from "tslog";
+const log: Logger = new Logger();
 
 async function main() {
   //const deployContract = async(choice) => {
@@ -13,23 +15,23 @@ async function main() {
   // If this script is run directly using `node` you may want to call compile  manually to make sure everything is compiled
   // await hre.run('compile');
   const [owner, user1, user2, ...addrs] = await ethers.getSigners();
-  log1("owner:", owner.address);
+  log.info("owner:", owner.address);
   const balance = await owner.getBalance();
-  log1("owner balance:", ethers.utils.formatUnits(balance.toString(), 18));
+  log.info("owner balance:", ethers.utils.formatUnits(balance.toString(), 18));
 
   let nodeUrlRpc, ctrtName, factoryCtrt, instCtrt,ctrtFilePath, contractName, tokenName, tokenSymbol, decimals, network;
 
   // var args = process.argv.slice(2);
-  // console.log('args: ', args);
+  // log.info('args: ', args);
   // switch (args[0]) {
   // case 'insult':
-  //     console.log(args[1], 'smells quite badly.');
+  //     log.info(args[1], 'smells quite badly.');
   //     break;
   // case 'compliment':
-  //     console.log(args[1], 'is really cool.');
+  //     log.info(args[1], 'is really cool.');
   //     break;
   // default:
-  //     console.log('Sorry, that is not something I know how to do.');
+  //     log.error('Sorry, that is not something I know how to do.');
   // }
   // return;
 
@@ -60,11 +62,11 @@ async function main() {
   } else if(networkID === "80001"){
     network = "polygonmumbai";
   } else {
-    log1("networkID invalid");
+    log.info("networkID invalid");
     process.exit(1);
   }
   //missing constructor argument => reason: 'network does not support ENS',
-  log1("choice:", choice, "\nNetworkID:", networkID, ", network:", network);
+  log.info("choice:", choice, "\nNetworkID:", networkID, ", network:", network);
 
   //yarn run deploy:x:polygonmumbai
   if(choice === 1){
@@ -74,7 +76,7 @@ async function main() {
     instCtrt = await factoryCtrt.deploy();
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address}`
     );//npx hardhat verify --contract contracts/Storage.sol:Storage --network ${network} 0x75c8...
 
@@ -85,7 +87,7 @@ async function main() {
     instCtrt = await factoryCtrt.deploy(addrStorage);
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address} ${addrStorage}`
     );
 
@@ -96,7 +98,7 @@ async function main() {
     instCtrt = await factoryCtrt.deploy(addrStorage);
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address} ${addrStorage}`
     );
   
@@ -107,7 +109,7 @@ async function main() {
     instCtrt = await factoryCtrt.deploy(addrStorage, addrERC20ARK);
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address} ${addrStorage} ${addrERC20ARK}`
     );
 
@@ -118,7 +120,7 @@ async function main() {
     instCtrt = await factoryCtrt.deploy();
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address}`
     );
   } else if(choice === 6){
@@ -128,7 +130,7 @@ async function main() {
     instCtrt = await factoryCtrt.deploy();
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address}`
     );
   } else if(choice === 7){
@@ -142,12 +144,12 @@ async function main() {
       ctrtName = "Vault";
       ctrtFilePath = "Vault";//.sol omitted
     }
-    log1("ctrtName:", ctrtName)
+    log.info("ctrtName:", ctrtName)
     factoryCtrt = await ethers.getContractFactory(ctrtName);
     instCtrt = await factoryCtrt.deploy();
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contractsFlat/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address}`
     );
   } else if(choice === 8){
@@ -158,12 +160,12 @@ async function main() {
     tokenName = "IDLE_FAKE";
     tokenSymbol = "IDLE_FAKE";
     decimals = 18;
-    log1("ctrtName:", ctrtName)
+    log.info("ctrtName:", ctrtName)
     factoryCtrt = await ethers.getContractFactory(ctrtName);
     instCtrt = await factoryCtrt.deploy(tokenName, tokenSymbol, decimals);
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address} ${tokenName} ${tokenSymbol} ${decimals}`
     ); 
   } else if(choice === 11){
@@ -180,12 +182,12 @@ async function main() {
     ctrtFilePath = "strategies/idle/IdleStrategyUSDCKovan";//.sol omitted
     const addrStorage1 = addrStorage;
     const addrVault1 = addrVault;
-    log1("ctrtName:", ctrtName)
+    log.info("ctrtName:", ctrtName)
     factoryCtrt = await ethers.getContractFactory(ctrtName);
     instCtrt = await factoryCtrt.deploy(addrStorage1, addrVault1);
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address} ${addrStorage1} ${addrVault1}`
     );
   } else if(choice === 18){
@@ -201,13 +203,13 @@ async function main() {
     } else {
       ctrtName = "SushiMasterChefLPStrategyF1";//same as filename
     }
-    log1("ctrtName:", ctrtName)
+    log.info("ctrtName:", ctrtName)
     ctrtFilePath = "strategies/sushiswap/SushiMasterChefLPStrategy";//.sol omitted
     factoryCtrt = await ethers.getContractFactory(ctrtName);
     instCtrt = await factoryCtrt.deploy();
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address}`
     );
 
@@ -221,7 +223,7 @@ async function main() {
     instCtrt = await factoryCtrt.deploy(addrStorage1, addrVault1);
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address} ${addrStorage1} ${addrVault1}`
     );
   } else if(choice === 31){
@@ -243,7 +245,7 @@ async function main() {
     instCtrt = await factoryCtrt.deploy();
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address}`
     );
 
@@ -256,7 +258,7 @@ async function main() {
     instCtrt = await factoryCtrt.deploy();
     await instCtrt.deployed();
     logDeployment(instCtrt, network);
-    console.log(
+    log.info(
       `npx hardhat verify --contract contracts/${ctrtFilePath}.sol:${ctrtName} --network ${network} ${instCtrt.address}`
     );
 
@@ -266,7 +268,7 @@ async function main() {
   } else if(choice === 46){
 
   } else {
-    log1("choice invalid");
+    log.error("choice invalid");
   }
   /*
   log1("\n--------------== Contract setup");
@@ -279,7 +281,7 @@ async function main() {
 main()
   .then(() => process.exit(0))
   .catch(error => {
-    console.error(error);
+    log.error(error);
     process.exit(1);
   });
 

@@ -1,19 +1,21 @@
-const { logDeployment, log1, } = require("./utils");
+import { logDeployment } from "./deploymentLogUtils";
 import { task, types } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
+import { Logger } from "tslog";
+const log: Logger = new Logger();
 
 // npx hardhat compile
 // npx hardhat deploy-storage --network polygonmumbai
 task("deploy-storage", "Deploys a new Storage contract")
 .setAction(
   async (args, hre) => {
-    log1("---------== deploy-Storage");
+    log.info("---------== deploy-Storage");
     const ctrtName = "Storage"
     const ctrtPath = "Storage"
-    log1("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
+    log.info("ctrtPath:", ctrtPath, ", ctrtName:", ctrtName);
 
     const factoryStorage = await hre.ethers.getContractFactory(`contracts/${ctrtPath}.sol:${ctrtName}`);
-    log1("check2");
+    log.info("check2");
     const instStorage = await factoryStorage.deploy();
     logDeployment(instStorage, hre.network.name);
   }
