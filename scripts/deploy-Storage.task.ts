@@ -14,6 +14,11 @@ task("deploy-storage", "Deploys a new Storage contract")
     const instStorage = await factoryStorage.deploy();
     log.info(`--------- Must Do Activity: ${instStorage} gets in to .env as: STORAGE_CONTRACT_ADDRESS --------- `);
     logDeployment(instStorage, hre.network.name);
+
+    console.log(
+      `npx hardhat verify --contract contracts/Storage.sol:Storage --network ${hre.network.name} ${instStorage.address}`
+    );//npx hardhat verify --contract contracts/Storage.sol:Storage --network ${network} 0x75c8...
+  
   }
 );
 
