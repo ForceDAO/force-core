@@ -7,11 +7,11 @@
   |Sequence | Contract Name | Script Name | Constructor Arguments | Description |
   |---|---|---|---|---|
   |1 | Storage | deploy-storage.task.ts | - | Storage contract -> Copy the deployed contract address to .env |
-  |2| FarmRewardToken | deploy-FarmRwToken.task.ts| Storage | For constructor Argument, refer to the deplyed Storage-Contract address from .env |
-  |3| FeeRewardForwarder | deploy-FeeRewardForwarder.task.ts | Storage | For constructor Argument, refer to the deplyed Storage-Contract address from .env |
-  |4| Controller | deploy-Controller.task.ts | Storage | For constructor Argument, refer to the deplyed Storage-Contract address from .env |
-  |5| Vault | deploy-Vault.task.ts | Controller | Storage | For constructor Argument, refer to the deplyed Storage-Contract address from .env |
-  |6| NoMintRewardPool | deploy-NoMintRewardPool.task.ts | Storage | For constructor Argument, refer to the deplyed Storage-Contract address from .env |
+  |2| FarmRewardToken | deploy-FarmRwToken.task.ts| Storage | For constructor Argument, refer to the storageAddress in deploy-config.ts |
+  |3| FeeRewardForwarder | deploy-FeeRewardForwarder.task.ts | Storage | For constructor Argument, refer to the storageAddress in deploy-config.ts |
+  |4| Controller | deploy-Controller.task.ts | Storage, FeeRewardForwarder | For constructor Argument, refer to the storageAddress, feeRewardForwarderAddress in deploy-config.ts |
+  |5| Vault | deploy-Vault.task.ts | Controller | Storage | For constructor Argument, refer to the storageAddress in deploy-config.ts |
+  |6| NoMintRewardPool | deploy-NoMintRewardPool.task.ts | Storage | For constructor Argument, refer to the storageAddress in deploy-config.ts |
 
 
 
