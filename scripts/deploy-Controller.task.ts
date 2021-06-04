@@ -6,7 +6,7 @@ import "@nomiclabs/hardhat-ethers";
 const log: Logger = new Logger();
 require("dotenv").config();
 import * as deployConfig from "./deploy-config";
-import StorageContractJSON from "../artifacts/contracts/Storage.sol/Storage.json";   
+import * as StorageABIJson from "./abi/StorageABI";   
 
 // npx hardhat compile
 // npx hardhat deploy-controller --network polygonmumbai
@@ -41,7 +41,7 @@ task("deploy-controller", "Deploys a new Controller contract")
 
     //Load Storage Contract (deployed at address: addrStorage)
     const accounts = await hre.ethers.getSigners();
-    let instStorage = new hre.ethers.Contract(addrStorage, StorageContractJSON.abi, accounts[0]);
+    let instStorage = new hre.ethers.Contract(addrStorage, StorageABIJson.StorageABI.abi, accounts[0]);
 
     //set the controller address in instStorage
     await instStorage.setController(addrController);
