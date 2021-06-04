@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
-import "./ERC20Detailed.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 import "./Controllable.sol";
 import "./IController.sol";
 
@@ -138,14 +138,12 @@ contract PotPool is IRewardDistributionRecipient, Controllable, ERC20, ERC20Deta
         address[] memory _rewardDistribution,
         address _storage,
         string memory _name,
-        string memory _symbol,
-        uint8 _decimals
+        string memory _symbol
       ) public
-      ERC20Detailed(_name, _symbol, _decimals)
+      ERC20(_name, _symbol)
       IRewardDistributionRecipient(_rewardDistribution)
       Controllable(_storage) // only used for referencing the grey list
     {
-        require(_decimals == ERC20Detailed(_lpToken).decimals(), "decimals has to be aligned with the lpToken");
         require(_rewardTokens.length != 0, "should initialize with at least 1 rewardToken");
         rewardTokens = _rewardTokens;
         lpToken = _lpToken;
