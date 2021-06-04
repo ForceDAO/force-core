@@ -36,7 +36,6 @@ task("deploy-controller", "Deploys a new Controller contract")
     );
     logDeployment(instController, hre.network.name);
     const addrController = instController.address;
-    log.info(`Must Do Activity: ${addrController} gets in to .env as: CONTROLLER_ADDRESS`);
 
     // https://ethereum.stackexchange.com/questions/95023/hardhat-how-to-interact-with-a-deployed-contract
 
