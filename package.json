@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.1.0",
+    "@openzeppelin/contracts-ethereum-package": "^3.0.0",
     "@studydefi/money-legos": "^2.4.2",
     "dotenv": "^10.0.0"
   },

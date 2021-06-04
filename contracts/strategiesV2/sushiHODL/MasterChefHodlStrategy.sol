@@ -1,15 +1,16 @@
 pragma solidity 0.5.16;
 
-import "./Math.sol";
-import "./SafeMath.sol";
-import "./ERC20Detailed.sol";
-import "./SafeERC20.sol";
+//import "./ERC20Detailed.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
 import "./IUniswapV2Router02.sol";
-import "./IStrategy.sol";
+import "./IUniswapV2Pair.sol";
 import "./IVault.sol";
+import "./IStrategy.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMasterChef.sol";
-import "./IUniswapV2Pair.sol";
 import "./PotPool.sol";
 
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
