@@ -6,7 +6,7 @@ import "@nomiclabs/hardhat-ethers";
 const log: Logger = new Logger();
 require("dotenv").config();
 import * as deployConfig from "./deploy-config";
-import * as StorageABIJson from "./abi/StorageABI";   
+import * as StorageABIJson from "./interface/StorageABI";   
 
 // npx hardhat compile
 // npx hardhat deploy-controller --network polygonmumbai
