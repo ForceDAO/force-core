@@ -12,17 +12,6 @@ import * as deployConfig from "./deploy-config";
 task("deploy-controller", "Deploys a new Controller contract")
   .setAction(async (args, hre) => {
     
-    const Storage = require("../build/contracts/Storage.json")
-
-    log.info("---------== check args");
-    const owner = process.env.OWNER || "";
-    const treasury = process.env.TREASURY || "";
-    const addrFarmRwToken = process.env.RWTOKEN || "";
-    log.info("args:", args, "\nowner:", owner, "\ntreasury:", treasury, "\naddrFarmRwToken:", addrFarmRwToken);
-    if(owner === "" || treasury === "" || addrFarmRwToken === "") {
-      log.info("owner or treasury or addrFarmRwToken invalid");
-      return;
-    }
     const addrStorage = deployConfig.deployedContracts.storageAddress || "";
     //const addrStorage = "0x0BF9041BAA9320b47E00B97725569eC1ddD7DdB2";
 
@@ -52,7 +41,8 @@ task("deploy-controller", "Deploys a new Controller contract")
 
     //Load Storage Contract (deployed at address: addrStorage)
     const accounts = await hre.ethers.getSigners();
-    let instStorage = new hre.ethers.Contract(addrStorage, Storage.abi, accounts[0]);
+    const StorageContractJSON = require("../build/contracts/Storage.json")   
+    let instStorage = new hre.ethers.Contract(addrStorage, StorageContractJSON.abi, accounts[0]);
 
     //set the controller address in instStorage
     await instStorage.setController(addrController);
