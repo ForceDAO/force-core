@@ -4,6 +4,7 @@ import { Logger } from "tslog";
 
 const log: Logger = new Logger();
 require("dotenv").config();
+import * as deployConfig from "./deploy-config";
 
 // npx hardhat compile
 // npx hardhat deploy-controller --network polygonmumbai
@@ -21,9 +22,21 @@ task("deploy-controller", "Deploys a new Controller contract")
       log.info("owner or treasury or addrFarmRwToken invalid");
       return;
     }
-    const addrStorage = process.env.STORAGE_CONTRACT_ADDRESS || "";
+    const addrStorage = deployConfig.deployedContracts.storageAddress || "";
     //const addrStorage = "0x0BF9041BAA9320b47E00B97725569eC1ddD7DdB2";
-    const addrFeeRewardForwarder = process.env.FEE_REWARD_FORWARDER
+
+    if(addrStorage === "" ) {
+      log.error("storageAddress invalid");
+      return;
+    }
+
+    const addrFeeRewardForwarder = deployConfig.deployedContracts.feeRewardForwarderAddress || "";
+
+    if(addrFeeRewardForwarder === "" ) {
+      log.error("feeRewardForwarderAddress invalid");
+      return;
+    }
+
     log.info("---------== deploy-Controller");
     const factoryController = await hre.ethers.getContractFactory(`contracts/Controller.sol:Controller`);
     const instController = await factoryController.deploy(

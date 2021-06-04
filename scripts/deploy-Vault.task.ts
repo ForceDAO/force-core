@@ -3,7 +3,6 @@ import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
 const log: Logger = new Logger();
 require("dotenv").config();
-const addrStorage = process.env.STORAGE_CONTRACT_ADDRESS
 
 // npx hardhat compile
 // npx hardhat deploy-vault --network polygonmumbai

@@ -3,7 +3,7 @@ import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
 const log: Logger = new Logger();
 require("dotenv").config();
-const addrStorage = process.env.STORAGE_CONTRACT_ADDRESS
+import * as deployConfig from "./deploy-config";
 
 // npx hardhat compile
 // npx hardhat deploy-noMintRewardPool --network polygonmumbai
@@ -25,6 +25,12 @@ task("deploy-noMintRewardPool", "Deploys a new NoMintRewardPool contract")
     log.info("\n---------== deploy-NoMintRewardPool");
     const sourceVault = "0x0000000000000000000000000000000000000000";
     const migrationStrategy = "0x0000000000000000000000000000000000000000";
+
+    const addrStorage = deployConfig.deployedContracts.storageAddress;
+    if(addrStorage === "" ) {
+      log.error("deploy-NoMintRewardPool -> storageAddress invalid");
+      return;
+    }
 
     const factoryNoMintRewardPool = await hre.ethers.getContractFactory(`contracts/RewardPool.sol:NoMintRewardPool`);
     const instNoMintRewardPool = await factoryNoMintRewardPool.deploy(

@@ -4,6 +4,7 @@ import "@nomiclabs/hardhat-ethers";
 import { Logger } from "tslog";
 const log: Logger = new Logger();
 require("dotenv").config();
+import * as deployConfig from "./deploy-config";
 
 // npx hardhat compile
 // npx hardhat deploy-farmRwToken --network polygonmumbai
@@ -12,7 +13,12 @@ task("deploy-farmRwToken", "Deploys a new FarmRwToken contract")
 .setAction(
   async (args, hre) => {
     log.info("---------== deploy-FarmRwToken");
-    const addrStorage = process.env.STORAGE_CONTRACT_ADDRESS
+    const addrStorage = deployConfig.deployedContracts.storageAddress;
+
+    if(addrStorage === "" ) {
+      log.error("deploy-FarmRwToken -> storageAddress invalid");
+      return;
+    }
 
     const factoryFarmRwToken = await hre.ethers.getContractFactory(`contracts/RewardToken.sol:RewardToken`);
     const instFarmRwToken = await factoryFarmRwToken.deploy(addrStorage);
