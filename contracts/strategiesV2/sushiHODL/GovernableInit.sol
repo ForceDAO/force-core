@@ -1,6 +1,6 @@
 pragma solidity 0.5.16;
 
-import "./Initializable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 import "./Storage.sol";
 
 // A clone of Governable supporting the Initializable interface and pattern

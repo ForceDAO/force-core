@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.5.16;
 
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/Context.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/ownable/Ownable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/Address.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/Math.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
+import "./ERC20Detailed.sol";
 import "./Controllable.sol";
 import "./IController.sol";
-import "./IERC20.sol";
-import "./ERC20.sol";
-import "./ERC20Detailed.sol";
-import "./SafeERC20.sol";
-import "./SafeMath.sol";
-import "./Math.sol";
-import "./Address.sol";
-import "./Context.sol";
-import "./Ownable.sol";
 
 contract IRewardDistributionRecipient is Ownable {
 

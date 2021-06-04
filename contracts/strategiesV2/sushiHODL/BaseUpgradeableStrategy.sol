@@ -1,13 +1,13 @@
 pragma solidity 0.5.16;
 
-import "./Initializable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 import "./BaseUpgradeableStrategyStorage.sol";
 import "./ControllableInit.sol";
 import "./IController.sol";
 import "./IFeeRewardForwarderV6.sol";
-import "./IERC20.sol";
-import "./SafeMath.sol";
-import "./SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
 
 contract BaseUpgradeableStrategy is Initializable, ControllableInit, BaseUpgradeableStrategyStorage {
   using SafeMath for uint256;
