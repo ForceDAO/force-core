@@ -1,7 +1,6 @@
 import { logDeployment } from "./deploymentLogUtils";
 import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
-import * as Storage from "../build/contracts/Storage.json";
 
 const log: Logger = new Logger();
 require("dotenv").config();
@@ -10,6 +9,9 @@ require("dotenv").config();
 // npx hardhat deploy-controller --network polygonmumbai
 task("deploy-controller", "Deploys a new Controller contract")
   .setAction(async (args, hre) => {
+    
+    const Storage = require("../build/contracts/Storage.json")
+
     log.info("---------== check args");
     const owner = process.env.OWNER || "";
     const treasury = process.env.TREASURY || "";
@@ -19,7 +21,7 @@ task("deploy-controller", "Deploys a new Controller contract")
       log.info("owner or treasury or addrFarmRwToken invalid");
       return;
     }
-    const addrStorage = process.env.STORAGE_CONTRACT_ADDRESS
+    const addrStorage = process.env.STORAGE_CONTRACT_ADDRESS || "";
     //const addrStorage = "0x0BF9041BAA9320b47E00B97725569eC1ddD7DdB2";
     const addrFeeRewardForwarder = process.env.FEE_REWARD_FORWARDER
     log.info("---------== deploy-Controller");
