@@ -48,10 +48,11 @@ task("deploy-controller", "Deploys a new Controller contract")
     const addrController = instController.address;
     log.info(`Must Do Activity: ${addrController} gets in to .env as: CONTROLLER_ADDRESS`);
 
-    // addrController gets in to .env as: CONTROLLER_ADDRESS
+    // https://ethereum.stackexchange.com/questions/95023/hardhat-how-to-interact-with-a-deployed-contract
 
     //Load Storage Contract (deployed at address: addrStorage)
-    let instStorage = new hre.ethers.Contract(addrStorage, Storage.abi);
+    const accounts = await hre.ethers.getSigners();
+    let instStorage = new hre.ethers.Contract(addrStorage, Storage.abi, accounts[0]);
 
     //set the controller address in instStorage
     await instStorage.setController(addrController);
