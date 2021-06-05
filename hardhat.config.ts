@@ -14,11 +14,8 @@ require("dotenv").config();
 require("./scripts/accounts.task.ts");
 require("./scripts/balance.task.ts");
 require("./scripts/deploy-Storage.task.ts");
-require("./scripts/deploy-FarmRwToken.task.ts");
-require("./scripts/deploy-FeeRewardForwarder.task.ts");
 require("./scripts/deploy-Controller.task.ts");
 require("./scripts/deploy-Vault.task.ts");
-require("./scripts/deploy-NoMintRewardPool.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
