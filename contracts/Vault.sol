@@ -32,10 +32,6 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _;
   }
 
-  function governance() public view override(GovernableInit,IVault) returns (address) {
-    return Storage(_storage()).governance();
-  }
-
   //  Only smart contracts will be affected by this modifier
   modifier defense() {
     require(
@@ -52,6 +48,10 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
 
   function controller() public view override(IVault, ControllableInit) returns (address) {
     return Storage(_storage()).controller();
+  }
+
+  function governance() public view override(GovernableInit,IVault) returns (address) {
+    return Storage(_storage()).governance();
   }
 
   // the function is name differently to not cause inheritance clash in truffle and allows tests
@@ -208,7 +208,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _setFutureStrategy(address(0));
   }
 
-  function setStrategy(address _strategy) public override virtual onlyControllerOrGovernance {
+  function setStrategy(address _strategy) public override onlyControllerOrGovernance {
     require(canUpdateStrategy(_strategy),
       "The strategy exists and switch timelock did not elapse yet");
     require(_strategy != address(0), "new _strategy cannot be empty");
