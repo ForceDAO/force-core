@@ -2,11 +2,13 @@ import { logDeployment } from "./deploymentLogUtils";
 import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
-
-const log: Logger = new Logger();
 require("dotenv").config();
 import * as deployConfig from "./deploy-config";
-import * as StorageABIJson from "./interface/StorageABI";   
+const fs = require('fs');
+import {  readFileSync } from 'fs';
+const StorageABIPath = "../artifacts/contracts/Storage.sol/Storage.json";
+
+const log: Logger = new Logger();
 
 // npx hardhat compile
 // npx hardhat deploy-controller --network polygonmumbai
@@ -14,7 +16,6 @@ task("deploy-controller", "Deploys a new Controller contract")
   .setAction(async (args, hre) => {
     
     const addrStorage = deployConfig.deployedContracts.storageAddress || "";
-    //const addrStorage = "0x0BF9041BAA9320b47E00B97725569eC1ddD7DdB2";
 
     if(addrStorage === "" ) {
       log.error("storageAddress invalid");
@@ -39,12 +40,21 @@ task("deploy-controller", "Deploys a new Controller contract")
 
     // https://ethereum.stackexchange.com/questions/95023/hardhat-how-to-interact-with-a-deployed-contract
 
-    //Load Storage Contract (deployed at address: addrStorage)
-    const accounts = await hre.ethers.getSigners();
-    let instStorage = new hre.ethers.Contract(addrStorage, StorageABIJson.StorageABI.abi, accounts[0]);
+    
+    if(fs.existsSync(StorageABIPath)){
+      let storageJSON = JSON.parse(readFileSync(StorageABIPath).toString());
 
-    //set the controller address in instStorage
-    await instStorage.setController(addrController);
+      //Load Storage Contract (deployed at address: addrStorage)
+      const accounts = await hre.ethers.getSigners();
+
+      let instStorage = new hre.ethers.Contract(addrStorage, storageJSON.abi, accounts[0]);
+
+      //set the controller address in instStorage
+      await instStorage.setController(addrController);
+      
+    }else{
+      log.error("ABI for Storage contract cannot be located @ path: "+StorageABIPath);
+    }
   });
 
 module.exports;
