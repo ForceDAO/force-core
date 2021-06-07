@@ -9,7 +9,6 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20Detailed.sol";
 import "./Controllable.sol";
 import "./IController.sol";
 
@@ -47,7 +46,7 @@ contract IRewardDistributionRecipient is Ownable {
     }
 }
 
-contract PotPool is IRewardDistributionRecipient, Controllable, ERC20, ERC20Detailed {
+contract PotPool is IRewardDistributionRecipient, Controllable, ERC20 {
 
     using Address for address;
     using SafeERC20 for IERC20;

@@ -4,7 +4,6 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
-import "./ERC20Detailed.sol";
 import "./IUniswapV2Router02.sol";
 import "./IUniswapV2Pair.sol";
 import "./IVault.sol";
