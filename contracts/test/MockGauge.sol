@@ -1,4 +1,5 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -7,7 +8,7 @@ contract MockGauge {
   IERC20 underlying;
   mapping(address => uint256) balances;
 
-  constructor(address _underlying) public {
+  constructor(address _underlying) {
     underlying = IERC20(_underlying);
   }
 

@@ -1,9 +1,10 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 interface IStrategy {
-    
+
     function unsalvagableTokens(address tokens) external view returns (bool);
-    
+
     function governance() external view returns (address);
     function controller() external view returns (address);
     function underlying() external view returns (address);

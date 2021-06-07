@@ -1,6 +1,7 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract VaultStorage is Initializable {
 
@@ -18,7 +19,7 @@ contract VaultStorage is Initializable {
   bytes32 internal constant _ALLOW_SHARE_PRICE_DECREASE_SLOT = 0x22f7033891e85fc76735ebd320e0d3f546da431c4729c2f6d2613b11923aaaed;
   bytes32 internal constant _WITHDRAW_BEFORE_REINVESTING_SLOT = 0x4215fbb95dc0890d3e1660fb9089350f2d3f350c0a756934874cae6febf42a79;
 
-  constructor() public {
+  constructor() {
     assert(_STRATEGY_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.strategy")) - 1));
     assert(_UNDERLYING_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.underlying")) - 1));
     assert(_UNDERLYING_UNIT_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.underlyingUnit")) - 1));
@@ -35,17 +36,17 @@ contract VaultStorage is Initializable {
   }
 
   function initialize(
-    address _underlying,
+    address __underlying,
     uint256 _toInvestNumerator,
     uint256 _toInvestDenominator,
-    uint256 _underlyingUnit,
+    uint256 __underlyingUnit,
     uint256 _implementationChangeDelay,
     uint256 _strategyChangeDelay
   ) public initializer {
-    _setUnderlying(_underlying);
+    _setUnderlying(__underlying);
     _setVaultFractionToInvestNumerator(_toInvestNumerator);
     _setVaultFractionToInvestDenominator(_toInvestDenominator);
-    _setUnderlyingUnit(_underlyingUnit);
+    _setUnderlyingUnit(__underlyingUnit);
     _setNextImplementationDelay(_implementationChangeDelay);
     _setStrategyTimeLock(_strategyChangeDelay);
     _setStrategyUpdateTime(0);

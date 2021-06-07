@@ -1,8 +1,9 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "../hardworkInterface/IMigrator.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract MockMigrator is IMigrator {
   using SafeERC20 for IERC20;
@@ -12,12 +13,12 @@ contract MockMigrator is IMigrator {
   constructor(
     address _newVault,
     address _strategy
-  ) public {
+  ) {
     newVault = _newVault;
     strategy = _strategy;
   }
 
-  function pullFromStrategy() public {
+  function pullFromStrategy() public override {
     IERC20(newVault).safeTransferFrom(strategy, address(this), IERC20(newVault).balanceOf(strategy));
   }
 }

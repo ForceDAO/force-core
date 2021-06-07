@@ -1,10 +1,11 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./Governable.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "./hardworkInterface/IRewardPool.sol";
 import "./uniswap/interfaces/IUniswapV2Router02.sol";
@@ -55,7 +56,7 @@ contract FeeRewardForwarder is Governable {
 
   event TokenPoolSet(address token, address pool);
 
-  constructor(address _storage, address _farm, address _grain) public Governable(_storage) {
+  constructor(address _storage, address _farm, address _grain) Governable(_storage) {
     require(_grain != address(0), "_grain not defined");
     require(_farm != address(0), "_farm not defined");
     grain = _grain;

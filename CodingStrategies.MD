@@ -10,7 +10,8 @@ them into a third-party DeFi protocol to generate profit. The smart
 contract needs to implement the following interface:
 
 ```
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0
 
 interface IStrategy {
 

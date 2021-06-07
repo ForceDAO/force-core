@@ -1,12 +1,12 @@
 /**
  *Submitted for verification at Etherscan.io on 2020-09-16
 */
-
-pragma solidity ^0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP. Does not include
- * the optional functions; to access them see `ERC20Detailed`.
+ * the optional functions; to access them see `ERC20`.
  */
 interface IERC20 {
     /**
@@ -96,7 +96,7 @@ contract Ownable {
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
-    constructor () internal {
+    constructor () {
         _owner = msg.sender;
         emit OwnershipTransferred(address(0), _owner);
     }
@@ -290,7 +290,7 @@ library Math {
 /**
  * @dev Optional functions from the ERC20 standard.
  */
-contract ERC20Detailed is IERC20 {
+abstract contract ERC20Detailed is IERC20 {
     string private _name;
     string private _symbol;
     uint8 private _decimals;
@@ -300,10 +300,10 @@ contract ERC20Detailed is IERC20 {
      * these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name, string memory symbol, uint8 decimals) public {
-        _name = name;
-        _symbol = symbol;
-        _decimals = decimals;
+    constructor (string memory __name, string memory __symbol, uint8 __decimals) {
+        _name = __name;
+        _symbol = __symbol;
+        _decimals = __decimals;
     }
 
     /**
@@ -450,7 +450,7 @@ contract ReentrancyGuard {
     /// @dev counter to allow mutex lock with only one SSTORE operation
     uint256 private _guardCounter;
 
-    constructor () internal {
+    constructor () {
         // The counter starts at one to prevent changing it from zero to a non-zero
         // value, which is a more expensive operation.
         _guardCounter = 1;
@@ -497,10 +497,10 @@ interface IStakingRewards {
     function exit() external;
 }
 
-contract RewardsDistributionRecipient {
+abstract contract RewardsDistributionRecipient {
     address public rewardsDistribution;
 
-    function notifyRewardAmount(uint256 reward) external;
+    function notifyRewardAmount(uint256 reward) external virtual;
 
     modifier onlyRewardsDistribution() {
         require(msg.sender == rewardsDistribution, "Caller is not RewardsDistribution contract");
@@ -534,7 +534,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         address _rewardsDistribution,
         address _rewardsToken,
         address _stakingToken
-    ) public {
+    ) {
         rewardsToken = IERC20(_rewardsToken);
         stakingToken = IERC20(_stakingToken);
         rewardsDistribution = _rewardsDistribution;
@@ -542,19 +542,19 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
 
     /* ========== VIEWS ========== */
 
-    function totalSupply() external view returns (uint256) {
+    function totalSupply() external view override returns (uint256) {
         return _totalSupply;
     }
 
-    function balanceOf(address account) external view returns (uint256) {
+    function balanceOf(address account) external view  override returns (uint256) {
         return _balances[account];
     }
 
-    function lastTimeRewardApplicable() public view returns (uint256) {
+    function lastTimeRewardApplicable() public view  override returns (uint256) {
         return Math.min(block.timestamp, periodFinish);
     }
 
-    function rewardPerToken() public view returns (uint256) {
+    function rewardPerToken() public view  override returns (uint256) {
         if (_totalSupply == 0) {
             return rewardPerTokenStored;
         }
@@ -564,11 +564,11 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
             );
     }
 
-    function earned(address account) public view returns (uint256) {
+    function earned(address account) public view  override returns (uint256) {
         return _balances[account].mul(rewardPerToken().sub(userRewardPerTokenPaid[account])).div(1e18).add(rewards[account]);
     }
 
-    function getRewardForDuration() external view returns (uint256) {
+    function getRewardForDuration() external view  override returns (uint256) {
         return rewardRate.mul(rewardsDuration);
     }
 
@@ -586,7 +586,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         emit Staked(msg.sender, amount);
     }
 
-    function stake(uint256 amount) external nonReentrant updateReward(msg.sender) {
+    function stake(uint256 amount) external nonReentrant updateReward(msg.sender) override  {
         require(amount > 0, "Cannot stake 0");
         _totalSupply = _totalSupply.add(amount);
         _balances[msg.sender] = _balances[msg.sender].add(amount);
@@ -594,7 +594,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         emit Staked(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) public nonReentrant updateReward(msg.sender) {
+    function withdraw(uint256 amount) public nonReentrant updateReward(msg.sender)  override {
         require(amount > 0, "Cannot withdraw 0");
         _totalSupply = _totalSupply.sub(amount);
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
@@ -602,7 +602,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         emit Withdrawn(msg.sender, amount);
     }
 
-    function getReward() public nonReentrant updateReward(msg.sender) {
+    function getReward() public nonReentrant updateReward(msg.sender) override {
         uint256 reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
@@ -611,14 +611,14 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
         }
     }
 
-    function exit() external {
+    function exit() external override {
         withdraw(_balances[msg.sender]);
         getReward();
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
-    function notifyRewardAmount(uint256 reward) external onlyRewardsDistribution updateReward(address(0)) {
+    function notifyRewardAmount(uint256 reward) external onlyRewardsDistribution updateReward(address(0)) override {
         if (block.timestamp >= periodFinish) {
             rewardRate = reward.div(rewardsDuration);
         } else {
@@ -683,7 +683,7 @@ contract StakingRewardsFactory is Ownable {
     constructor(
         address _rewardsToken,
         uint _stakingRewardsGenesis
-    ) Ownable() public {
+    ) Ownable() {
         require(_stakingRewardsGenesis >= block.timestamp, 'StakingRewardsFactory::constructor: genesis too soon');
 
         rewardsToken = _rewardsToken;
