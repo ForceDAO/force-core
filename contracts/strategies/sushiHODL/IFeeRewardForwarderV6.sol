@@ -1,4 +1,4 @@
-pragma solidity 0.5.16;
+pragma solidity ^0.8.0;
 
 interface IFeeRewardForwarderV6 {
     function poolNotifyFixedTarget(address _token, uint256 _amount) external;

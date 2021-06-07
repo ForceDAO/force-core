@@ -1,4 +1,4 @@
-pragma solidity 0.5.16;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 import "./Storage.sol";

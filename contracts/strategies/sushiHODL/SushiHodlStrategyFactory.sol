@@ -1,4 +1,4 @@
-pragma solidity 0.5.16;
+pragma solidity ^0.8.0;
 
 //try this first, if not working, import flattened one
 import "./MasterChefHodlStrategy.sol";
