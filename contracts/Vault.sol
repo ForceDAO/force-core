@@ -58,7 +58,8 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   function initializeVault(address _storage,
     address _underlying,
     uint256 _toInvestNumerator,
-    uint256 _toInvestDenominator
+    uint256 _toInvestDenominator,
+    uint256 _totalSupplyCap
   ) public initializer {
     require(_toInvestNumerator <= _toInvestDenominator, "cannot invest more than 100%");
     require(_toInvestDenominator != 0, "cannot divide by 0");
@@ -80,8 +81,13 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
       _toInvestDenominator,
       __underlyingUnit,
       implementationDelay,
-      strategyChangeDelay
+      strategyChangeDelay,
+      _totalSupplyCap
     );
+  }
+
+  function totalSupplyCap() public view returns (uint256) {
+    return _totalSupplyCap();
   }
 
   function strategy() public view override returns(address) {
@@ -228,6 +234,10 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     finalizeStrategyUpdate();
   }
 
+  function setTotalSupplyCap(uint256 value) external onlyGovernance {
+    return _setTotalSupplyCap(value);
+  }
+
   function setVaultFractionToInvest(uint256 numerator, uint256 denominator) external override onlyGovernance {
     require(denominator > 0, "denominator must be greater than 0");
     require(numerator <= denominator, "denominator must be greater than or equal to the numerator");
@@ -349,6 +359,11 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     }
 
     uint256 toMint = amount.mul(underlyingUnit()).div(getPricePerFullShare());
+
+    require(
+      totalSupplyCap() == 0 || totalSupply().add(toMint) <= totalSupplyCap(),
+      "Cannot mint more than cap"
+    );
 
     _mint(beneficiary, toMint);
 
