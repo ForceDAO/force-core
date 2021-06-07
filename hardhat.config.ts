@@ -4,22 +4,18 @@ import 'hardhat-deploy';
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-web3";
 import "solidity-coverage"
+import '@openzeppelin/hardhat-upgrades';
 require("@nomiclabs/hardhat-truffle5");
 import { ethers } from "ethers";
 require("@nomiclabs/hardhat-web3");
 require('hardhat-contract-sizer');
 require("dotenv").config();
 
-require("./scripts/accounts.task.js");
-require("./scripts/balance.task.js");
-require("./scripts/balance2.task.ts");
-require("./scripts/deploy01-Storage.task.js");
-require("./scripts/deploy02-ForceProfitSharing.task.js");
-require("./scripts/deploy03-FeeRewardForwarder.task.js");
-require("./scripts/deploy04-Controller.task.js");
-require("./scripts/deploy05-Vault.task.js");
-require("./scripts/deploy15-NoMintRewardPool.task.js");
-require("./scripts/deploy19-StaticsHelper.task");
+require("./scripts/accounts.task.ts");
+require("./scripts/balance.task.ts");
+require("./scripts/deploy-Storage.task.ts");
+require("./scripts/deploy-Controller.task.ts");
+require("./scripts/deploy-Vault.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
@@ -93,7 +89,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.5.16",
+        version: "0.8.0",
         settings: {
           optimizer: {
             enabled: true,
@@ -103,10 +99,6 @@ const config: HardhatUserConfig = {
       },
     ],
     overrides: {
-      "contracts/RewardPool.sol": {
-        version: "0.5.16",
-        settings: { }
-      },
     },
   },
   namedAccounts: {

@@ -1,11 +1,13 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract MockCUSDC is ERC20Mintable, ERC20Burnable {
+abstract contract MockCUSDC is ERC20Burnable, ERC20PresetMinterPauser {
 
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
@@ -19,9 +21,11 @@ contract MockCUSDC is ERC20Mintable, ERC20Burnable {
   IERC20 public underlying;
   mapping(address => uint256) debt;
 
-  constructor(address _underlying) public {
+  constructor(address _underlying) {
     underlying = IERC20(_underlying);
   }
+
+  function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20PresetMinterPauser) { }
 
   function mint(uint256 amount) external returns (uint256) {
     underlying.transferFrom(msg.sender, address(this), amount);

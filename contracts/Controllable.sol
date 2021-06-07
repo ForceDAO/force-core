@@ -1,10 +1,11 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./Governable.sol";
 
 contract Controllable is Governable {
 
-  constructor(address _storage) Governable(_storage) public {
+  constructor(address _storage) Governable(_storage) {
   }
 
   modifier onlyController() {
@@ -18,7 +19,7 @@ contract Controllable is Governable {
     _;
   }
 
-  function controller() public view returns (address) {
+  function controller() public view virtual returns (address) {
     return store.controller();
   }
 }

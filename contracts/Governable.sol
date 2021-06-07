@@ -1,4 +1,5 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./Storage.sol";
 
@@ -6,7 +7,7 @@ contract Governable {
 
   Storage public store;
 
-  constructor(address _store) public {
+  constructor(address _store) {
     require(_store != address(0), "new storage shouldn't be empty");
     store = Storage(_store);
   }
@@ -21,7 +22,7 @@ contract Governable {
     store = Storage(_store);
   }
 
-  function governance() public view returns (address) {
+  function governance() public view virtual returns (address) {
     return store.governance();
   }
 }

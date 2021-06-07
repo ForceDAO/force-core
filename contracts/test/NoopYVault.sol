@@ -1,16 +1,19 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract NoopYVault is ERC20, ERC20Detailed, ERC20Mintable, ERC20Burnable {
+contract NoopYVault is ERC20Burnable, ERC20PresetMinterPauser {
 
   IERC20 underlying;
 
-  constructor(address _underlying, uint8 decim) public ERC20Detailed("Mock Token", "MOCK", decim) {
+  constructor(address _underlying, uint8 decim) ERC20PresetMinterPauser("Mock Token", "MOCK") {
     underlying = IERC20(_underlying);
   }
+
+  function _beforeTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20PresetMinterPauser) { }
 
   function deposit(uint256 _amount) external {
     underlying.transferFrom(msg.sender, address(this), _amount);

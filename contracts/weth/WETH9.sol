@@ -19,18 +19,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-contract WETH9 {
+abstract contract WETH9 {
 
-    function balanceOf(address target) public view returns (uint256); 
+    function balanceOf(address target) public view virtual returns (uint256) ;
 
-    function deposit() public payable ;
-    function withdraw(uint wad) public ;
-    function totalSupply() public view returns (uint) ;
-    function approve(address guy, uint wad) public returns (bool) ;
-    function transfer(address dst, uint wad) public returns (bool) ;
-    function transferFrom(address src, address dst, uint wad) public returns (bool);
+    function deposit() public payable virtual ;
+    function withdraw(uint wad) public virtual ;
+    function totalSupply() public view virtual returns (uint) ;
+    function approve(address guy, uint wad) public  virtual returns (bool) ;
+    function transfer(address dst, uint wad) public  virtual returns (bool) ;
+    function transferFrom(address src, address dst, uint wad) public virtual returns (bool) ;
 
 }
 

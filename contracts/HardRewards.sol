@@ -1,7 +1,8 @@
-pragma solidity 0.5.16;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./Governable.sol";
 import "./Controllable.sol";
 
@@ -22,7 +23,7 @@ contract HardRewards is Controllable {
   mapping(address => uint256) public lastReward;
 
   constructor(address _storage, address _token)
-  Controllable(_storage) public {
+  Controllable(_storage) {
     token = IERC20(_token);
   }
 
