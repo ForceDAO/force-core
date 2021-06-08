@@ -33,6 +33,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   }
 
 
+
+
+  /// @param _rewardPool refers to Sushi MiniChefV2 Contract Address
+  /// @param _rewardToken refers to 1st reward token
+
   function initializeMasterChefHodlStrategy(
     address _storage,
     address _underlying,
@@ -79,6 +84,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       (bal,) = IMasterChef(rewardPool()).userInfo(poolId(), address(this));
   }
 
+
+
+  //TODO - instead of calling withdraw, call withdrawAndHarvest of MiniChefV2 contract
+  //TODO - find-out what is the 3rd argument in withdrawAndHarvest ???
+  //TODO - MinichefV2 Contract : function withdrawAndHarvest(uint256 pid, uint256 amount, address to) public {
   function exitRewardPool() internal {
       uint256 bal = rewardPoolBalance();
       if (bal != 0) {
@@ -101,6 +111,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     uint256 entireBalance = IERC20(underlying()).balanceOf(address(this));
     IERC20(underlying()).safeApprove(rewardPool(), 0);
     IERC20(underlying()).safeApprove(rewardPool(), entireBalance);
+    //TODO - check for 3rd argument : if its the VaultAddress is same as (msg.sender)
     IMasterChef(rewardPool()).deposit(poolId(), entireBalance);
   }
 
@@ -130,6 +141,8 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       IERC20(rewardToken()).safeApprove(hodlVault(), rewardBalance);
       IVault(hodlVault()).deposit(rewardBalance);
       uint256 fRewardBalance = IERC20(hodlVault()).balanceOf(address(this));
+
+      //TODO sync with harvest-repo latest code
       IERC20(hodlVault()).safeTransfer(potPool(), fRewardBalance);
       PotPool(potPool()).notifyTargetRewardAmount(hodlVault(), fRewardBalance);
     }

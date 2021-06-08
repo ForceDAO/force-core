@@ -30,6 +30,7 @@ contract SushiHodlStrategyFactory {
     address _sushiswapRouterV2Address
   ) public returns(address) {
     MasterChefHodlStrategy addrNew = new MasterChefHodlStrategy();
+
     MasterChefHodlStrategy(address(addrNew)).initializeMasterChefHodlStrategy(
       _storage,
       _underlyingPair,
