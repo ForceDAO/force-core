@@ -43,12 +43,12 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _hodlVault,
     address _potPool,
     address _uniswapRouterV2Address,
-    address _sushiswapRouterV2
+    address _sushiswapRouterV2Address
   ) public initializer {
     require(_rewardPool != address(0), "reward pool is empty");
 
     uniswapRouterV2 = _uniswapRouterV2Address;
-    sushiswapRouterV2 = _sushiswapRouterV2;
+    sushiswapRouterV2 = _sushiswapRouterV2Address;
     
     BaseUpgradeableStrategy.initialize(
       _storage,
