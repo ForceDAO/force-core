@@ -20,15 +20,7 @@ contract VaultStorage is Initializable {
   bytes32 internal constant _WITHDRAW_BEFORE_REINVESTING_SLOT = 0x4215fbb95dc0890d3e1660fb9089350f2d3f350c0a756934874cae6febf42a79;
   bytes32 internal constant _TOTAL_SUPPLY_CAP = 0x138459372b9025a8c1e12a6475fdc7d2ce9c8afb75d5c05b2f0767a663aab39b;
 
-  function initialize(
-    address __underlying,
-    uint256 _toInvestNumerator,
-    uint256 _toInvestDenominator,
-    uint256 __underlyingUnit,
-    uint256 _implementationChangeDelay,
-    uint256 _strategyChangeDelay,
-    uint256 __totalSupplyCap
-  ) public initializer {
+  constructor() {
     assert(_STRATEGY_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.strategy")) - 1));
     assert(_UNDERLYING_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.underlying")) - 1));
     assert(_UNDERLYING_UNIT_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.underlyingUnit")) - 1));
@@ -43,7 +35,17 @@ contract VaultStorage is Initializable {
     assert(_ALLOW_SHARE_PRICE_DECREASE_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.allowSharePriceDecrease")) - 1));
     assert(_WITHDRAW_BEFORE_REINVESTING_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.withdrawBeforeReinvesting")) - 1));
     assert(_TOTAL_SUPPLY_CAP == bytes32(uint256(keccak256("eip1967.vaultStorage.totalSupplyCap")) - 1));
+  }
 
+  function initialize(
+    address __underlying,
+    uint256 _toInvestNumerator,
+    uint256 _toInvestDenominator,
+    uint256 __underlyingUnit,
+    uint256 _implementationChangeDelay,
+    uint256 _strategyChangeDelay,
+    uint256 __totalSupplyCap
+  ) public initializer {
     _setUnderlying(__underlying);
     _setVaultFractionToInvestNumerator(_toInvestNumerator);
     _setVaultFractionToInvestDenominator(_toInvestDenominator);

@@ -39,6 +39,7 @@ contract("Vault Test", function (accounts) {
         {
           initializer: "initializeVault(address,address,uint256,uint256,uint256)",
           unsafeAllowCustomTypes: true,
+          unsafeAllow: ['constructor'],
           from: governance,
         }
       );

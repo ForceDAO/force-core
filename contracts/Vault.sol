@@ -43,6 +43,9 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _;
   }
 
+  constructor() {
+  }
+
   function controller() public view override(IVault, ControllableInit) returns (address) {
     return Storage(_storage()).controller();
   }
@@ -62,8 +65,8 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     require(_toInvestDenominator != 0, "cannot divide by 0");
 
     ERC20Upgradeable.__ERC20_init(
-      string(abi.encodePacked("FORCE_", ERC20Upgradeable(_underlying).symbol())),
-      string(abi.encodePacked("x", ERC20Upgradeable(_underlying).symbol()))
+      string(abi.encodePacked("FARM_", ERC20Upgradeable(_underlying).symbol())),
+      string(abi.encodePacked("f", ERC20Upgradeable(_underlying).symbol()))
     );
     ControllableInit.initialize(
       _storage

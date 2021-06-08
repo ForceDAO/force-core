@@ -13,8 +13,11 @@ contract GovernableInit is Initializable {
     _;
   }
 
-  function initialize(address _store) public virtual initializer {
+  constructor() {
     assert(_STORAGE_SLOT == bytes32(uint256(keccak256("eip1967.governableInit.storage")) - 1));
+  }
+
+  function initialize(address _store) public virtual initializer {
     _setStorage(_store);
   }
 
