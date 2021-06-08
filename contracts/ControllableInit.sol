@@ -6,9 +6,6 @@ import "./GovernableInit.sol";
 // A clone of Governable supporting the Initializable interface and pattern
 contract ControllableInit is GovernableInit {
 
-  constructor() {
-  }
-
   function initialize(address _storage) public override initializer {
     GovernableInit.initialize(_storage);
   }
