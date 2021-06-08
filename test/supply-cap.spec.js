@@ -4,7 +4,7 @@ const Storage = artifacts.require("Storage");
 const { expect } = require("chai");
 const { BigNumber } = require("ethers");
 
-// npx hardhat test test/1featSupplyCap.js
+
 contract("Vault Test", function (accounts) {
   describe("TotalSupplyCap", function () {
     let governance = accounts[0];
@@ -18,7 +18,7 @@ contract("Vault Test", function (accounts) {
     const farmerBalance = "95848503450";
 
     let underlyingDecimals = "18";
-    let underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
+    const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
     const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
     const newTotalSupplyCap = BigNumber.from(100).mul(underlyingDecimalsBN);
 
