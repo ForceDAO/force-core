@@ -3,8 +3,6 @@ const Storage = artifacts.require("Storage");
 
 const { expect } = require("chai");
 const { BigNumber } = require("ethers");
-const bigNum = (item) => BigNumber.from(item);
-const log1 = console.log;
 
 // npx hardhat test test/1featSupplyCap.js
 contract("Vault Test", function (accounts) {
@@ -20,10 +18,9 @@ contract("Vault Test", function (accounts) {
     const farmerBalance = "95848503450";
 
     let underlyingDecimals = "18";
-    let underlyingDecimalsBN = bigNum(10).pow(bigNum(underlyingDecimals));
-    const totalSupplyCap = bigNum(1000).mul(underlyingDecimalsBN);
-    const newTotalSupplyCap = bigNum(100).mul(underlyingDecimalsBN);
-    log1("check4")
+    let underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
+    const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
+    const newTotalSupplyCap = BigNumber.from(100).mul(underlyingDecimalsBN);
 
     beforeEach(async function () {
       storage = await Storage.new({ from: governance });
@@ -45,22 +42,17 @@ contract("Vault Test", function (accounts) {
           from: governance,
         }
       );
-      log1("Vault deployed to:", vaultInst.address);
-      //vaultInst = await upgrades.upgradeProxy(vaultInst.address, Vault);
     });
 
     it('Check total supply cap', async () => {
-      log1("check1: totalSupplyCap");
       expect(await vaultInst.totalSupplyCap()).to.equal(totalSupplyCap);
     });
 
     it('Revert from non-governance', async () => {
-      log1("governance:", governance,  ", nonGov:", nonGov);
       let signers = await hre.ethers.getSigners();
       await expect(
         vaultInst.connect(signers[3]).setTotalSupplyCap(newTotalSupplyCap)
       ).to.be.revertedWith('Not governance');
-
     });
 
     it('Only governance can set total supply cap', async () => {
