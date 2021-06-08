@@ -43,6 +43,9 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _;
   }
 
+  constructor() {
+  }
+
   function controller() public view override(IVault, ControllableInit) returns (address) {
     return Storage(_storage()).controller();
   }
