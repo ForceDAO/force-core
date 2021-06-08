@@ -4,10 +4,10 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
-import "./IUniswapV2Router02.sol";
-import "./IUniswapV2Pair.sol";
-import "./IVault.sol";
-import "./IStrategy.sol";
+import "../../uniswap/IUniswapV2Router02.sol";
+import "../../uniswap/IUniswapV2Pair.sol";
+import "../../hardworkinterface/IVault.sol";
+import "../../hardworkinterface/IStrategy.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMasterChef.sol";
 import "./PotPool.sol";

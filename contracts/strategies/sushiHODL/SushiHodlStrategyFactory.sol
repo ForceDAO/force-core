@@ -1,8 +1,6 @@
 pragma solidity ^0.8.0;
 
-//try this first, if not working, import flattened one
 import "./MasterChefHodlStrategy.sol";
-//import "./MasterChefHodlStrategyF1.sol";
 
 contract SushiHodlStrategyFactory {
 
