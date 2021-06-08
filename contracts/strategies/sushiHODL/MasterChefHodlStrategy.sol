@@ -16,9 +16,10 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
-
-  address public constant uniswapRouterV2 = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-  address public constant sushiswapRouterV2 = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
+  //address public constant uniswapRouterV2 = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+  //address public constant sushiswapRouterV2 = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
+  address uniswapRouterV2;
+  address sushiswapRouterV2;
 
   // additional storage slots (on top of BaseUpgradeableStrategy ones) are defined here
   bytes32 internal constant _POOLID_SLOT = 0x3fd729bfa2e28b7806b03a6e014729f59477b530f995be4d51defc9dad94810b;
@@ -40,10 +41,15 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _rewardToken,
     uint256 _poolId,
     address _hodlVault,
-    address _potPool
+    address _potPool,
+    address _uniswapRouterV2Address,
+    address _sushiswapRouterV2
   ) public initializer {
     require(_rewardPool != address(0), "reward pool is empty");
 
+    uniswapRouterV2 = _uniswapRouterV2Address;
+    sushiswapRouterV2 = _sushiswapRouterV2;
+    
     BaseUpgradeableStrategy.initialize(
       _storage,
       _underlying,
