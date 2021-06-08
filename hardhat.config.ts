@@ -5,10 +5,11 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-web3";
 import "solidity-coverage"
 import '@openzeppelin/hardhat-upgrades';
-require("@nomiclabs/hardhat-truffle5");
-import { ethers } from "ethers";
 require("@nomiclabs/hardhat-web3");
-require('hardhat-contract-sizer');
+require("@nomiclabs/hardhat-ethers");
+require("@nomiclabs/hardhat-truffle5");
+//require('hardhat-contract-sizer');
+import { ethers } from "ethers";
 require("dotenv").config();
 
 require("./scripts/accounts.task.ts");
@@ -30,10 +31,12 @@ const config: HardhatUserConfig = {
       url: "http://127.0.0.1:8545"
     },
     hardhat: {
-      throwOnTransactionFailures: true,
-      throwOnCallFailures: true,
-      allowUnlimitedContractSize: true,
-      blockGasLimit: 0x1fffffffffffff,
+      gas: 7000000,
+      gasPrice: 1000,
+      // throwOnTransactionFailures: true,
+      // throwOnCallFailures: true,
+      // allowUnlimitedContractSize: true,
+      // blockGasLimit: 0x1fffffffffffff,
     },
     polygonmumbai: {
       url: `https://rpc-mumbai.maticvigil.com/v1/${MATICVIGIL_APP_ID}`,
