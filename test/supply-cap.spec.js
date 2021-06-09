@@ -64,8 +64,15 @@ contract("Vault Test", function (accounts) {
       );
     });
 
-    it('Cannot mint over supply cap', async () => {
-      // deposit(...) requirement: totalSupplyCap() == 0 || totalSupply().add(toMint) <= totalSupplyCap(),
+    it('Revert when exceed total supply limit', async () => {
+      let signers = await hre.ethers.getSigners();
+      const depositAmount = totalSupplyCap.add(1);
+      await expect(
+        vaultInst.connect(signers[2]).deposit(depositAmount)
+      ).to.be.revertedWith("Cannot mint more than cap");
+      await expect(
+        vaultInst.connect(signers[3]).depositFor(depositAmount, signers[3].address)
+      ).to.be.revertedWith("Cannot mint more than cap");
     });
 
     after('Reset', async () => {
