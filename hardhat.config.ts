@@ -1,4 +1,4 @@
-import { task, HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
 import 'hardhat-deploy';
 import "@nomiclabs/hardhat-etherscan";
