@@ -1,22 +1,10 @@
 const MockToken = artifacts.require("MockToken");
 const Storage = artifacts.require("Storage");
-//const Controller = artifacts.require("Controller");
-//const MockERC20 = artifacts.require('MockERC20');
 const MockFeeRewardForwarder = artifacts.require('MockFeeRewardForwarder');
 
 const { expect } = require("chai");
 const { BigNumber } = require("ethers");
 
-const fromWei = (weiAmount, dp = 18) => ethers.utils.formatUnits(weiAmount.toString(), parseInt(dp));
-
-const getTokenVaultBalance = async (tokenInst, vaultInst, depositor, holder = depositor) => {
-  const baln1= await tokenInst.balanceOf(depositor);
-  const baln2= await vaultInst.balanceOf(holder);
-  console.log("token baln1:", fromWei(baln1),
-  ", vault baln2:", fromWei(baln2));
-}
-
-// npx hardhat test test/1featAddWhiteList.js
 describe("Add White List", function () {
   let alice, bob, carol;
   let governance, farmer;
@@ -25,6 +13,8 @@ describe("Add White List", function () {
   const underlyingDecimals = "18";
   const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
   const farmerBalance = BigNumber.from('80000').mul(underlyingDecimalsBN);
+  const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
+
 
   beforeEach(async function () {
     signers = await hre.ethers.getSigners();
@@ -47,15 +37,10 @@ describe("Add White List", function () {
     );
 
     const controllerFactory = await ethers.getContractFactory("Controller");
-    controllerInst = await controllerFactory.deploy(        storage.address, feeRewardForwarder.address);
+    controllerInst = await controllerFactory.deploy(storage.address, feeRewardForwarder.address);
     await controllerInst.deployed();
     expect(controllerInst.address).to.properAddress;
 
-    //console.log("controller contract is deployed to:", controllerInst.address);
-    // controllerInst = await Controller.new(
-    //   storage.address,
-    //   feeRewardForwarder.address
-    // );
     await storage.setController(controllerInst.address, { from: governance });
 
     //------------==
@@ -68,21 +53,21 @@ describe("Add White List", function () {
     VaultFactory = await ethers.getContractFactory("Vault");
     vault = await upgrades.deployProxy(
       VaultFactory,
-      [storage.address, underlying.address, 100, 100],
+      [storage.address, underlying.address, 100, 100, totalSupplyCap],
       {
         initializer:
-          "initializeVault(address,address,uint256,uint256)",
+          "initializeVault(address,address,uint256,uint256,uint256)",
         unsafeAllowCustomTypes: true,
+        unsafeAllow: ['constructor'],
         from: governance,
       }
     );
-    //console.log("Vault deployed to:", vault.address);
 
     const MockVaultDepositorFactory = await ethers.getContractFactory("MockVaultDepositor");
     depositor = await MockVaultDepositorFactory.deploy();
     await depositor.deployed();
     expect(depositor.address).to.properAddress;
-    //vault = await upgrades.upgradeProxy(vault.address, Vault);
+
 
     //------------==
     await underlying.mint(governance, farmerBalance, { from: governance });
@@ -107,15 +92,13 @@ describe("Add White List", function () {
     await underlying.approve(vault.address, initalTransferAmount, {
       from: carol,
     });
-  });//beforeEach()
-
-  // Vault: modifier defense(): IController(controller()).whiteList(msg.sender)
+  });
 
   describe('addToWhiteList', () => {
 
     it('Revert from non-owner', async () => {
       nonGov = signers[4];
-      //console.log("governance:", governance, ", nonGov:", nonGov.address);
+
       await expect(
         controllerInst.connect(nonGov).addToWhiteList(_whitelist)
       ).to.be.revertedWith("Not governance");
@@ -132,7 +115,7 @@ describe("Add White List", function () {
 
     it('Revert from non-owner', async () => {
       nonGov = signers[4];
-      //console.log("governance:", governance, ", nonGov:", nonGov.address);
+
       await expect(
         controllerInst.connect(nonGov).removeFromWhiteList(_whitelist)
       ).to.be.revertedWith("Not governance");
