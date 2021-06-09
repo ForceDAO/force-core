@@ -32,13 +32,6 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _;
   }
 
-<<<<<<< HEAD
-  function governance() public view override(GovernableInit,IVault) returns (address) {
-    return Storage(_storage()).governance();
-  }
-
-=======
->>>>>>> develop
   //  Only smart contracts will be affected by this modifier
   modifier defense() {
     require(
@@ -55,32 +48,25 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
 
   function controller() public view override(IVault, ControllableInit) returns (address) {
     return Storage(_storage()).controller();
-<<<<<<< HEAD
-=======
   }
 
   function governance() public view override(GovernableInit,IVault) returns (address) {
     return Storage(_storage()).governance();
->>>>>>> develop
   }
 
   // the function is name differently to not cause inheritance clash in truffle and allows tests
   function initializeVault(address _storage,
     address _underlying,
     uint256 _toInvestNumerator,
-    uint256 _toInvestDenominator
+    uint256 _toInvestDenominator,
+    uint256 _totalSupplyCap
   ) public initializer {
     require(_toInvestNumerator <= _toInvestDenominator, "cannot invest more than 100%");
     require(_toInvestDenominator != 0, "cannot divide by 0");
 
     ERC20Upgradeable.__ERC20_init(
-<<<<<<< HEAD
-      string(abi.encodePacked("FARM_", ERC20Upgradeable(_underlying).symbol())),
-      string(abi.encodePacked("f", ERC20Upgradeable(_underlying).symbol()))
-=======
       string(abi.encodePacked("FORCE_", ERC20Upgradeable(_underlying).symbol())),
       string(abi.encodePacked("x", ERC20Upgradeable(_underlying).symbol()))
->>>>>>> develop
     );
     ControllableInit.initialize(
       _storage
@@ -95,8 +81,13 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
       _toInvestDenominator,
       __underlyingUnit,
       implementationDelay,
-      strategyChangeDelay
+      strategyChangeDelay,
+      _totalSupplyCap
     );
+  }
+
+  function totalSupplyCap() public view returns (uint256) {
+    return _totalSupplyCap();
   }
 
   function strategy() public view override returns(address) {
@@ -223,11 +214,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _setFutureStrategy(address(0));
   }
 
-<<<<<<< HEAD
-  function setStrategy(address _strategy) public override virtual onlyControllerOrGovernance {
-=======
   function setStrategy(address _strategy) public override onlyControllerOrGovernance {
->>>>>>> develop
     require(canUpdateStrategy(_strategy),
       "The strategy exists and switch timelock did not elapse yet");
     require(_strategy != address(0), "new _strategy cannot be empty");
@@ -245,6 +232,10 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
       IERC20Upgradeable(underlying()).safeApprove(address(strategy()), type(uint256).max);//uint256(~0)
     }
     finalizeStrategyUpdate();
+  }
+
+  function setTotalSupplyCap(uint256 value) external onlyGovernance {
+    return _setTotalSupplyCap(value);
   }
 
   function setVaultFractionToInvest(uint256 numerator, uint256 denominator) external override onlyGovernance {
@@ -368,6 +359,11 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     }
 
     uint256 toMint = amount.mul(underlyingUnit()).div(getPricePerFullShare());
+
+    require(
+      totalSupplyCap() == 0 || totalSupply().add(toMint) <= totalSupplyCap(),
+      "Cannot mint more than cap"
+    );
 
     _mint(beneficiary, toMint);
 
