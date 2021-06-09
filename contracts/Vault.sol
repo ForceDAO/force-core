@@ -32,10 +32,13 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _;
   }
 
+<<<<<<< HEAD
   function governance() public view override(GovernableInit,IVault) returns (address) {
     return Storage(_storage()).governance();
   }
 
+=======
+>>>>>>> develop
   //  Only smart contracts will be affected by this modifier
   modifier defense() {
     require(
@@ -52,6 +55,13 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
 
   function controller() public view override(IVault, ControllableInit) returns (address) {
     return Storage(_storage()).controller();
+<<<<<<< HEAD
+=======
+  }
+
+  function governance() public view override(GovernableInit,IVault) returns (address) {
+    return Storage(_storage()).governance();
+>>>>>>> develop
   }
 
   // the function is name differently to not cause inheritance clash in truffle and allows tests
@@ -64,8 +74,13 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     require(_toInvestDenominator != 0, "cannot divide by 0");
 
     ERC20Upgradeable.__ERC20_init(
+<<<<<<< HEAD
       string(abi.encodePacked("FARM_", ERC20Upgradeable(_underlying).symbol())),
       string(abi.encodePacked("f", ERC20Upgradeable(_underlying).symbol()))
+=======
+      string(abi.encodePacked("FORCE_", ERC20Upgradeable(_underlying).symbol())),
+      string(abi.encodePacked("x", ERC20Upgradeable(_underlying).symbol()))
+>>>>>>> develop
     );
     ControllableInit.initialize(
       _storage
@@ -208,7 +223,11 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     _setFutureStrategy(address(0));
   }
 
+<<<<<<< HEAD
   function setStrategy(address _strategy) public override virtual onlyControllerOrGovernance {
+=======
+  function setStrategy(address _strategy) public override onlyControllerOrGovernance {
+>>>>>>> develop
     require(canUpdateStrategy(_strategy),
       "The strategy exists and switch timelock did not elapse yet");
     require(_strategy != address(0), "new _strategy cannot be empty");
