@@ -3,14 +3,6 @@ pragma solidity ^0.8.0;
 
 interface IVault {
 
-    function initializeVault(
-      address _storage,
-      address _underlying,
-      uint256 _toInvestNumerator,
-      uint256 _toInvestDenominator
-    ) external ;
-
-    function balanceOf(address) external view returns (uint256);
     function underlyingBalanceInVault() external view returns (uint256);
     function underlyingBalanceWithInvestment() external view returns (uint256);
 
@@ -21,7 +13,6 @@ interface IVault {
     function strategy() external view returns (address);
 
     function setStrategy(address _strategy) external;
-    function announceStrategyUpdate(address _strategy) external;
     function setVaultFractionToInvest(uint256 numerator, uint256 denominator) external;
 
     function deposit(uint256 amountWei) external;
