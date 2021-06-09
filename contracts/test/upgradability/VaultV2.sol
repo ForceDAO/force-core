@@ -42,7 +42,8 @@ contract VaultV2 is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, 
   function initializeVault(address _storage,
     address _underlying,
     uint256 _toInvestNumerator,
-    uint256 _toInvestDenominator
+    uint256 _toInvestDenominator,
+    uint256 _totalSupplyCap
   ) public initializer {
     require(_toInvestNumerator <= _toInvestDenominator, "cannot invest more than 100%");
     require(_toInvestDenominator != 0, "cannot divide by 0");
@@ -64,7 +65,8 @@ contract VaultV2 is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, 
       _toInvestDenominator,
       underlyingUnit,
       implementationDelay,
-      strategyChangeDelay
+      strategyChangeDelay,
+      _totalSupplyCap
     );
   }
 
