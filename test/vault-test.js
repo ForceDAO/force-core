@@ -1,9 +1,8 @@
 const MockToken = artifacts.require("MockToken");
 const Storage = artifacts.require("Storage");
 
-//const makeVault = require("./make-vault.js");
+const { BigNumber } = require("ethers");
 
-// npx hardhat test test/vault-test2.js
 contract("Vault Test", function (accounts) {
   describe("Deposit and Withdraw", function () {
     let governance = accounts[0];
@@ -17,6 +16,11 @@ contract("Vault Test", function (accounts) {
     const farmerBalance = "95848503450";
     const underlyingSymbol = "MOCK";
 
+    let underlyingDecimals = "18";
+    const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
+    const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
+
+
     beforeEach(async function () {
       storage = await Storage.new({ from: governance });
       await storage.setController(controller, { from: governance });
@@ -28,7 +32,7 @@ contract("Vault Test", function (accounts) {
         (await underlying.balanceOf(farmer)).toString()
       );
       Vault = await ethers.getContractFactory("Vault");
-      vaultInst = await upgrades.deployProxy(Vault, [storage.address, underlying.address, 100, 100], {initializer: 'initializeVault(address,address,uint256,uint256)', unsafeAllow: ['constructor'], unsafeAllowCustomTypes: true, from: governance});
+      vaultInst = await upgrades.deployProxy(Vault, [storage.address, underlying.address, 100, 100, totalSupplyCap], {initializer: 'initializeVault(address,address,uint256,uint256,uint256)', unsafeAllow: ['constructor'], unsafeAllowCustomTypes: true, from: governance});
     });
 
     it('Vault name should have "FORCE" prefix', async () => {

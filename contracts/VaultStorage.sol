@@ -18,6 +18,7 @@ contract VaultStorage is Initializable {
   bytes32 internal constant _STRATEGY_UPDATE_TIME_SLOT = 0x56e7c0e75875c6497f0de657009613a32558904b5c10771a825cc330feff7e72;
   bytes32 internal constant _ALLOW_SHARE_PRICE_DECREASE_SLOT = 0x22f7033891e85fc76735ebd320e0d3f546da431c4729c2f6d2613b11923aaaed;
   bytes32 internal constant _WITHDRAW_BEFORE_REINVESTING_SLOT = 0x4215fbb95dc0890d3e1660fb9089350f2d3f350c0a756934874cae6febf42a79;
+  bytes32 internal constant _TOTAL_SUPPLY_CAP = 0x138459372b9025a8c1e12a6475fdc7d2ce9c8afb75d5c05b2f0767a663aab39b;
 
   constructor() {
     assert(_STRATEGY_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.strategy")) - 1));
@@ -33,6 +34,7 @@ contract VaultStorage is Initializable {
     assert(_STRATEGY_UPDATE_TIME_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.strategyUpdateTime")) - 1));
     assert(_ALLOW_SHARE_PRICE_DECREASE_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.allowSharePriceDecrease")) - 1));
     assert(_WITHDRAW_BEFORE_REINVESTING_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.withdrawBeforeReinvesting")) - 1));
+    assert(_TOTAL_SUPPLY_CAP == bytes32(uint256(keccak256("eip1967.vaultStorage.totalSupplyCap")) - 1));
   }
 
   function initialize(
@@ -41,7 +43,8 @@ contract VaultStorage is Initializable {
     uint256 _toInvestDenominator,
     uint256 __underlyingUnit,
     uint256 _implementationChangeDelay,
-    uint256 _strategyChangeDelay
+    uint256 _strategyChangeDelay,
+    uint256 __totalSupplyCap
   ) public initializer {
     _setUnderlying(__underlying);
     _setVaultFractionToInvestNumerator(_toInvestNumerator);
@@ -49,6 +52,7 @@ contract VaultStorage is Initializable {
     _setUnderlyingUnit(__underlyingUnit);
     _setNextImplementationDelay(_implementationChangeDelay);
     _setStrategyTimeLock(_strategyChangeDelay);
+    _setTotalSupplyCap(__totalSupplyCap);
     _setStrategyUpdateTime(0);
     _setFutureStrategy(address(0));
     _setAllowSharePriceDecrease(false);
@@ -141,6 +145,14 @@ contract VaultStorage is Initializable {
 
   function _strategyTimeLock() internal view returns (uint256) {
     return getUint256(_STRATEGY_TIME_LOCK_SLOT);
+  }
+
+  function _setTotalSupplyCap(uint256 _value) internal {
+    setUint256(_TOTAL_SUPPLY_CAP, _value);
+  }
+
+  function _totalSupplyCap() internal view returns (uint256) {
+    return getUint256(_TOTAL_SUPPLY_CAP);
   }
 
   function _setFutureStrategy(address _value) internal {
