@@ -132,10 +132,7 @@ describe("Add White List", function () {
   });
 
   describe('deposit from a contract', () => {
-    /*
-    add test: if a contract is not on whitelist, deposit and depositFor should revert ... check vault.old.js
-    if a contract is on the whitelist, deposit and depositFor should succeed
-    */
+
     it('Revert to deposit from non-whitelisted contracts', async () => {
       const depositAmount = BigNumber.from('100').mul(underlyingDecimalsBN);
 
@@ -156,16 +153,11 @@ describe("Add White List", function () {
       await controllerInst.addToWhiteList(depositor.address);
       assert.equal(await controllerInst.whiteList(depositor.address), true);
 
-      //await getTokenVaultBalance(underlying, vault, depositor.address, signers[1].address);
-
       await depositor.connect(signers[1]).depositFor(underlying.address, vault.address, depositAmount);
-      //await getTokenVaultBalance(underlying, vault, depositor.address, signers[1].address);
 
       expect(await vault.balanceOf(signers[1].address)).to.equal(depositAmount);
 
       await depositor.connect(signers[1]).deposit(underlying.address, vault.address, depositAmount);
-
-      //await getTokenVaultBalance(underlying, vault, depositor.address);
 
       expect(await vault.balanceOf(depositor.address)).to.equal(depositAmount);
 
