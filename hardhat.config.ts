@@ -8,6 +8,7 @@ import '@openzeppelin/hardhat-upgrades';
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-truffle5");
+
 import { ethers } from "ethers";
 require("dotenv").config();
 
@@ -31,15 +32,7 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       gas: 7000000,
-<<<<<<< HEAD
       gasPrice: ethers.utils.parseUnits("10", "gwei").toNumber(),
-=======
-      gasPrice: 1000,
-      // throwOnTransactionFailures: true,
-      // throwOnCallFailures: true,
-      // allowUnlimitedContractSize: true,
-      // blockGasLimit: 0x1fffffffffffff,
->>>>>>> 4c1d6f806336accd7cfa4075862ba86f5f876f9b
     },
     polygonmumbai: {
       url: `https://rpc-mumbai.maticvigil.com/v1/${MATICVIGIL_APP_ID}`,
