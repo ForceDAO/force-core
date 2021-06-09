@@ -1,0 +1,42 @@
+'npx hardhat compile --force' running
+Need to install the following packages:
+  hardhat
+Ok to proceed? (y) 
+
+npm WARN deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+npm WARN deprecated debug@3.2.6: Debug versions >=3.2.0 <3.2.7 || >=4 <4.3.1 have a low-severity ReDos regression when used in a Node.js environment. It is recommended you upgrade to 3.2.7 or 4.3.1. (https://github.com/visionmedia/debug/issues/797)
+Error HH12: Trying to use a non-local installation of Hardhat, which is not supported.
+Please install Hardhat locally using npm or Yarn, and try again.
+For more info go to https://hardhat.org/HH12 or run Hardhat with --show-stack-traces
+
+Traceback (most recent call last):
+  File "/home/brandon/.local/lib/python3.9/site-packages/slither/__main__.py", line 723, in main_impl
+    ) = process_all(filename, args, detector_classes, printer_classes)
+  File "/home/brandon/.local/lib/python3.9/site-packages/slither/__main__.py", line 71, in process_all
+    compilations = compile_all(target, **vars(args))
+  File "/home/brandon/.local/lib/python3.9/site-packages/crytic_compile/crytic_compile.py", line 489, in compile_all
+    compilations.append(CryticCompile(target, **kwargs))
+  File "/home/brandon/.local/lib/python3.9/site-packages/crytic_compile/crytic_compile.py", line 109, in __init__
+    self._compile(**kwargs)
+  File "/home/brandon/.local/lib/python3.9/site-packages/crytic_compile/crytic_compile.py", line 417, in _compile
+    self._platform.compile(self, **kwargs)
+  File "/home/brandon/.local/lib/python3.9/site-packages/crytic_compile/platform/hardhat.py", line 81, in compile
+    os.listdir(build_directory), key=lambda x: os.path.getmtime(Path(build_directory, x))
+FileNotFoundError: [Errno 2] No such file or directory: 'artifacts/build-info'
+ERROR:root:None
+ERROR:root:Error in .
+ERROR:root:Traceback (most recent call last):
+  File "/home/brandon/.local/lib/python3.9/site-packages/slither/__main__.py", line 723, in main_impl
+    ) = process_all(filename, args, detector_classes, printer_classes)
+  File "/home/brandon/.local/lib/python3.9/site-packages/slither/__main__.py", line 71, in process_all
+    compilations = compile_all(target, **vars(args))
+  File "/home/brandon/.local/lib/python3.9/site-packages/crytic_compile/crytic_compile.py", line 489, in compile_all
+    compilations.append(CryticCompile(target, **kwargs))
+  File "/home/brandon/.local/lib/python3.9/site-packages/crytic_compile/crytic_compile.py", line 109, in __init__
+    self._compile(**kwargs)
+  File "/home/brandon/.local/lib/python3.9/site-packages/crytic_compile/crytic_compile.py", line 417, in _compile
+    self._platform.compile(self, **kwargs)
+  File "/home/brandon/.local/lib/python3.9/site-packages/crytic_compile/platform/hardhat.py", line 81, in compile
+    os.listdir(build_directory), key=lambda x: os.path.getmtime(Path(build_directory, x))
+FileNotFoundError: [Errno 2] No such file or directory: 'artifacts/build-info'
+
