@@ -1,5 +1,6 @@
 const { expectRevert, constants, time } = require("@openzeppelin/test-helpers");
 const Vault = artifacts.require("Vault");
+const VaultProxy = artifacts.require("VaultProxy");
 const Controller = artifacts.require("Controller");
 const MockToken = artifacts.require("MockToken");
 const NoopStrategy = artifacts.require("NoopStrategyV2");
@@ -10,12 +11,11 @@ const Storage = artifacts.require("Storage");
 const MockUSDC = artifacts.require("MockUSDC");
 const VaultUpgradableSooner = artifacts.require("VaultUpgradableSooner");
 const InterestEarningStrategy = artifacts.require("InterestEarningStrategy");
-const BigNumberJs = require("bignumber.js");
-BigNumberJs.config({ DECIMAL_PLACES: 0 });
-const Utils = require("./Utils.js");
-//-----------------==
+const BigNumber = require("bignumber.js");
+BigNumber.config({ DECIMAL_PLACES: 0 });
 
-const { BigNumber } = require("ethers");
+const Utils = require("./Utils.js");
+const makeVault = require("./make-vault.js");
 
 contract("Vault Test", function (accounts) {
   describe("Deposit and Withdraw", function () {
@@ -32,7 +32,6 @@ contract("Vault Test", function (accounts) {
 
     const tokenUnit = "1000000000000000000";
     const farmerBalance = "95848503450";
-    const underlyingSymbol = "MOCK";
     const roundBalance = "1000000";
     const roundBalancePostLoss = "900000";
     const roundBalancePostGain = "1100000";
@@ -40,19 +39,7 @@ contract("Vault Test", function (accounts) {
     const roundBalancePostGainFarmerBob =
       2 * roundBalancePostGain - roundBalancePostGainFarmer;
 
-    let signer0, signer1, signer2, signer3, signer4, addrs;
-    let underlyingDecimals = "18";
-    const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
-    const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
-
-    const makeVault = async (toInvestNumerator =100, toInvestDenominator = 100) => {
-      const VaultFactory = await ethers.getContractFactory("Vault");
-      const vault = await upgrades.deployProxy(VaultFactory, [storage.address, underlying.address, toInvestNumerator, toInvestDenominator, totalSupplyCap], {initializer: 'initializeVault(address,address,uint256,uint256,uint256)', unsafeAllow: ['constructor'], unsafeAllowCustomTypes: true, from: governance});
-      return vault;
-    }
     beforeEach(async function () {
-      [signer0, signer1, signer2, signer3, signer4, ...addrs] = await hre.ethers.getSigners();
-
       storage = await Storage.new({ from: governance });
       await storage.setController(controller, { from: governance });
       // create the underlying token
@@ -62,8 +49,12 @@ contract("Vault Test", function (accounts) {
         farmerBalance,
         (await underlying.balanceOf(farmer)).toString()
       );
-      vault = await makeVault();
-      //console.log("vault", vault.address)
+
+      // set up the vault with 100% investment
+      vault = await makeVault(storage.address, underlying.address, 100, 100, {
+        from: governance,
+      });
+
       // set up the strategy
       strategy = await NoopStrategy.new(
         storage.address,
@@ -71,26 +62,17 @@ contract("Vault Test", function (accounts) {
         vault.address,
         { from: governance }
       );
-      await vault.connect(signer1).setStrategy(strategy.address);
+      await vault.setStrategy(strategy.address, { from: controller });
       assert.equal(strategy.address, await vault.strategy());
-    });
-
-    it('Vault name should have "FORCE" prefix', async () => {
-      const vaultTokenName = await vault.name();
-      assert.equal(vaultTokenName, `FORCE_${underlyingSymbol}`);
-    });
-
-    it('Vault symbol should have "x" prefix', async () => {
-      const vaultTokenSymbol = await vault.symbol();
-      assert.equal(vaultTokenSymbol, `x${underlyingSymbol}`);
     });
 
     it("empty vault", async function () {
       // set up the vault with 100% investment
-      vault = await makeVault();
+      vault = await makeVault(storage.address, underlying.address, 100, 100, {
+        from: governance,
+      });
       assert.equal("0", await vault.underlyingBalanceWithInvestment());
       await underlying.mint(vault.address, farmerBalance, { from: governance });
-      
       assert.equal(
         farmerBalance,
         await vault.underlyingBalanceWithInvestment()
@@ -98,19 +80,36 @@ contract("Vault Test", function (accounts) {
     });
 
     it("reverts", async function () {
+      const vaultImplementation = await Vault.new({
+        from: governance,
+      });
+      const vaultAsProxy = await VaultProxy.new(vaultImplementation.address, {
+        from: governance,
+      });
+      const vault = await Vault.at(vaultAsProxy.address);
       await expectRevert(
-        makeVault(0,0),
+        vault.initializeVault(storage.address, underlying.address, 0, 0, {
+          from: governance,
+        }),
         "cannot divide by 0"
       );
-
       await expectRevert(
-        makeVault(100,1),
+        vault.initializeVault(storage.address, underlying.address, 100, 1, {
+          from: governance,
+        }),
         "cannot invest more than 100%"
       );
 
       // initialize so that we can call functions
-      await makeVault(100,100);
-
+      await vault.initializeVault(
+        storage.address,
+        underlying.address,
+        100,
+        100,
+        {
+          from: governance,
+        }
+      );
       await expectRevert(
         vault.setVaultFractionToInvest(0, 0, {
           from: governance,
@@ -124,14 +123,11 @@ contract("Vault Test", function (accounts) {
         "denominator must be greater than or equal to the numerator"
       );
       await expectRevert(
-        vault.connect(signer2).withdraw(1),
+        vault.withdraw(1, {
+          from: farmer,
+        }),
         "Vault has no shares"
       );
-
-      strategy1 = await vault.strategy();
-      futureStrategy1 = await vault.futureStrategy();
-      strategyUpdateTime1 = await vault.strategyUpdateTime();
-      console.log("addr0:", constants.ZERO_ADDRESS, "\nstrategy1:", strategy1, "\nfutureStrategy1:",futureStrategy1, ", strategyUpdateTime1:", strategyUpdateTime1.toString())
       await expectRevert(
         vault.setStrategy(constants.ZERO_ADDRESS, {
           from: governance,
@@ -158,11 +154,13 @@ contract("Vault Test", function (accounts) {
         from: governance,
       });
       await expectRevert(
-        vault.connect(signer2).scheduleUpgrade(newerVaultImplementation.address),
+        vault.scheduleUpgrade(newerVaultImplementation.address, {
+          from: farmer,
+        }),
         "Not governance"
       );
     });
-/*
+
     it("deposit and withdraw test with a token of 6 decimals", async function () {
       const usdcTokenUnit = "1000000";
       const usdcUnderlying = await MockUSDC.new({ from: governance });
@@ -174,16 +172,15 @@ contract("Vault Test", function (accounts) {
       );
 
       // set up the vault with 100% investment
-      const usdcVault = await makeVault();
-      // const usdcVault = await makeVault(
-      //   storage.address,
-      //   usdcUnderlying.address,
-      //   100,
-      //   100,
-      //   {
-      //     from: governance,
-      //   }
-      // );
+      const usdcVault = await makeVault(
+        storage.address,
+        usdcUnderlying.address,
+        100,
+        100,
+        {
+          from: governance,
+        }
+      );
 
       // set up the strategy
       strategy = await NoopStrategy.new(
@@ -632,10 +629,9 @@ contract("Vault Test", function (accounts) {
       await storage.setController(controller.address, { from: governance });
 
       // set up the vault with 100% investment
-      vault = await makeVault();
-      // vault = await makeVault(storage.address, underlying.address, 100, 100, {
-      //   from: governance,
-      // });
+      vault = await makeVault(storage.address, underlying.address, 100, 100, {
+        from: governance,
+      });
 
       // set up the strategy
       strategy = await NoopStrategy.new(
@@ -705,10 +701,9 @@ contract("Vault Test", function (accounts) {
     describe("Flashloan prevention tests", function () {
       it("Proper share price is used", async function () {
         // set up the vault with 100% investment
-        vault = await makeVault();
-        // vault = await makeVault(storage.address, underlying.address, 100, 100, {
-        //   from: governance,
-        // });
+        vault = await makeVault(storage.address, underlying.address, 100, 100, {
+          from: governance,
+        });
 
         // set up the strategy
         strategy = await InterestEarningStrategy.new(
@@ -744,7 +739,7 @@ contract("Vault Test", function (accounts) {
         await strategy.addInterest({ from: governance });
         const roundBalancePlusFivePercent = roundBalance * 1.05;
         Utils.assertBNEq(
-          new BigNumberjs(roundBalancePlusFivePercent)
+          new BigNumber(roundBalancePlusFivePercent)
             .times(tokenUnit)
             .dividedBy(roundBalance),
           await vault.getPricePerFullShare()
@@ -808,17 +803,16 @@ contract("Vault Test", function (accounts) {
         // withdrawing half of the shares, otherwise we are hitting the edge case when the entire shares are withdrawn
         await vault.withdraw(farmerShares / 2, { from: farmer });
         Utils.assertBNEq(
-          new BigNumberjs(estimate).dividedBy(2),
+          new BigNumber(estimate).dividedBy(2),
           (await underlying.balanceOf(farmer)) - farmerBalanceBefore
         );
       });
 
       it("Proper share parameters on withdraw", async function () {
         // set up the vault with 100% investment
-        vault = await makeVault();
-        // vault = await makeVault(storage.address, underlying.address, 100, 100, {
-        //   from: governance,
-        // });
+        vault = await makeVault(storage.address, underlying.address, 100, 100, {
+          from: governance,
+        });
 
         // set up the strategy
         strategy = await InterestEarningStrategy.new(
@@ -996,7 +990,7 @@ contract("Vault Test", function (accounts) {
         });
         assert.equal(newVault.address, await vaultAsProxy.implementation());
 
-        // After this, the vault should be upgraded /
+        /* After this, the vault should be upgraded */
         // checking that the behaviour has actually changed
         assert.equal(false, await vault.allowSharePriceDecrease());
         assert.equal(false, await vault.withdrawBeforeReinvesting());
@@ -1095,7 +1089,5 @@ contract("Vault Test", function (accounts) {
         );
       });
     });
-    */
-
   });
 });

@@ -56,14 +56,14 @@ contract VaultV2 is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, 
       _storage
     );
 
-    uint256 underlyingUnit = 10 ** uint256(ERC20Upgradeable(address(_underlying)).decimals());
+    uint256 _underlyingUnit = 10 ** uint256(ERC20Upgradeable(address(_underlying)).decimals());
     uint256 implementationDelay = 12 hours;
     uint256 strategyChangeDelay = 12 hours;
     VaultStorage.initialize(
       _underlying,
       _toInvestNumerator,
       _toInvestDenominator,
-      underlyingUnit,
+      _underlyingUnit,
       implementationDelay,
       strategyChangeDelay,
       _totalSupplyCap

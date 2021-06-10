@@ -12,7 +12,7 @@ contract("Vault Test", function (accounts) {
     let farmer = accounts[2];
     let nonGov = accounts[6];
 
-    let storage, Vault, vaultInst, underlying;
+    let storage, VaultFactory, vaultInst, underlying;
     let out;
 
     const farmerBalance = "95848503450";
@@ -32,9 +32,9 @@ contract("Vault Test", function (accounts) {
         farmerBalance,
         (await underlying.balanceOf(farmer)).toString()
       );
-      Vault = await ethers.getContractFactory("Vault");
+      VaultFactory = await ethers.getContractFactory("Vault");
       vaultInst = await upgrades.deployProxy(
-        Vault,
+        VaultFactory,
         [storage.address, underlying.address, 100, 100, totalSupplyCap],
         {
           initializer: "initializeVault(address,address,uint256,uint256,uint256)",
