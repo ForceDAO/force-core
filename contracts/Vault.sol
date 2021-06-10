@@ -55,6 +55,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   }
 
   // the function is name differently to not cause inheritance clash in truffle and allows tests
+  //initialize to be called from Factory
   function initializeVault(address _storage,
     address _underlying,
     uint256 _toInvestNumerator,
