@@ -61,6 +61,8 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     uint256 _toInvestDenominator,
     uint256 _totalSupplyCap
   ) public initializer {
+    require(_storage != address(0), "Vault: cannot set 0 address");
+    require(_underlying != address(0), "Vault: cannot set 0 address");
     require(_toInvestNumerator <= _toInvestDenominator, "cannot invest more than 100%");
     require(_toInvestDenominator != 0, "cannot divide by 0");
 
