@@ -308,7 +308,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     IStrategy(strategy()).withdrawAllToVault();
   }
 
-  function withdraw(uint256 numberOfShares) external override {
+  function withdraw(uint256 numberOfShares) external override defense {
     require(totalSupply() > 0, "Vault has no shares");
     require(numberOfShares > 0, "numberOfShares must be greater than 0");
     uint256 totalShareSupply = totalSupply();
