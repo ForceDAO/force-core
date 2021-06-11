@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.so
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
 import "./BaseUpgradeableStrategyStorage.sol";
-import "./ControllableInit.sol";
+import "../../ControllableInit.sol";
 import "./IController.sol";
 import "./IFeeRewardForwarderV6.sol";
 
