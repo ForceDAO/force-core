@@ -1,13 +1,13 @@
-pragma solidity ^0.8.0;
+pragma solidity 0.5.16;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
-import "../../uniswap/IUniswapV2Router02.sol";
-import "../../uniswap/IUniswapV2Pair.sol";
-import "../../hardworkinterface/IVault.sol";
-import "../../hardworkinterface/IStrategy.sol";
+import "@openzeppelin/contracts/math/Math.sol";
+import "../../uniswap/interfaces/IUniswapV2Router02.sol";
+import "../../uniswap/interfaces/IUniswapV2Pair.sol";
+import "../../contracts/hardworkInterface/IStrategy.sol";
+import "../../contracts/hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMasterChef.sol";
 import "./PotPool.sol";
@@ -16,27 +16,27 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
-  //address public constant uniswapRouterV2 = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-  //address public constant sushiswapRouterV2 = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
-  address uniswapRouterV2;
-  address sushiswapRouterV2;
+
+  address public constant uniswapRouterV2 = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+  address public constant sushiswapRouterV2 = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
   // additional storage slots (on top of BaseUpgradeableStrategy ones) are defined here
   bytes32 internal constant _POOLID_SLOT = 0x3fd729bfa2e28b7806b03a6e014729f59477b530f995be4d51defc9dad94810b;
   bytes32 internal constant _HODLVAULT_SLOT = 0xc26d330f887c749cb38ae7c37873ff08ac4bba7aec9113c82d48a0cf6cc145f2;
   bytes32 internal constant _POTPOOL_SLOT = 0x7f4b50847e7d7a4da6a6ea36bfb188c77e9f093697337eb9a876744f926dd014;
+  bytes32 internal constant _FEERATIO_SLOT = 0xdd068d8a32502e81a10cdf5394059be07ccd47fe6df7741b57a2f9937efedeaf;
+  bytes32 internal constant _FEEHOLDER_SLOT = 0x00679b6f1cace16785324a171df0e550ee9f20b64671a53b5c491a3065b30f2b;
+
+  uint256 public constant feeBase = 10000;
 
   constructor() public BaseUpgradeableStrategy() {
     assert(_POOLID_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.poolId")) - 1));
     assert(_HODLVAULT_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.hodlVault")) - 1));
     assert(_POTPOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.potPool")) - 1));
+    assert(_FEERATIO_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeRatio")) - 1));
+    assert(_FEEHOLDER_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeHolder")) - 1));
   }
 
-
-
-
-  /// @param _rewardPool refers to Sushi MiniChefV2 Contract Address
-  /// @param _rewardToken refers to 1st reward token
 
   function initializeMasterChefHodlStrategy(
     address _storage,
@@ -46,15 +46,10 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _rewardToken,
     uint256 _poolId,
     address _hodlVault,
-    address _potPool,
-    address _uniswapRouterV2Address,
-    address _sushiswapRouterV2Address
+    address _potPool
   ) public initializer {
     require(_rewardPool != address(0), "reward pool is empty");
 
-    uniswapRouterV2 = _uniswapRouterV2Address;
-    sushiswapRouterV2 = _sushiswapRouterV2Address;
-    
     BaseUpgradeableStrategy.initialize(
       _storage,
       _underlying,
@@ -84,11 +79,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       (bal,) = IMasterChef(rewardPool()).userInfo(poolId(), address(this));
   }
 
-
-
-  //TODO - instead of calling withdraw, call withdrawAndHarvest of MiniChefV2 contract
-  //TODO - find-out what is the 3rd argument in withdrawAndHarvest ???
-  //TODO - MinichefV2 Contract : function withdrawAndHarvest(uint256 pid, uint256 amount, address to) public {
   function exitRewardPool() internal {
       uint256 bal = rewardPoolBalance();
       if (bal != 0) {
@@ -111,7 +101,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     uint256 entireBalance = IERC20(underlying()).balanceOf(address(this));
     IERC20(underlying()).safeApprove(rewardPool(), 0);
     IERC20(underlying()).safeApprove(rewardPool(), entireBalance);
-    //TODO - check for 3rd argument : if its the VaultAddress is same as (msg.sender)
     IMasterChef(rewardPool()).deposit(poolId(), entireBalance);
   }
 
@@ -137,12 +126,20 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   function _hodlAndNotify() internal {
     uint256 rewardBalance = IERC20(rewardToken()).balanceOf(address(this));
     if(rewardBalance > 0) {
-      IERC20(rewardToken()).safeApprove(hodlVault(), 0);
-      IERC20(rewardToken()).safeApprove(hodlVault(), rewardBalance);
-      IVault(hodlVault()).deposit(rewardBalance);
-      uint256 fRewardBalance = IERC20(hodlVault()).balanceOf(address(this));
+      uint256 fee = 0;
+      uint256 remainingReward = rewardBalance;
+      if(feeHolder() != address(0)){
+        fee = rewardBalance.mul(feeRatio()).div(feeBase);
+        remainingReward = rewardBalance.sub(fee);
+        if(fee > 0){
+          IERC20(rewardToken()).safeTransfer(feeHolder(), fee);
+        }
+      }
 
-      //TODO sync with harvest-repo latest code
+      IERC20(rewardToken()).safeApprove(hodlVault(), 0);
+      IERC20(rewardToken()).safeApprove(hodlVault(), remainingReward);
+      IVault(hodlVault()).deposit(remainingReward);
+      uint256 fRewardBalance = IERC20(hodlVault()).balanceOf(address(this));
       IERC20(hodlVault()).safeTransfer(potPool(), fRewardBalance);
       PotPool(potPool()).notifyTargetRewardAmount(hodlVault(), fRewardBalance);
     }
@@ -240,11 +237,29 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     setAddress(_POTPOOL_SLOT, _value);
   }
 
+  function setFeeRatio(uint256 _value) public onlyGovernance {
+    require(_value <= feeBase.mul(3).div(10), "Cannot be more then 30%");
+    setUint256(_FEERATIO_SLOT, _value);
+  }
+
+  function setFeeHolder(address _value) public onlyGovernance {
+    setAddress(_FEEHOLDER_SLOT, _value);
+  }
+
   function potPool() public view returns (address) {
     return getAddress(_POTPOOL_SLOT);
   }
 
+  function feeRatio() public view returns (uint256) {
+    return getUint256(_FEERATIO_SLOT);
+  }
+
+  function feeHolder() public view returns (address) {
+    return getAddress(_FEEHOLDER_SLOT);
+  }
+
   function finalizeUpgrade() external onlyGovernance {
+    setFeeRatio(1500);
     _finalizeUpgrade();
   }
 

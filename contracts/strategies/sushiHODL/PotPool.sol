@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.5.16;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/Context.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/ownable/Ownable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/Address.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/Math.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
-import "./Controllable.sol";
-import "./IController.sol";
+import "./inheritance/Controllable.sol";
+import "./interface/IController.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/math/Math.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/GSN/Context.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
 
 contract IRewardDistributionRecipient is Ownable {
 
@@ -46,7 +47,7 @@ contract IRewardDistributionRecipient is Ownable {
     }
 }
 
-contract PotPool is IRewardDistributionRecipient, Controllable, ERC20 {
+contract PotPool is IRewardDistributionRecipient, Controllable, ERC20, ERC20Detailed {
 
     using Address for address;
     using SafeERC20 for IERC20;
@@ -137,12 +138,14 @@ contract PotPool is IRewardDistributionRecipient, Controllable, ERC20 {
         address[] memory _rewardDistribution,
         address _storage,
         string memory _name,
-        string memory _symbol
+        string memory _symbol,
+        uint8 _decimals
       ) public
-      ERC20(_name, _symbol)
+      ERC20Detailed(_name, _symbol, _decimals)
       IRewardDistributionRecipient(_rewardDistribution)
       Controllable(_storage) // only used for referencing the grey list
     {
+        require(_decimals == ERC20Detailed(_lpToken).decimals(), "decimals has to be aligned with the lpToken");
         require(_rewardTokens.length != 0, "should initialize with at least 1 rewardToken");
         rewardTokens = _rewardTokens;
         lpToken = _lpToken;
