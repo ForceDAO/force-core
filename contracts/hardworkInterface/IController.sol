@@ -2,17 +2,13 @@
 pragma solidity ^0.8.0;
 
 interface IController {
-    // [Grey list]
+    // [whiteList]
     // An EOA can safely interact with the system no matter what.
     // If you're using Metamask, you're using an EOA.
-    // Only smart contracts may be affected by this grey list.
+    // Only smart contracts may be affected by this whiteList.
     //
-    // This contract will not be able to ban any EOA from the system
-    // even if an EOA is being added to the greyList, he/she will still be able
-    // to interact with the whole system as if nothing happened.
-    // Only smart contracts will be affected by being added to the greyList.
-    // This grey list is only used in Vault.sol, see the code there for reference
-    function greyList(address _target) external view returns(bool);
+    // Only smart contracts added to the whiteList may interact with the vaults.
+    function whiteList(address _target) external view returns(bool);
 
     function addVaultAndStrategy(address _vault, address _strategy) external;
     function doHardWork(address _vault, uint256 hint, uint256 devianceNumerator, uint256 devianceDenominator) external;
