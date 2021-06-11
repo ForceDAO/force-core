@@ -12,10 +12,12 @@ const VaultUpgradableSooner = artifacts.require("VaultUpgradableSooner");
 const InterestEarningStrategy = artifacts.require("InterestEarningStrategy");
 const BigNumberJs = require("bignumber.js");
 BigNumberJs.config({ DECIMAL_PLACES: 0 });
-const Utils = require("./Utils.js");
+const {timeForwardInSec, getBlockTimestamp, getBlockTimestampBN, getEventArgs, } = require("./Utils.js");
 //-----------------==
 
 const { BigNumber } = require("ethers");
+//const log1 = console.log;
+let signer0, signer1, signer2, signer3, signer4, addrs, tx, t1, t2, t3, receipt, eventArg0, eventArg1, eventArg2, eventArg3, args, strategy1, strategy2, strategy3, strategy4, strategyUpdateTime, futureStrategy, strategyTimeLock, canUpdateStrategy;
 
 contract("Vault Test", function (accounts) {
   describe("Deposit and Withdraw", function () {
@@ -28,7 +30,7 @@ contract("Vault Test", function (accounts) {
 
     let storage;
     let vault;
-    let underlying;
+    let underlying, underlying2;
 
     const tokenUnit = "1000000000000000000";
     const farmerBalance = "95848503450";
@@ -40,11 +42,11 @@ contract("Vault Test", function (accounts) {
     const roundBalancePostGainFarmerBob =
       2 * roundBalancePostGain - roundBalancePostGainFarmer;
 
-    let signer0, signer1, signer2, signer3, signer4, addrs;
     let underlyingDecimals = "18";
     const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
     const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
 
+    //const { ethers, upgrades } = require("hardhat");
     const makeVault = async (toInvestNumerator =100, toInvestDenominator = 100) => {
       const VaultFactory = await ethers.getContractFactory("Vault");
       const vault = await upgrades.deployProxy(VaultFactory, [storage.address, underlying.address, toInvestNumerator, toInvestDenominator, totalSupplyCap], {initializer: 'initializeVault(address,address,uint256,uint256,uint256)', unsafeAllow: ['constructor'], unsafeAllowCustomTypes: true, from: governance});
@@ -65,6 +67,18 @@ contract("Vault Test", function (accounts) {
       vault = await makeVault();
       //console.log("vault", vault.address)
       // set up the strategy
+
+      //console.log("check 1")
+      await expectRevert(
+        vault.setStrategy(constants.ZERO_ADDRESS),
+        "new _strategy cannot be empty"
+      );
+      //console.log("check 2")
+      await expectRevert(
+        vault.doHardWork(),
+        "Strategy must be defined"
+      );
+
       strategy = await NoopStrategy.new(
         storage.address,
         underlying.address,
@@ -96,6 +110,47 @@ contract("Vault Test", function (accounts) {
         await vault.underlyingBalanceWithInvestment()
       );
     });
+    it("Update Functions", async function () {
+      console.log("\n-------== announceStrategyUpdate");
+      strategyTimeLock = await vault.strategyTimeLock();
+      strategyUpdateTime = await vault.strategyUpdateTime();
+      futureStrategy = await vault.futureStrategy();
+      console.log("strategyUpdateTime:", strategyUpdateTime.toString(), "\nfutureStrategy:", futureStrategy);
+
+      canUpdateStrategy = await vault.canUpdateStrategy(signer1.address);
+      console.log("canUpdateStrategy:", canUpdateStrategy);
+
+      tx = await vault.announceStrategyUpdate(signer1.address);
+      receipt = await tx.wait();
+      t1 = await getBlockTimestampBN();
+      args = getEventArgs(receipt, "StrategyAnnounced");
+      //console.log("StrategyAnnounced arg:",args);
+      expect(args[0]).to.equal(signer1.address);
+
+      console.log("check 10. t1:", t1.toString());
+      const when = t1.add(strategyTimeLock);
+      expect(args[1]).to.equal(when);
+      expect(await vault.strategyUpdateTime()).to.equal(when);
+
+      strategyUpdateTime = await vault.strategyUpdateTime();
+      futureStrategy = await vault.futureStrategy();
+      console.log("\nstrategyUpdateTime:", strategyUpdateTime.toString(), "\nfutureStrategy:", futureStrategy);
+      canUpdateStrategy = await vault.canUpdateStrategy(signer1.address);
+      console.log("canUpdateStrategy:", canUpdateStrategy);
+
+      console.log("\n-------== finalizeStrategyUpdate");
+      await vault.finalizeStrategyUpdate();
+      expect(await vault.strategyUpdateTime()).to.equal(0);
+      expect(await vault.futureStrategy()).to.equal(constants.ZERO_ADDRESS);
+      strategyUpdateTime = await vault.strategyUpdateTime();
+      futureStrategy = await vault.futureStrategy();
+      console.log("strategyUpdateTime:", strategyUpdateTime.toString(), "\nfutureStrategy:", futureStrategy);
+      console.log("check 14")
+    });
+
+    it("reverts", async function () {
+
+    });
 
     it("reverts", async function () {
       await expectRevert(
@@ -108,19 +163,12 @@ contract("Vault Test", function (accounts) {
         "cannot invest more than 100%"
       );
 
-      // initialize so that we can call functions
-      await makeVault(100,100);
-
       await expectRevert(
-        vault.setVaultFractionToInvest(0, 0, {
-          from: governance,
-        }),
+        vault.setVaultFractionToInvest(0, 0),
         "denominator must be greater than 0"
       );
       await expectRevert(
-        vault.setVaultFractionToInvest(100, 1, {
-          from: governance,
-        }),
+        vault.setVaultFractionToInvest(100, 1),
         "denominator must be greater than or equal to the numerator"
       );
       await expectRevert(
@@ -128,39 +176,110 @@ contract("Vault Test", function (accounts) {
         "Vault has no shares"
       );
 
+      // await expect(
+      //   ctrt.connect(signer1).setSettings(0)
+      // ).to.be.revertedWith("not authorized");
+      console.log("check 1")
+      strategyUpdateTime = await vault.strategyUpdateTime();
+      futureStrategy = await vault.futureStrategy();
+      console.log("strategyUpdateTime:", strategyUpdateTime.toString(), "\nfutureStrategy:", futureStrategy);
+      await expectRevert(
+        vault.setStrategy(signer4.address),
+        "The strategy exists and switch timelock did not elapse yet"
+      );
+
+      console.log("check 3")
+      underlying2 = await MockToken.new({ from: governance });
+      console.log("underlying2:", underlying2.address)
+      await underlying2.mint(farmer, farmerBalance, { from: governance });
+      assert.equal(
+        farmerBalance,
+        (await underlying2.balanceOf(farmer)).toString()
+      );
+      strategy2 = await NoopStrategy.new(
+        storage.address,
+        underlying2.address,
+        vault.address,
+        { from: governance }
+      );
+      strategyTimeLock = await vault.strategyTimeLock();
+      console.log("strategy2:", strategy2.address, "\nstrategyTimeLock:", strategyTimeLock.toString());
+      tx = await vault.announceStrategyUpdate(strategy2.address);
+      await timeForwardInSec(strategyTimeLock.add(3600).toString());
+
+      console.log("check 4")
+      strategyUpdateTime = await vault.strategyUpdateTime();
       strategy1 = await vault.strategy();
-      futureStrategy1 = await vault.futureStrategy();
-      strategyUpdateTime1 = await vault.strategyUpdateTime();
-      console.log("addr0:", constants.ZERO_ADDRESS, "\nstrategy1:", strategy1, "\nfutureStrategy1:",futureStrategy1, ", strategyUpdateTime1:", strategyUpdateTime1.toString())
+      futureStrategy = await vault.futureStrategy();
+      vault_underlying = await vault.underlying();
+      strategy2underlying = await strategy2.underlying();
+      console.log("\nstrategy1:", strategy1, "\nstrategyUpdateTime:", strategyUpdateTime.toString(), "\nfutureStrategy:", futureStrategy, "\nvault_underlying():", vault_underlying, "\nstrategy2underlying:", strategy2underlying);
+
+      t1 = await getBlockTimestamp();
+      strategyUpdateTime = await vault.strategyUpdateTime();
+      console.log("strategyUpdateTime:", strategyUpdateTime.toString(), parseInt(t1) > parseInt(strategyUpdateTime));
+
+      console.log("check 5")
       await expectRevert(
-        vault.setStrategy(constants.ZERO_ADDRESS, {
-          from: governance,
-        }),
-        "new _strategy cannot be empty"
+        vault.setStrategy(strategy2.address),
+        "Vault underlying must match Strategy underlying"
       );
+
+      strategy3 = await NoopStrategy.new(
+        storage.address,
+        underlying.address,
+        signer1.address,
+        { from: governance }
+      );
+      strategyTimeLock = await vault.strategyTimeLock();
+      console.log("strategy3:", strategy3.address);
+      tx = await vault.announceStrategyUpdate(strategy3.address);
+      await timeForwardInSec(strategyTimeLock.add(3600).toString());
       await expectRevert(
-        vault.doHardWork({
-          from: governance,
-        }),
-        "Strategy must be defined"
+        vault.setStrategy(strategy3.address),
+        "the strategy does not belong to this vault"
       );
+
+      console.log("check 6")
 
       // cannot initialize twice
       await expectRevert(
-        vault.initializeVault(storage.address, underlying.address, 100, 100, {
-          from: governance,
-        }),
-        "Contract instance has already been initialized"
-      );
+        vault.initializeVault(storage.address, underlying.address, 100, 100, totalSupplyCap),
+        "Initializable: contract is already initialized"
+      );//from ERC20Upgradeable > Initializable
 
-      // only governance can schedule an upgrade
-      const newerVaultImplementation = await Vault.new({
-        from: governance,
-      });
-      await expectRevert(
-        vault.connect(signer2).scheduleUpgrade(newerVaultImplementation.address),
-        "Not governance"
+      console.log("check 7")
+      strategy4 = await NoopStrategy.new(
+        storage.address,
+        underlying.address,
+        vault.address,
+        { from: governance }
       );
+      console.log("strategy4:", strategy4.address);
+      tx = await vault.announceStrategyUpdate(strategy4.address);
+      await timeForwardInSec(strategyTimeLock.add(3600).toString());
+
+      console.log("setStrategy to a new strategy")
+      strategyOld = await vault.strategy();
+      tx = await vault.setStrategy(strategy4.address),
+
+      console.log("check event arguments")
+      receipt = await tx.wait();
+      args = getEventArgs(receipt, "StrategyChanged");
+      expect(args[0]).to.equal(strategy4.address);
+
+      expect(args[1]).to.equal(strategyOld);
+
+      t1 = await getBlockTimestampBN();
+
+      console.log("check 9")
+      // test: only governance can upgrade... unable to invoke upgrade from other account!
+
+      const VaultFactory = await ethers.getContractFactory("Vault");
+      console.log("check 12")
+      vault = await upgrades.upgradeProxy(vault.address, VaultFactory, { unsafeAllow: ['constructor'], unsafeAllowCustomTypes: true, from: signer4.address, deployer: signer4.address});//governance
+
+      console.log("check 13")
     });
 /*
     it("deposit and withdraw test with a token of 6 decimals", async function () {

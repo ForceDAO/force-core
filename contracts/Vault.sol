@@ -12,11 +12,11 @@ import "./hardworkInterface/IStrategy.sol";
 import "./hardworkInterface/IStrategyV2.sol";
 import "./hardworkInterface/IVault.sol";
 import "./hardworkInterface/IController.sol";
-import "./hardworkInterface/IUpgradeSource.sol";
+//import "./hardworkInterface/IUpgradeSource.sol";
 import "./ControllableInit.sol";
 import "./VaultStorage.sol";
 
-contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, VaultStorage {
+contract Vault is ERC20Upgradeable, IVault, ControllableInit, VaultStorage {
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using AddressUpgradeable for address;
   using SafeMathUpgradeable for uint256;
@@ -375,7 +375,6 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
 
   /**
   * Schedules an upgrade for this vault's proxy.
-  */
   function scheduleUpgrade(address impl) public onlyGovernance {
     _setNextImplementation(impl);
     _setNextImplementationTimestamp(block.timestamp.add(nextImplementationDelay()));
@@ -399,4 +398,5 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     require(!withdrawBeforeReinvesting(), "withdrawBeforeReinvesting is incorrect");
     require(!allowSharePriceDecrease(), "allowSharePriceDecrease is incorrect");
   }
+  */
 }

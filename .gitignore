@@ -26,4 +26,4 @@ deployOld
 aPictures1
 scripts/hardhat.configOld.ts
 yarn.lock
-.openzeppelin
+.openzeppelin/unknown*.json
