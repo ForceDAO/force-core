@@ -1,7 +1,7 @@
 const MockToken = artifacts.require("MockToken");
 const Storage = artifacts.require("Storage");
 
-const { BigNumber } = require("ethers");
+const { BigNumber, constants } = require("ethers");
 
 contract("Vault Test", function (accounts) {
   describe("Deposit and Withdraw", function () {
@@ -33,6 +33,48 @@ contract("Vault Test", function (accounts) {
       );
       Vault = await ethers.getContractFactory("Vault");
       vaultInst = await upgrades.deployProxy(Vault, [storage.address, underlying.address, 100, 100, totalSupplyCap], {initializer: 'initializeVault(address,address,uint256,uint256,uint256)', unsafeAllow: ['constructor'], unsafeAllowCustomTypes: true, from: governance});
+    });
+
+
+    it('should fail if deployed with zero addresses', async () => {
+      await expect(
+        upgrades.deployProxy(
+          Vault,
+          [
+            constants.AddressZero,
+            underlying.address,
+            100,
+            100,
+            totalSupplyCap
+          ],
+          {
+            initializer: 'initializeVault(address,address,uint256,uint256,uint256)',
+            unsafeAllow: ['constructor'],
+            unsafeAllowCustomTypes: true,
+            from: governance
+          }
+        )
+      ).to.be.revertedWith('Vault: cannot set 0 address');
+
+      await expect(
+        upgrades.deployProxy(
+          Vault,
+          [
+            storage.address,
+            constants.AddressZero,
+            100,
+            100,
+            totalSupplyCap
+          ],
+          {
+            initializer: 'initializeVault(address,address,uint256,uint256,uint256)',
+            unsafeAllow: ['constructor'],
+            unsafeAllowCustomTypes: true,
+            from: governance
+          }
+        )
+      ).to.be.revertedWith('Vault: cannot set 0 address');
+
     });
 
     it('Vault name should have "FORCE" prefix', async () => {

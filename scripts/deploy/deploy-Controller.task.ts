@@ -3,7 +3,7 @@ import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
 require("dotenv").config();
-import * as deployConfig from "./deploy-config";
+import * as deployConfig from "../config/deploy-config";
 const fs = require('fs');
 import {  readFileSync } from 'fs';
 const StorageABIPath = "../artifacts/contracts/Storage.sol/Storage.json";
