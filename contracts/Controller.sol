@@ -21,16 +21,13 @@ contract Controller is IController, Governable {
     // external parties
     address public feeRewardForwarder;
 
-    // [Grey list]
+    // [whiteList]
     // An EOA can safely interact with the system no matter what.
     // If you're using Metamask, you're using an EOA.
-    // Only smart contracts may be affected by this grey list.
+    // Only smart contracts may be affected by this whiteList.
     //
-    // This contract will not be able to ban any EOA from the system
-    // even if an EOA is being added to the greyList, he/she will still be able
-    // to interact with the whole system as if nothing happened.
-    // Only smart contracts will be affected by being added to the greyList.
-    mapping (address => bool) public override greyList;
+    // Only smart contracts added to the whiteList may interact with the vaults.
+    mapping (address => bool) public override whiteList;
 
     // All vaults that we have
     mapping (address => bool) public vaults;
@@ -104,13 +101,13 @@ contract Controller is IController, Governable {
       return vaults[_vault];
     }
 
-    // Only smart contracts will be affected by the greyList.
-    function addToGreyList(address _target) public onlyGovernance {
-        greyList[_target] = true;
+    // Only smart contracts will be affected by the whiteList.
+    function addToWhiteList(address _target) public onlyGovernance {
+        whiteList[_target] = true;
     }
 
-    function removeFromGreyList(address _target) public onlyGovernance {
-        greyList[_target] = false;
+    function removeFromWhiteList(address _target) public onlyGovernance {
+        whiteList[_target] = false;
     }
 
     function setFeeRewardForwarder(address _feeRewardForwarder) public onlyGovernance {

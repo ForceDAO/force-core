@@ -107,13 +107,13 @@ contract VaultV2 is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, 
     _;
   }
 
-  // Only smart contracts will be affected by this modifier
+  //  Only smart contracts will be affected by this modifier
   modifier defense() {
     require(
-      (msg.sender == tx.origin) ||                // If it is a normal user and not smart contract,
-                                                  // then the requirement will pass
-      !IController(controller()).greyList(msg.sender), // If it is a smart contract, then
-      "This smart contract has been grey listed"  // make sure that it is not on our greyList.
+      (msg.sender == tx.origin) ||  // If it is a normal user and not smart contract,
+                                    // then the requirement will pass
+      IController(controller()).whiteList(msg.sender), // If it is a smart contract, then
+      "This smart contract is not whitelisted"         // make sure that it is on our whitelist.
     );
     _;
   }
