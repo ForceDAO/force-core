@@ -17,7 +17,7 @@ contract MockVaultDepositor {
         IERC20 underlying,
         IVault vault,
         uint256 amount
-    ) external {
+    ) public {
         underlying.safeTransferFrom(msg.sender, address(this), amount);
         underlying.safeApprove(address(vault), amount);
         vault.depositFor(amount, msg.sender);
@@ -27,9 +27,31 @@ contract MockVaultDepositor {
         IERC20 underlying,
         IVault vault,
         uint256 amount
-    ) external {
+    ) public {
         underlying.safeTransferFrom(msg.sender, address(this), amount);
         underlying.safeApprove(address(vault), amount);
         vault.deposit(amount);
+    }
+
+    function depositAndWithdraw(
+        IERC20 underlying,
+        IVault vault,
+        uint256 amount
+    )
+        external
+    {
+        deposit(underlying, vault, amount);
+        vault.withdraw(amount);
+    }
+
+    function depositForAndWithdraw(
+        IERC20 underlying,
+        IVault vault,
+        uint256 amount
+    )
+        external
+    {
+        depositFor(underlying, vault, amount);
+        vault.withdraw(amount);
     }
 }
