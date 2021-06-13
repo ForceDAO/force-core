@@ -92,6 +92,10 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     return _totalSupplyCap();
   }
 
+  function withdrawFee() public view returns (uint256) {
+    return _withdrawFee();
+  }
+
   function strategy() public view override returns(address) {
     return _strategy();
   }
@@ -240,6 +244,11 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     return _setTotalSupplyCap(value);
   }
 
+  function setWithdrawFee(uint256 numerator) external onlyGovernance {
+    require(numerator <= 20, "setWithdrawFee: fee too high");
+    return _setWithdrawFee(((10 ** decimals()) * numerator) / 100);
+  }
+
   function setVaultFractionToInvest(uint256 numerator, uint256 denominator) external override onlyGovernance {
     require(denominator > 0, "denominator must be greater than 0");
     require(numerator <= denominator, "denominator must be greater than or equal to the numerator");
@@ -315,22 +324,31 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     require(_getDepositBlock(msg.sender) != block.number, "withdraw: withdraw in same block not permitted");
     
     uint256 totalShareSupply = totalSupply();
+
+    uint256 withdrawFeeShares = numberOfShares
+      .mul(withdrawFee())
+      .div(10 ** decimals());
+
     _burn(msg.sender, numberOfShares);
+    // Hand fees to controller.
+    _mint(controller(), withdrawFeeShares);
+
+    uint256 numberOfSharesPostFee = numberOfShares.sub(withdrawFeeShares);
 
     uint256 calculatedSharePrice = getPricePerFullShare();
 
-    uint256 underlyingAmountToWithdraw = numberOfShares
+    uint256 underlyingAmountToWithdraw = numberOfSharesPostFee
       .mul(calculatedSharePrice)
       .div(underlyingUnit());
 
     if (underlyingAmountToWithdraw > underlyingBalanceInVault()) {
       // withdraw everything from the strategy to accurately check the share value
-      if (numberOfShares == totalShareSupply) {
+      if (numberOfSharesPostFee == totalShareSupply) {
         IStrategy(strategy()).withdrawAllToVault();
         underlyingAmountToWithdraw = underlyingBalanceInVault();
       } else {
         uint256 missingUnderlying = underlyingAmountToWithdraw.sub(underlyingBalanceInVault());
-        uint256 missingShares = numberOfShares.mul(missingUnderlying).div(underlyingAmountToWithdraw);
+        uint256 missingShares = numberOfSharesPostFee.mul(missingUnderlying).div(underlyingAmountToWithdraw);
         // When withdrawing to vault here, the vault does not have any assets. Therefore,
         // all the assets that are in the strategy match the total supply of shares, increased
         // by the share proportion that was already burned at the beginning of this withdraw transaction.
@@ -338,7 +356,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
         // recalculate to improve accuracy
         calculatedSharePrice = getPricePerFullShare();
 
-        uint256 updatedUnderlyingAmountToWithdraw = numberOfShares
+        uint256 updatedUnderlyingAmountToWithdraw = numberOfSharesPostFee
           .mul(calculatedSharePrice)
           .div(underlyingUnit());
 
