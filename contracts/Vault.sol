@@ -12,7 +12,6 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "./hardworkInterface/IStrategy.sol";
 import "./hardworkInterface/IStrategyV2.sol";
 import "./hardworkInterface/IVault.sol";
-import "./hardworkInterface/IController.sol";
 import "./hardworkInterface/IUpgradeSource.sol";
 import "./ControllableInit.sol";
 import "./VaultStorage.sol";
@@ -38,8 +37,8 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     require(
       (msg.sender == tx.origin) ||  // If it is a normal user and not smart contract,
                                     // then the requirement will pass
-      IController(controller()).whiteList(msg.sender), // If it is a smart contract, then
-      "This smart contract is not whitelisted"         // make sure that it is on our whhitelist.
+      Storage(_storage()).checkWhitelist(msg.sender), // If it is a smart contract, then
+      "This smart contract is not whitelisted"        // make sure that it is on our whitelist.
     );
     _;
   }
