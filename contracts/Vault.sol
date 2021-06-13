@@ -312,6 +312,9 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   function withdraw(uint256 numberOfShares) external override defense nonReentrant {
     require(totalSupply() > 0, "Vault has no shares");
     require(numberOfShares > 0, "numberOfShares must be greater than 0");
+    
+    require(_getDepositBlock(msg.sender) != block.number, "withdraw: withdraw in same block not permitted");
+    
     uint256 totalShareSupply = totalSupply();
     _burn(msg.sender, numberOfShares);
 
@@ -367,6 +370,12 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
       totalSupplyCap() == 0 || totalSupply().add(toMint) <= totalSupplyCap(),
       "Cannot mint more than cap"
     );
+
+    // Prevent deposit and withdraw in same block.
+    _setDepositBlock(beneficiary);
+    if (sender != beneficiary) {
+      _setDepositBlock(sender);
+    }
 
     _mint(beneficiary, toMint);
 

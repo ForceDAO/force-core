@@ -59,6 +59,22 @@ contract VaultStorage is Initializable {
     _setWithdrawBeforeReinvesting(false);
   }
 
+  function _setDepositBlock(address _address) internal {
+    setUint256(_depositAddressSlot(_address), block.number);
+  }
+
+  function _depositAddressSlot(address _address) internal pure returns (bytes32) {
+    return bytes32(
+      uint256(keccak256(abi.encodePacked(
+        "eip1967.vaultStorage.depositBlock", 
+        _address
+      ))) - 1
+    );
+  }
+  function _getDepositBlock(address _address) internal view returns (uint256) {
+    return getUint256(_depositAddressSlot(_address));
+  }
+
   function _setStrategy(address _address) internal {
     setAddress(_STRATEGY_SLOT, _address);
   }
