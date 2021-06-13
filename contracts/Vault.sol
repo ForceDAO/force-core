@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import "./hardworkInterface/IStrategy.sol";
 import "./hardworkInterface/IStrategyV2.sol";
@@ -16,7 +17,7 @@ import "./hardworkInterface/IUpgradeSource.sol";
 import "./ControllableInit.sol";
 import "./VaultStorage.sol";
 
-contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, VaultStorage {
+contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, VaultStorage, ReentrancyGuardUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using AddressUpgradeable for address;
   using SafeMathUpgradeable for uint256;
@@ -291,7 +292,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   * Allows for depositing the underlying asset in exchange for shares.
   * Approval is assumed.
   */
-  function deposit(uint256 amount) external override defense {
+  function deposit(uint256 amount) external override defense nonReentrant {
     _deposit(amount, msg.sender, msg.sender);
   }
 
@@ -300,7 +301,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   * assigned to the holder.
   * This facilitates depositing for someone else (using DepositHelper)
   */
-  function depositFor(uint256 amount, address holder) public override defense {
+  function depositFor(uint256 amount, address holder) public override defense nonReentrant {
     _deposit(amount, msg.sender, holder);
   }
 
@@ -308,7 +309,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     IStrategy(strategy()).withdrawAllToVault();
   }
 
-  function withdraw(uint256 numberOfShares) external override {
+  function withdraw(uint256 numberOfShares) external override defense nonReentrant {
     require(totalSupply() > 0, "Vault has no shares");
     require(numberOfShares > 0, "numberOfShares must be greater than 0");
     
