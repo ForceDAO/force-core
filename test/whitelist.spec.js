@@ -18,17 +18,24 @@ describe("Add White List", function () {
 
   beforeEach(async function () {
     signers = await hre.ethers.getSigners();
-    governance = signers[0].address;
+    governance = signers[0];
     alice = signers[1].address;
     bob = signers[2].address;
     carol = signers[3].address;
     _whitelist = signers[5].address;
     farmer = signers[2].address;
 
-    storage = await Storage.new({ from: governance });
+    storage = await Storage.new({ from: governance.address });
     // create the underlying token
-    underlying = await MockToken.new({ from: governance });
-    storage = await Storage.new();
+    underlying = await MockToken.new({ from: governance.address });
+
+
+    const storageFactory = await ethers.getContractFactory("Storage");
+    storage = await storageFactory.deploy();
+    await storage.deployed();
+    expect(storage.address).to.properAddress;
+    await storage.connect(governance).setController(governance.address);
+
     
     feeRewardForwarder = await MockFeeRewardForwarder.new(
       storage.address,
@@ -36,15 +43,8 @@ describe("Add White List", function () {
       signers[4].address,
     );
 
-    const controllerFactory = await ethers.getContractFactory("Controller");
-    controllerInst = await controllerFactory.deploy(storage.address, feeRewardForwarder.address);
-    await controllerInst.deployed();
-    expect(controllerInst.address).to.properAddress;
-
-    await storage.setController(controllerInst.address, { from: governance });
-
     //------------==
-    await underlying.mint(farmer, farmerBalance, { from: governance });
+    await underlying.mint(farmer, farmerBalance, { from: governance.address });
     assert.equal(
       farmerBalance,
       (await underlying.balanceOf(farmer)).toString()
@@ -59,7 +59,7 @@ describe("Add White List", function () {
           "initializeVault(address,address,uint256,uint256,uint256)",
         unsafeAllowCustomTypes: true,
         unsafeAllow: ['constructor'],
-        from: governance,
+        from: governance.address,
       }
     );
 
@@ -70,14 +70,14 @@ describe("Add White List", function () {
 
 
     //------------==
-    await underlying.mint(governance, farmerBalance, { from: governance });
+    await underlying.mint(governance.address, farmerBalance, { from: governance.address });
     assert.equal(
       farmerBalance,
-      (await underlying.balanceOf(governance)).toString()
+      (await underlying.balanceOf(governance.address)).toString()
     );
     const initalTransferAmount = BigNumber.from('10000').mul(underlyingDecimalsBN);
 
-    await underlying.transfer(alice, initalTransferAmount,{ from: governance });
+    await underlying.transfer(alice, initalTransferAmount,{ from: governance.address });
     await underlying.approve(vault.address, initalTransferAmount, {
       from: alice,
     });
@@ -100,14 +100,14 @@ describe("Add White List", function () {
       nonGov = signers[4];
 
       await expect(
-        controllerInst.connect(nonGov).addToWhiteList(_whitelist)
+        storage.connect(nonGov).addToWhiteList(_whitelist)
       ).to.be.revertedWith("Not governance");
     });
 
     it('Should add to whitelist', async () => {
-      assert.equal(await controllerInst.whiteList(_whitelist), false);
-      await controllerInst.addToWhiteList(_whitelist);
-      assert.equal(await controllerInst.whiteList(_whitelist), true);
+      assert.equal(await storage.whiteList(_whitelist), false);
+      await storage.addToWhiteList(_whitelist);
+      assert.equal(await storage.whiteList(_whitelist), true);
     });
   });
 
@@ -117,17 +117,17 @@ describe("Add White List", function () {
       nonGov = signers[4];
 
       await expect(
-        controllerInst.connect(nonGov).removeFromWhiteList(_whitelist)
+        storage.connect(nonGov).removeFromWhiteList(_whitelist)
       ).to.be.revertedWith("Not governance");
     });
 
     it('Should remove from whitelist', async () => {
-      assert.equal(await controllerInst.whiteList(_whitelist), false);
-      await controllerInst.addToWhiteList(_whitelist);
-      assert.equal(await controllerInst.whiteList(_whitelist), true);
+      assert.equal(await storage.whiteList(_whitelist), false);
+      await storage.addToWhiteList(_whitelist);
+      assert.equal(await storage.whiteList(_whitelist), true);
 
-      await controllerInst.removeFromWhiteList(_whitelist);
-      assert.equal(await controllerInst.whiteList(_whitelist), false);
+      await storage.removeFromWhiteList(_whitelist);
+      assert.equal(await storage.whiteList(_whitelist), false);
     });
   });
 
@@ -136,7 +136,7 @@ describe("Add White List", function () {
     it('Revert to deposit from non-whitelisted contracts', async () => {
       const depositAmount = BigNumber.from('100').mul(underlyingDecimalsBN);
 
-      assert.equal(await controllerInst.whiteList(depositor.address), false);
+      assert.equal(await storage.whiteList(depositor.address), false);
 
       await expect(
         depositor.connect(signers[1]).depositFor(underlying.address, vault.address, depositAmount)
@@ -150,8 +150,8 @@ describe("Add White List", function () {
     it('Deposit from whitelisted contracts', async () => {
       
       const depositAmount = BigNumber.from('100').mul(underlyingDecimalsBN);
-      await controllerInst.addToWhiteList(depositor.address);
-      assert.equal(await controllerInst.whiteList(depositor.address), true);
+      await storage.addToWhiteList(depositor.address);
+      assert.equal(await storage.whiteList(depositor.address), true);
 
       await depositor.connect(signers[1]).depositFor(underlying.address, vault.address, depositAmount);
 
