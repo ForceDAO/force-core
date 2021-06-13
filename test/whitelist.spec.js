@@ -159,8 +159,8 @@ describe("Add White List", function () {
     it('should fail to deposit and withdraw in the same block', async () => {
       const depositAmount = BigNumber.from('100').mul(underlyingDecimalsBN);
 
-      await controllerInst.addToWhiteList(depositor.address);
-      assert.equal(await controllerInst.whiteList(depositor.address), true);
+      await storage.addToWhiteList(depositor.address);
+      assert.equal(await storage.whiteList(depositor.address), true);
 
       await expect(
         depositor.connect(signers[1]).depositAndWithdraw(underlying.address, vault.address, depositAmount)

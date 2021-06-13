@@ -19,7 +19,7 @@ contract VaultStorage is Initializable {
   bytes32 internal constant _ALLOW_SHARE_PRICE_DECREASE_SLOT = 0x22f7033891e85fc76735ebd320e0d3f546da431c4729c2f6d2613b11923aaaed;
   bytes32 internal constant _WITHDRAW_BEFORE_REINVESTING_SLOT = 0x4215fbb95dc0890d3e1660fb9089350f2d3f350c0a756934874cae6febf42a79;
   bytes32 internal constant _TOTAL_SUPPLY_CAP = 0x138459372b9025a8c1e12a6475fdc7d2ce9c8afb75d5c05b2f0767a663aab39b;
-  bytes32 internal constant _WITHDRAW_FEE = 0x59869fd5a98123557bd792ffafa8158081352ee6097bccb3c51b3ca11e4cabe0;
+  bytes32 internal constant _WITHDRAW_FEE = 0x3405c96d34f8f0e36eac648034ca7e687437f795bbdbdc2cb7db90a89d519f57;
 
   constructor() {
     assert(_STRATEGY_SLOT == bytes32(uint256(keccak256("eip1967.vaultStorage.strategy")) - 1));
