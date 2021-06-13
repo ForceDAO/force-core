@@ -1,6 +1,5 @@
 const MockToken = artifacts.require("MockToken");
 const Storage = artifacts.require("Storage");
-const MockFeeRewardForwarder = artifacts.require('MockFeeRewardForwarder');
 
 const { expect } = require("chai");
 const { BigNumber } = require("ethers");
@@ -36,12 +35,6 @@ describe("Add White List", function () {
     expect(storage.address).to.properAddress;
     await storage.connect(governance).setController(governance.address);
 
-    
-    feeRewardForwarder = await MockFeeRewardForwarder.new(
-      storage.address,
-      underlying.address,
-      signers[4].address,
-    );
 
     //------------==
     await underlying.mint(farmer, farmerBalance, { from: governance.address });
