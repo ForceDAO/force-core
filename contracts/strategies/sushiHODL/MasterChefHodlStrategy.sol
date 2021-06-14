@@ -26,6 +26,9 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   bytes32 internal constant _POTPOOL_SLOT = 0x7f4b50847e7d7a4da6a6ea36bfb188c77e9f093697337eb9a876744f926dd014;
   bytes32 internal constant _FEERATIO_SLOT = 0xdd068d8a32502e81a10cdf5394059be07ccd47fe6df7741b57a2f9937efedeaf;
   bytes32 internal constant _FEEHOLDER_SLOT = 0x00679b6f1cace16785324a171df0e550ee9f20b64671a53b5c491a3065b30f2b;
+  bytes32 internal constant _UNISWAP_ROUTER_V2_SLOT = 0x00;
+  bytes32 internal constant _SUSHISWAP_ROUTER_V2_SLOT = 0x00;
+
 
   uint256 public constant feeBase = 10000;
 
@@ -46,7 +49,9 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _rewardToken,
     uint256 _poolId,
     address _hodlVault,
-    address _potPool
+    address _potPool,
+    address _uniswapRouterV2Address,
+    address _sushiSwapRouterV2Address
   ) public initializer {
     require(_rewardPool != address(0), "reward pool is empty");
 
@@ -70,6 +75,8 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     _setPoolId(_poolId);
     setAddress(_HODLVAULT_SLOT, _hodlVault);
     setAddress(_POTPOOL_SLOT, _potPool);
+    setAddress(_UNISWAP_ROUTER_V2_SLOT, _uniswapRouterV2Address);
+    setAddress(_SUSHISWAP_ROUTER_V2_SLOT, _sushiSwapRouterV2Address);
   }
 
   function depositArbCheck() public view returns(bool) {
@@ -272,5 +279,25 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   function poolId() public view returns (uint256) {
     return getUint256(_POOLID_SLOT);
+  }
+
+
+  function setUniSwapRouterV2(address _uniswapRouterV2Address) public onlyGovernance {
+    require(uniswapRouterV2() == address(0), "UniSwapRouterV2 already set");
+    setAddress(_UNISWAP_ROUTER_V2_SLOT, _uniswapRouterV2Address);
+  }
+
+  function uniswapRouterV2() public view returns (address) {
+    return getAddress(_UNISWAP_ROUTER_V2_SLOT);
+  }
+
+
+  function setSushiSwapRouterV2(address _sushiswapRouterV2Address) public onlyGovernance {
+    require(sushiswapRouterV2() == address(0), "SushiSwapRouterV2 already set");
+    setAddress(_SUSHISWAP_ROUTER_V2_SLOT, _sushiswapRouterV2Address);
+  }
+
+  function sushiswapRouterV2() public view returns (address) {
+    return getAddress(_SUSHISWAP_ROUTER_V2_SLOT);
   }
 }
