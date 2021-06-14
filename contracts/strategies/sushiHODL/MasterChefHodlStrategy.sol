@@ -17,8 +17,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
-  address public constant uniswapRouterV2 = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-  address public constant sushiswapRouterV2 = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
 
   // additional storage slots (on top of BaseUpgradeableStrategy ones) are defined here
   bytes32 internal constant _POOLID_SLOT = 0x3fd729bfa2e28b7806b03a6e014729f59477b530f995be4d51defc9dad94810b;
@@ -32,6 +30,12 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   uint256 public constant feeBase = 10000;
 
+  // address public constant uniswapRouterV2 = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+  // address public constant sushiswapRouterV2 = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
+
+  address private uniswapRouterV2;
+  address private sushiswapRouterV2;
+
   constructor() public BaseUpgradeableStrategy() {
     assert(_POOLID_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.poolId")) - 1));
     assert(_HODLVAULT_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.hodlVault")) - 1));
@@ -39,7 +43,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     assert(_FEERATIO_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeRatio")) - 1));
     assert(_FEEHOLDER_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeHolder")) - 1));
   }
-
 
   function initializeMasterChefHodlStrategy(
     address _storage,
@@ -54,6 +57,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _sushiSwapRouterV2Address
   ) public initializer {
     require(_rewardPool != address(0), "reward pool is empty");
+    require(_uniswapRouterV2Address != address(0), "uniswapRouterV2Address is empty");
+    require(_sushiSwapRouterV2Address != address(0), "sushiswapRouterV2Address is empty");
+
+    uniswapRouterV2 = _uniswapRouterV2Address;
+    sushiswapRouterV2 = _sushiSwapRouterV2Address;
 
     BaseUpgradeableStrategy.initialize(
       _storage,
@@ -75,8 +83,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     _setPoolId(_poolId);
     setAddress(_HODLVAULT_SLOT, _hodlVault);
     setAddress(_POTPOOL_SLOT, _potPool);
-    setAddress(_UNISWAP_ROUTER_V2_SLOT, _uniswapRouterV2Address);
-    setAddress(_SUSHISWAP_ROUTER_V2_SLOT, _sushiSwapRouterV2Address);
   }
 
   function depositArbCheck() public view returns(bool) {
@@ -281,23 +287,21 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     return getUint256(_POOLID_SLOT);
   }
 
-
   function setUniSwapRouterV2(address _uniswapRouterV2Address) public onlyGovernance {
-    require(uniswapRouterV2() == address(0), "UniSwapRouterV2 already set");
-    setAddress(_UNISWAP_ROUTER_V2_SLOT, _uniswapRouterV2Address);
+    require(_uniswapRouterV2Address != address(0), "uniswapRouterV2Address is empty");
+    uniswapRouterV2 = _uniswapRouterV2Address;
   }
 
   function uniswapRouterV2() public view returns (address) {
-    return getAddress(_UNISWAP_ROUTER_V2_SLOT);
+    return uniswapRouterV2;
   }
 
-
   function setSushiSwapRouterV2(address _sushiswapRouterV2Address) public onlyGovernance {
-    require(sushiswapRouterV2() == address(0), "SushiSwapRouterV2 already set");
-    setAddress(_SUSHISWAP_ROUTER_V2_SLOT, _sushiswapRouterV2Address);
+    require(_sushiswapRouterV2Address != address(0), "sushiswapRouterV2Address is empty");
+    sushiswapRouterV2 = _sushiSwapRouterV2Address;
   }
 
   function sushiswapRouterV2() public view returns (address) {
-    return getAddress(_SUSHISWAP_ROUTER_V2_SLOT);
+    return sushiswapRouterV2;
   }
 }
