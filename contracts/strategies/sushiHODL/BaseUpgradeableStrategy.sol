@@ -39,7 +39,6 @@ contract BaseUpgradeableStrategy is Initializable, ControllableInit, BaseUpgrade
     address _underlying,
     address _vault,
     address _rewardPool,
-    address _rewardToken,
     uint256 _profitSharingNumerator,
     uint256 _profitSharingDenominator,
     bool _sell,
@@ -52,7 +51,6 @@ contract BaseUpgradeableStrategy is Initializable, ControllableInit, BaseUpgrade
     _setUnderlying(_underlying);
     _setVault(_vault);
     _setRewardPool(_rewardPool);
-    _setRewardToken(_rewardToken);
     _setProfitSharingNumerator(_profitSharingNumerator);
     _setProfitSharingDenominator(_profitSharingDenominator);
 
@@ -82,45 +80,5 @@ contract BaseUpgradeableStrategy is Initializable, ControllableInit, BaseUpgrade
         && nextImplementation() != address(0),
       nextImplementation()
     );
-  }
-
-  // reward notification
-
-  function notifyProfitInRewardToken(uint256 _rewardBalance) internal {
-    if( _rewardBalance > 0 ){
-      uint256 feeAmount = _rewardBalance.mul(profitSharingNumerator()).div(profitSharingDenominator());
-      emit ProfitLogInReward(_rewardBalance, feeAmount, block.timestamp);
-      IERC20(rewardToken()).safeApprove(controller(), 0);
-      IERC20(rewardToken()).safeApprove(controller(), feeAmount);
-
-      IController(controller()).notifyFee(
-        rewardToken(),
-        feeAmount
-      );
-    } else {
-      emit ProfitLogInReward(0, 0, block.timestamp);
-    }
-  }
-
-  function notifyProfitAndBuybackInRewardToken(uint256 _rewardBalance, address pool, uint256 _buybackRatio) internal {
-    if( _rewardBalance > 0 ){
-      uint256 feeAmount = _rewardBalance.mul(profitSharingNumerator()).div(profitSharingDenominator());
-      uint256 buybackAmount = _rewardBalance.sub(feeAmount).mul(_buybackRatio).div(10000);
-
-      address forwarder = IController(controller()).feeRewardForwarder();
-      emit ProfitAndBuybackLog(_rewardBalance, feeAmount, block.timestamp);
-
-      IERC20(rewardToken()).safeApprove(forwarder, 0);
-      IERC20(rewardToken()).safeApprove(forwarder, _rewardBalance);
-
-      IFeeRewardForwarderV6(forwarder).notifyFeeAndBuybackAmounts(
-        rewardToken(),
-        feeAmount,
-        pool,
-        buybackAmount
-      );
-    } else {
-      emit ProfitAndBuybackLog(0, 0, block.timestamp);
-    }
   }
 }

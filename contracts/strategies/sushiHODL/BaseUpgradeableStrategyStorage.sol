@@ -7,10 +7,6 @@ contract BaseUpgradeableStrategyStorage {
   bytes32 internal constant _UNDERLYING_SLOT = 0xa1709211eeccf8f4ad5b6700d52a1a9525b5f5ae1e9e5f9e5a0c2fc23c86e530;
   bytes32 internal constant _VAULT_SLOT = 0xefd7c7d9ef1040fc87e7ad11fe15f86e1d11e1df03c6d7c87f7e1f4041f08d41;
 
-
-
-  //TODO - update this contract to store 2 RewardTokens
-  bytes32 internal constant _REWARD_TOKEN_SLOT = 0xdae0aafd977983cb1e78d8f638900ff361dc3c48c43118ca1dd77d1af3f47bbf;
   bytes32 internal constant _REWARD_POOL_SLOT = 0x3d9bb16e77837e25cada0cf894835418b38e8e18fbec6cfd192eb344bebfa6b8;
   bytes32 internal constant _SELL_FLOOR_SLOT = 0xc403216a7704d160f6a3b5c3b149a1226a6080f0a5dd27b27d9ba9c022fa0afc;
   bytes32 internal constant _SELL_SLOT = 0x656de32df98753b07482576beb0d00a6b949ebf84c066c765f54f26725221bb6;
@@ -26,14 +22,11 @@ contract BaseUpgradeableStrategyStorage {
   bytes32 internal constant _REWARD_CLAIMABLE_SLOT = 0xbc7c0d42a71b75c3129b337a259c346200f901408f273707402da4b51db3b8e7;
   bytes32 internal constant _MULTISIG_SLOT = 0x3e9de78b54c338efbc04e3a091b87dc7efb5d7024738302c548fc59fba1c34e6;
   
-  //TODO - use ethers-js to know the keccak256 hash of bytes32(uint256(keccak256("eip1967.strategyStorage.secondaryRewardToken")) - 1))
-  bytes32 internal constant _SECONDARY_REWARD_TOKEN_SLOT = 0x0
 
   constructor() public {
     assert(_UNDERLYING_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.underlying")) - 1));
     assert(_VAULT_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.vault")) - 1));
 
-    assert(_REWARD_TOKEN_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.rewardToken")) - 1));
     assert(_REWARD_POOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.rewardPool")) - 1));
     assert(_SELL_FLOOR_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sellFloor")) - 1));
     assert(_SELL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sell")) - 1));
@@ -66,14 +59,6 @@ contract BaseUpgradeableStrategyStorage {
 
   function rewardPool() public view returns (address) {
     return getAddress(_REWARD_POOL_SLOT);
-  }
-
-  function _setRewardToken(address _address) internal {
-    setAddress(_REWARD_TOKEN_SLOT, _address);
-  }
-
-  function rewardToken() public view returns (address) {
-    return getAddress(_REWARD_TOKEN_SLOT);
   }
 
   function _setVault(address _address) internal {

@@ -9,39 +9,38 @@ import "../../uniswap/interfaces/IUniswapV2Pair.sol";
 import "../../contracts/hardworkInterface/IStrategy.sol";
 import "../../contracts/hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
-import "./IMasterChefV2.sol";
-import "./PotPool.sol";
+import "./IMiniChefV2.sol";
 
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
-
   // additional storage slots (on top of BaseUpgradeableStrategy ones) are defined here
   bytes32 internal constant _POOLID_SLOT = 0x3fd729bfa2e28b7806b03a6e014729f59477b530f995be4d51defc9dad94810b;
   bytes32 internal constant _HODLVAULT_SLOT = 0xc26d330f887c749cb38ae7c37873ff08ac4bba7aec9113c82d48a0cf6cc145f2;
-  bytes32 internal constant _POTPOOL_SLOT = 0x7f4b50847e7d7a4da6a6ea36bfb188c77e9f093697337eb9a876744f926dd014;
   bytes32 internal constant _FEERATIO_SLOT = 0xdd068d8a32502e81a10cdf5394059be07ccd47fe6df7741b57a2f9937efedeaf;
   bytes32 internal constant _FEEHOLDER_SLOT = 0x00679b6f1cace16785324a171df0e550ee9f20b64671a53b5c491a3065b30f2b;
-  bytes32 internal constant _UNISWAP_ROUTER_V2_SLOT = 0x00;
-  bytes32 internal constant _SUSHISWAP_ROUTER_V2_SLOT = 0x00;
-
-
-  uint256 public constant feeBase = 10000;
-
-  // address public constant uniswapRouterV2 = address(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
-  // address public constant sushiswapRouterV2 = address(0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F);
-
-  address private uniswapRouterV2;
-  address private sushiswapRouterV2;
+  bytes32 internal constant _ROUTER_ADDRESS_V2_SLOT = 0x92199eab42483f175b95375c69585e82b184587d7846fbeb28030f68fbdf2feb;
+  bytes32 internal constant _SUSHI_TOKEN_ADDRESS_SLOT = 0xcf3b156443750e93863e4613b74db96a0f6b1a281dd67c87ff4afda1c52d545a;
+  bytes32 internal constant _WMATIC_TOKEN_ADDRESS_SLOT = 0x9b943037a3ba4823127740ffb7abf7566d132d3c50fe28fa8fd45de2c2a6f834;
+  bytes32 internal constant _SELL_SUSHI_BOOL_SLOT = 0xb404b34be2ff9c417c92ed70e602d3743dc67c81ec3e52a56e152248436e66f2;
+  bytes32 internal constant _SELL_MATIC_BOOL_SLOT = 0x73f61035ecc9fe9b9df7f01bc4f1011784dd694ac3cac759bcd208fbf3da6e4a;
+  bytes32 internal constant _CLAIM_ALLOWED_BOOL_SLOT = 0x643da254e9d7470053896c065c0a957d88a3eb48e03c87bfdfe16b3b5282046a;
+  bytes32 internal constant _FEE_BASE_UNIT256_SLOT = 0xb03ba70f2714416bbb89d5653110256725bbfd3c1a0a6334c283e953a6ea7993;
 
   constructor() public BaseUpgradeableStrategy() {
     assert(_POOLID_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.poolId")) - 1));
     assert(_HODLVAULT_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.hodlVault")) - 1));
-    assert(_POTPOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.potPool")) - 1));
     assert(_FEERATIO_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeRatio")) - 1));
     assert(_FEEHOLDER_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeHolder")) - 1));
+    assert(_ROUTER_ADDRESS_V2_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.routerAddressV2")) - 1));
+    assert(_SUSHI_TOKEN_ADDRESS_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sushiTokenAddress")) - 1));
+    assert(_WMATIC_TOKEN_ADDRESS_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.wmaticTokenAddress")) - 1));
+    assert(_SELL_SUSHI_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sellSushi")) - 1));
+    assert(_SELL_MATIC_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sellMatic")) - 1));
+    assert(_CLAIM_ALLOWED_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.claimAllowed")) - 1));
+    assert(_FEE_BASE_UNIT256_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeBase")) - 1));
   }
 
   function initializeMasterChefHodlStrategy(
@@ -49,26 +48,22 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _underlying,
     address _vault,
     address _rewardPool,
-    address _rewardToken,
     uint256 _poolId,
     address _hodlVault,
-    address _potPool,
-    address _uniswapRouterV2Address,
-    address _sushiSwapRouterV2Address
+    address _routerAddressV2,
+    address _sushiTokenAddress,
+    address _wmaticTokenAddress
   ) public initializer {
     require(_rewardPool != address(0), "reward pool is empty");
-    require(_uniswapRouterV2Address != address(0), "uniswapRouterV2Address is empty");
-    require(_sushiSwapRouterV2Address != address(0), "sushiswapRouterV2Address is empty");
-
-    uniswapRouterV2 = _uniswapRouterV2Address;
-    sushiswapRouterV2 = _sushiSwapRouterV2Address;
+    require(_poolId != uint256(0), "_poolId is Zero");
+    require(_hodlVault != address(0), "_hodlVault is empty");
+    require(_routerAddressV2 != address(0), "routerAddressV2 is empty");
 
     BaseUpgradeableStrategy.initialize(
       _storage,
       _underlying,
       _vault,
       _rewardPool,
-      _rewardToken,
       300, // profit sharing numerator
       1000, // profit sharing denominator
       true, // sell
@@ -76,13 +71,16 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       12 hours // implementation change delay
     );
 
+    setUint256(_FEE_BASE_UNIT256_SLOT, 1000);
     
-    IMasterChefV2.PoolInfo memory poolInfo = IMasterChefV2(rewardPool()).poolInfo(_poolId);
+    IMiniChefV2.PoolInfo memory poolInfo = IMiniChefV2(rewardPool()).poolInfo(_poolId);
     address _lpt = poolInfo.lpToken; 
     require(_lpt == underlying(), "Pool Info does not match underlying");
-    _setPoolId(_poolId);
+    setUint256(_POOLID_SLOT, _poolId);
     setAddress(_HODLVAULT_SLOT, _hodlVault);
-    setAddress(_POTPOOL_SLOT, _potPool);
+    setAddress(_ROUTER_ADDRESS_V2_SLOT, _routerAddressV2);
+    setAddress(_SUSHI_TOKEN_ADDRESS_SLOT, _sushiTokenAddress);
+    setAddress(_WMATIC_TOKEN_ADDRESS_SLOT, _wmaticTokenAddress);
   }
 
   function depositArbCheck() public view returns(bool) {
@@ -90,33 +88,37 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   }
 
   function rewardPoolBalance() internal view returns (uint256 bal) {
-      IMasterChefV2.UserInfo memory userInfo = IMasterChefV2(rewardPool()).userInfo(poolId(), address(this));
+      IMiniChefV2.UserInfo memory userInfo = IMiniChefV2(rewardPool()).userInfo(poolId(), address(this));
       bal = userInfo.amount;
   }
 
   function exitRewardPool() internal {
       uint256 bal = rewardPoolBalance();
       if (bal != 0) {
-          IMasterChefV2(rewardPool()).withdraw(poolId(), bal, address(this));
+          if (claimAllowed()) {
+            IMiniChefV2(rewardPool()).withdrawAndHarvest(poolId(), bal, address(this));
+          } else {
+            IMiniChefV2(rewardPool()).withdraw(poolId(), bal, address(this));
+          }
       }
   }
 
   function emergencyExitRewardPool() internal {
       uint256 bal = rewardPoolBalance();
       if (bal != 0) {
-          IMasterChefV2(rewardPool()).emergencyWithdraw(poolId(), address(this));
+          IMiniChefV2(rewardPool()).emergencyWithdraw(poolId(), address(this));
       }
   }
 
   function unsalvagableTokens(address token) public view returns (bool) {
-    return (token == rewardToken() || token == underlying());
+    return (token == sushiTokenAddress() || token == wmaticTokenAddress() || token == underlying());
   }
 
   function enterRewardPool() internal {
     uint256 entireBalance = IERC20(underlying()).balanceOf(address(this));
     IERC20(underlying()).safeApprove(rewardPool(), 0);
     IERC20(underlying()).safeApprove(rewardPool(), entireBalance);
-    IMasterChefV2(rewardPool()).deposit(poolId(), entireBalance, address(this));
+    IMiniChefV2(rewardPool()).deposit(poolId(), entireBalance, address(this));
   }
 
   /*
@@ -139,26 +141,56 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   // We Hodl all the rewards
   function _hodlAndNotify() internal {
-    uint256 rewardBalance = IERC20(rewardToken()).balanceOf(address(this));
-    if(rewardBalance > 0) {
-      uint256 fee = 0;
-      uint256 remainingReward = rewardBalance;
-      if(feeHolder() != address(0)){
-        fee = rewardBalance.mul(feeRatio()).div(feeBase);
-        remainingReward = rewardBalance.sub(fee);
-        if(fee > 0){
-          IERC20(rewardToken()).safeTransfer(feeHolder(), fee);
-        }
-      }
 
-      IERC20(rewardToken()).safeApprove(hodlVault(), 0);
-      IERC20(rewardToken()).safeApprove(hodlVault(), remainingReward);
-      IVault(hodlVault()).deposit(remainingReward);
-      uint256 fRewardBalance = IERC20(hodlVault()).balanceOf(address(this));
-      IERC20(hodlVault()).safeTransfer(potPool(), fRewardBalance);
-      PotPool(potPool()).notifyTargetRewardAmount(hodlVault(), fRewardBalance);
+  //liquidate the Sushi Rewards
+  if (sellSushi()) {
+    liquidateRewardToken(sushiTokenAddress());
+  }
+
+  //liquidate the WMatic Rewards
+  if (sellMatic()) {
+    liquidateRewardToken(wmaticTokenAddress());
+  }
+
+      // uint256 rewardBalance = IERC20(rewardToken()).balanceOf(address(this));
+      // if(rewardBalance > 0) {
+      //   uint256 fee = 0;
+      //   uint256 remainingReward = rewardBalance;
+      //   if(feeHolder() != address(0)){
+      //     fee = rewardBalance.mul(feeRatio()).div(feeBase());
+      //     remainingReward = rewardBalance.sub(fee);
+      //     if(fee > 0){
+      //       IERC20(rewardToken()).safeTransfer(feeHolder(), fee);
+      //     }
+      //   }
+
+      //   IERC20(rewardToken()).safeApprove(hodlVault(), 0);
+      //   IERC20(rewardToken()).safeApprove(hodlVault(), remainingReward);
+
+
+
+      //   IVault(hodlVault()).deposit(remainingReward);
+      //   uint256 fRewardBalance = IERC20(hodlVault()).balanceOf(address(this));
+      //   IERC20(hodlVault()).safeTransfer(controller(), fRewardBalance);
     }
   }
+
+   function liquidateRewardToken(address _rewardTokenAddress, address[] _uniswapPath) internal {
+        uint256 _rewardTokenBalance = IERC20(_rewardTokenAddress).balanceOf(address(this));
+        if (_rewardTokenBalance > 0) {
+            emit Liquidating(address(_rewardTokenAddress), _rewardTokenBalance);
+            IERC20(_rewardTokenAddress).safeApprove(uniswapRouterV2, 0);
+            IERC20(_rewardTokenAddress).safeApprove(uniswapRouterV2, _rewardTokenBalance);
+            // we can accept 1 as the minimum because this will be called only by a trusted worker
+            IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
+                _rewardTokenBalance,
+                1,
+                _uniswapPath,
+                address(this),
+                block.timestamp
+            );
+        }
+    }
 
   /*
   *   Stakes everything the strategy holds into the reward pool
@@ -193,7 +225,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       // for the peace of mind (in case something gets changed in between)
       uint256 needToWithdraw = amount.sub(entireBalance);
       uint256 toWithdraw = Math.min(rewardPoolBalance(), needToWithdraw);
-      IMasterChefV2(rewardPool()).withdraw(poolId(), toWithdraw, address(this));
+      IMiniChefV2(rewardPool()).withdraw(poolId(), toWithdraw, address(this));
     }
 
     IERC20(underlying()).safeTransfer(vault(), amount);
@@ -238,31 +270,17 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     investAllUnderlying();
   }
 
-  function setHodlVault(address _value) public onlyGovernance {
-    require(hodlVault() == address(0), "Hodl vault already set");
-    setAddress(_HODLVAULT_SLOT, _value);
-  }
-
   function hodlVault() public view returns (address) {
     return getAddress(_HODLVAULT_SLOT);
   }
 
-  function setPotPool(address _value) public onlyGovernance {
-    require(potPool() == address(0), "PotPool already set");
-    setAddress(_POTPOOL_SLOT, _value);
-  }
-
   function setFeeRatio(uint256 _value) public onlyGovernance {
-    require(_value <= feeBase.mul(3).div(10), "Cannot be more then 30%");
+    require(_value <= feeBase().mul(3).div(10), "Cannot be more then 30%");
     setUint256(_FEERATIO_SLOT, _value);
   }
 
   function setFeeHolder(address _value) public onlyGovernance {
     setAddress(_FEEHOLDER_SLOT, _value);
-  }
-
-  function potPool() public view returns (address) {
-    return getAddress(_POTPOOL_SLOT);
   }
 
   function feeRatio() public view returns (uint256) {
@@ -278,30 +296,49 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     _finalizeUpgrade();
   }
 
-  // masterchef rewards pool ID
-  function _setPoolId(uint256 _value) internal {
-    setUint256(_POOLID_SLOT, _value);
-  }
-
   function poolId() public view returns (uint256) {
     return getUint256(_POOLID_SLOT);
   }
 
-  function setUniSwapRouterV2(address _uniswapRouterV2Address) public onlyGovernance {
-    require(_uniswapRouterV2Address != address(0), "uniswapRouterV2Address is empty");
-    uniswapRouterV2 = _uniswapRouterV2Address;
+  function routerAddressV2() public view returns (address) {
+    return getAddress(_ROUTER_ADDRESS_V2_SLOT);
   }
 
-  function uniswapRouterV2() public view returns (address) {
-    return uniswapRouterV2;
+  function setSellSushi(bool _sellSushi) internal {
+    setBoolean(_SELL_SUSHI_BOOL_SLOT, _sellSushi);
   }
 
-  function setSushiSwapRouterV2(address _sushiswapRouterV2Address) public onlyGovernance {
-    require(_sushiswapRouterV2Address != address(0), "sushiswapRouterV2Address is empty");
-    sushiswapRouterV2 = _sushiSwapRouterV2Address;
+  function sellSushi() public view returns (bool) {
+    return getBoolean(_SELL_SUSHI_BOOL_SLOT);
   }
 
-  function sushiswapRouterV2() public view returns (address) {
-    return sushiswapRouterV2;
+  function setSellMatic(bool _sellMatic) internal {
+    setBoolean(_SELL_MATIC_BOOL_SLOT, _sellMatic);
+  }
+
+  function sellMatic() public view returns (bool) {
+    return getBoolean(_SELL_MATIC_BOOL_SLOT);
+  }
+
+  function setClaimAllowed(bool _claimAllowed) internal {
+    setBoolean(_CLAIM_ALLOWED_BOOL_SLOT, _claimAllowed);
+  }
+
+  function claimAllowed() public view returns (bool) {
+    return getBoolean(_CLAIM_ALLOWED_BOOL_SLOT);
+  }
+
+  function feeBase() public view returns (uint256) {
+    return getUint256(_FEE_BASE_UNIT256_SLOT);
+  }
+
+  function setLiquidation(
+      bool _sellSushi,
+      bool _sellMatic,
+      bool _claimAllowed
+  ) public onlyGovernance {
+      setSushi(_sellSushi);
+      setMatic(_sellMatic);
+      setClaimAllowed(_claimAllowed);
   }
 }
