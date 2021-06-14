@@ -9,7 +9,7 @@ import "../../uniswap/interfaces/IUniswapV2Pair.sol";
 import "../../contracts/hardworkInterface/IStrategy.sol";
 import "../../contracts/hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
-import "./IMasterChef.sol";
+import "./IMasterChefV2.sol";
 import "./PotPool.sol";
 
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
@@ -63,8 +63,9 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       12 hours // implementation change delay
     );
 
-    address _lpt;
-    (_lpt,,,) = IMasterChef(rewardPool()).poolInfo(_poolId);
+    
+    IMasterChefV2.PoolInfo memory poolInfo = IMasterChefV2(rewardPool()).poolInfo(_poolId);
+    address _lpt = poolInfo.lpToken; 
     require(_lpt == underlying(), "Pool Info does not match underlying");
     _setPoolId(_poolId);
     setAddress(_HODLVAULT_SLOT, _hodlVault);
@@ -76,20 +77,21 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   }
 
   function rewardPoolBalance() internal view returns (uint256 bal) {
-      (bal,) = IMasterChef(rewardPool()).userInfo(poolId(), address(this));
+      IMasterChefV2.UserInfo memory userInfo = IMasterChefV2(rewardPool()).userInfo(poolId(), address(this));
+      bal = userInfo.amount;
   }
 
   function exitRewardPool() internal {
       uint256 bal = rewardPoolBalance();
       if (bal != 0) {
-          IMasterChef(rewardPool()).withdraw(poolId(), bal);
+          IMasterChefV2(rewardPool()).withdraw(poolId(), bal, address(this));
       }
   }
 
   function emergencyExitRewardPool() internal {
       uint256 bal = rewardPoolBalance();
       if (bal != 0) {
-          IMasterChef(rewardPool()).emergencyWithdraw(poolId());
+          IMasterChefV2(rewardPool()).emergencyWithdraw(poolId(), address(this));
       }
   }
 
@@ -101,7 +103,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     uint256 entireBalance = IERC20(underlying()).balanceOf(address(this));
     IERC20(underlying()).safeApprove(rewardPool(), 0);
     IERC20(underlying()).safeApprove(rewardPool(), entireBalance);
-    IMasterChef(rewardPool()).deposit(poolId(), entireBalance);
+    IMasterChefV2(rewardPool()).deposit(poolId(), entireBalance, address(this));
   }
 
   /*
@@ -178,7 +180,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       // for the peace of mind (in case something gets changed in between)
       uint256 needToWithdraw = amount.sub(entireBalance);
       uint256 toWithdraw = Math.min(rewardPoolBalance(), needToWithdraw);
-      IMasterChef(rewardPool()).withdraw(poolId(), toWithdraw);
+      IMasterChefV2(rewardPool()).withdraw(poolId(), toWithdraw, address(this));
     }
 
     IERC20(underlying()).safeTransfer(vault(), amount);
