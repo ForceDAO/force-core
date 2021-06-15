@@ -28,6 +28,30 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   bytes32 internal constant _SELL_MATIC_BOOL_SLOT = 0x73f61035ecc9fe9b9df7f01bc4f1011784dd694ac3cac759bcd208fbf3da6e4a;
   bytes32 internal constant _CLAIM_ALLOWED_BOOL_SLOT = 0x643da254e9d7470053896c065c0a957d88a3eb48e03c87bfdfe16b3b5282046a;
   bytes32 internal constant _FEE_BASE_UNIT256_SLOT = 0xb03ba70f2714416bbb89d5653110256725bbfd3c1a0a6334c283e953a6ea7993;
+ 
+  //Wmatic -> WETH paths[0]
+  bytes32 internal constant _ROUTE_WMATIC_TOKEN0_LHS = 0x0;
+  
+  //Wmatic -> WETH paths[1]
+  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN0_RHS = 0x0;
+
+  //Wmatic -> underlying paths[0]
+  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN1_LHS = 0x0;
+
+  //Wmatic -> underlying paths[1]
+  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN1_RHS = 0x0;
+
+  //SUSHI -> WETH paths[0]
+  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN0_LHS = 0x0;
+
+  //SUSHI -> WETH paths[1]
+  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN0_RHS = 0x0;
+
+  //SUSHI -> underlying paths[0]
+  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN1_LHS = 0x0;
+
+  //SUSHI -> underlying paths[1]
+  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN1_RHS = 0x0;
 
   constructor() public BaseUpgradeableStrategy() {
     assert(_POOLID_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.poolId")) - 1));
@@ -41,6 +65,15 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     assert(_SELL_MATIC_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sellMatic")) - 1));
     assert(_CLAIM_ALLOWED_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.claimAllowed")) - 1));
     assert(_FEE_BASE_UNIT256_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeBase")) - 1));
+
+    assert(_ROUTE_WMATIC_TOKEN0_LHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token0.lhs")) - 1));
+    assert(_ROUTE_WMATIC_TOKEN0_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token0.rhs")) - 1));
+    assert(_ROUTE_WMATIC_TOKEN1_LHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token1.lhs")) - 1));
+    assert(_ROUTE_WMATIC_TOKEN1_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token1.rhs")) - 1));
+    assert(_ROUTE_SUSHI_TOKEN0_LHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.sushi.token0.lhs")) - 1));
+    assert(_ROUTE_SUSHI_TOKEN0_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.sushi.token0.rhs")) - 1));
+    assert(_ROUTE_SUSHI_TOKEN1_LHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.sushi.token1.lhs")) - 1));
+    assert(_ROUTE_SUSHI_TOKEN1_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.sushi.token1.rhs")) - 1));
   }
 
   function initializeMasterChefHodlStrategy(
@@ -53,6 +86,14 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _routerAddressV2,
     address _sushiTokenAddress,
     address _wmaticTokenAddress
+    address _routeWmaticToken0Lhs,
+    address _routeWmaticToken0Rhs,
+    address _routeWmaticToken1Lhs,
+    address _routeWmaticToken1Rhs,
+    address _routeSushiToken0Lhs,
+    address _routeSushiToken0Rhs,
+    address _routeSushiToken1Lhs,
+    address _routeSushiToken1Rhs
   ) public initializer {
     require(_rewardPool != address(0), "reward pool is empty");
     require(_poolId != uint256(0), "_poolId is Zero");
@@ -81,6 +122,51 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     setAddress(_ROUTER_ADDRESS_V2_SLOT, _routerAddressV2);
     setAddress(_SUSHI_TOKEN_ADDRESS_SLOT, _sushiTokenAddress);
     setAddress(_WMATIC_TOKEN_ADDRESS_SLOT, _wmaticTokenAddress);
+
+    setAddress(_ROUTE_WMATIC_TOKEN0_LHS, _routeWmaticToken0Lhs);
+    setAddress(_ROUTE_WMATIC_TOKEN0_RHS, _routeWmaticToken0Rhs);
+    setAddress(_ROUTE_WMATIC_TOKEN1_LHS, _routeWmaticToken1Lhs);
+    setAddress(_ROUTE_WMATIC_TOKEN1_RHS, _routeWmaticToken1Rhs);
+
+    setAddress(_ROUTER_SUSHI_TOKEN0_LHS, _routeSushiToken0Lhs);
+    setAddress(_ROUTER_SUSHI_TOKEN0_RHS, _routeSushiToken0Rhs);
+    setAddress(_ROUTER_SUSHI_TOKEN1_LHS, _routeSushiToken1Lhs);
+    setAddress(_ROUTER_SUSHI_TOKEN1_RHS, _routeSushiToken1Rhs);
+  }
+
+  function getWMaticRoutes() public view returns (address[], address[]){
+
+    address[] wmaticToken0Route = new address[](2);
+    address wmaticToken0Lhs = getAddress(_ROUTE_WMATIC_TOKEN0_LHS)
+    wmaticToken0Route[0] = wmaticToken0Lhs;
+    address wmaticToken0Rhs = getAddress(_ROUTE_WMATIC_TOKEN0_RHS)
+    wmaticToken0Route[1] = wmaticToken0Rhs;
+
+    address[] wmaticToken1Route = new address[](2);
+    address wmaticToken1Lhs = getAddress(_ROUTE_WMATIC_TOKEN1_LHS)
+    wmaticToken1Route[0] = wmaticToken1Lhs;
+    address wmaticToken1Rhs = getAddress(_ROUTE_WMATIC_TOKEN1_LHS)
+    wmaticToken1Route[1] = wmaticToken1Rhs;
+
+    return (wmaticToken0Route, wmaticToken1Route);
+  }
+
+
+  function getSushiRoutes() public view returns (address[], address[]){
+
+    address[] sushiToken0Route = new address[](2);
+    address sushiToken0Lhs = getAddress(_ROUTE_SUSHI_TOKEN0_LHS)
+    sushiToken0Route[0] = sushiToken0Lhs;
+    address sushiToken0Rhs = getAddress(_ROUTE_SUSHI_TOKEN0_RHS)
+    sushiToken0Route[1] = sushiToken0Rhs;
+
+    address[] sushiToken1Route = new address[](2);
+    address sushiToken1Lhs = getAddress(_ROUTE_SUSHI_TOKEN1_LHS)
+    sushiToken1Route[0] = sushiToken1Lhs;
+    address sushiToken1Rhs = getAddress(_ROUTE_SUSHI_TOKEN1_LHS)
+    sushiToken1Route[1] = sushiToken1Rhs;
+    
+    return (sushiToken0Route, sushiToken1Route);
   }
 
   function depositArbCheck() public view returns(bool) {
