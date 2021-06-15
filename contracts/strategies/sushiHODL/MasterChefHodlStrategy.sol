@@ -33,25 +33,29 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   bytes32 internal constant _ROUTE_WMATIC_TOKEN0_LHS = 0x6565901a24447709405ab3697f2ea640ce7791edb0ea046095d626972d683601;
   
   //Wmatic -> WETH paths[1]
-  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN0_RHS = 0x900fb2a9fa2b2b2820f295064f6e6adbf7ddab98fcd6d808328c83637697bcab;
+  bytes32 internal constant _ROUTE_WMATIC_TOKEN0_RHS = 0x900fb2a9fa2b2b2820f295064f6e6adbf7ddab98fcd6d808328c83637697bcab;
 
   //Wmatic -> underlying paths[0]
-  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN1_LHS = 0x8faa525983a40d73a9645634c5c07faf273c288aac622ba3f4b00dc2bdcc70ed;
+  bytes32 internal constant _ROUTE_WMATIC_TOKEN1_LHS = 0x8faa525983a40d73a9645634c5c07faf273c288aac622ba3f4b00dc2bdcc70ed;
 
   //Wmatic -> underlying paths[1]
-  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN1_RHS = 0x11715c74c260a518c242046509eb0522741596bbc940b2effdc1424b13e585fd;
+  bytes32 internal constant _ROUTE_WMATIC_TOKEN1_RHS = 0x11715c74c260a518c242046509eb0522741596bbc940b2effdc1424b13e585fd;
 
   //SUSHI -> WETH paths[0]
-  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN0_LHS = 0x525d87f3a88df1e5365945ad2b18acddb07378fd70f898bf731c21f78fe2f23b;
+  bytes32 internal constant _ROUTE_SUSHI_TOKEN0_LHS = 0x525d87f3a88df1e5365945ad2b18acddb07378fd70f898bf731c21f78fe2f23b;
 
   //SUSHI -> WETH paths[1]
-  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN0_RHS = 0x158eb59ee802a12ccb51e0e690e309c49ee37438bb1ded3c31f09ac4348b2923;
+  bytes32 internal constant _ROUTE_SUSHI_TOKEN0_RHS = 0x158eb59ee802a12ccb51e0e690e309c49ee37438bb1ded3c31f09ac4348b2923;
 
   //SUSHI -> underlying paths[0]
-  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN1_LHS = 0x05bbcb07ee015ebbef26793b36c0acd7e35b0da4e41c9be77244c04eb97ad92a;
+  bytes32 internal constant _ROUTE_SUSHI_TOKEN1_LHS = 0x05bbcb07ee015ebbef26793b36c0acd7e35b0da4e41c9be77244c04eb97ad92a;
 
   //SUSHI -> underlying paths[1]
-  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN1_RHS = 0xab89abbedde2addb80dde4b5025427e94813c85004af27ed6a3d14614e675d5a;
+  bytes32 internal constant _ROUTE_SUSHI_TOKEN1_RHS = 0xab89abbedde2addb80dde4b5025427e94813c85004af27ed6a3d14614e675d5a;
+
+  event LogLiquidateRewardToken(address indexed rewardTokenAddress, address indexed token0Address, address indexed token1Address, uint256 rewardTokenBalance, uint256 token0Amount, uint256 token1Amount);
+  event LogLiquidityAdded(address indexed token0Address, address indexed token1Address, uint256 amountA, uint256 amountB, uint256 liquidity);
+
 
   constructor() public BaseUpgradeableStrategy() {
     assert(_POOLID_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.poolId")) - 1));
@@ -89,19 +93,23 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _routerAddressV2,
     address _sushiTokenAddress,
     address _wmaticTokenAddress
-    address _routeWmaticToken0Lhs,
-    address _routeWmaticToken0Rhs,
-    address _routeWmaticToken1Lhs,
-    address _routeWmaticToken1Rhs,
-    address _routeSushiToken0Lhs,
-    address _routeSushiToken0Rhs,
-    address _routeSushiToken1Lhs,
-    address _routeSushiToken1Rhs
+    address[] _routeWmaticToken0,
+    address[] _routeWmaticToken1,
+    address[] _routeSushiToken0,
+    address[] _routeSushiToken1,
   ) public initializer {
     require(_rewardPool != address(0), "reward pool is empty");
     require(_poolId != uint256(0), "_poolId is Zero");
     require(_hodlVault != address(0), "_hodlVault is empty");
     require(_routerAddressV2 != address(0), "routerAddressV2 is empty");
+    require(_routeWmaticToken0.length == 2, "routeWmatic-Token0 is invalid");
+    require(_routeWmaticToken1.length == 2, "routeWmatic-Token1 is invalid");
+    require(_routeSushiToken0.length == 2, "routeSushi-Token0 is invalid");
+    require(_routeSushiToken1.length == 2, "routeSushi-Token1 is invalid");
+    require(_routeWmaticToken0[0] != address(0) || _routeWmaticToken0[1] != address(0), "Zero-Address is invalid");
+    require(_routeWmaticToken1[0] != address(0) || _routeWmaticToken1[1] != address(0), "Zero-Address is invalid");
+    require(_routeSushiToken0[0] != address(0) || _routeSushiToken0[1] != address(0), "Zero-Address is invalid");
+    require(_routeSushiToken1[0] != address(0) || _routeSushiToken1[1] != address(0), "Zero-Address is invalid");
 
     BaseUpgradeableStrategy.initialize(
       _storage,
@@ -126,18 +134,18 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     setAddress(_SUSHI_TOKEN_ADDRESS_SLOT, _sushiTokenAddress);
     setAddress(_WMATIC_TOKEN_ADDRESS_SLOT, _wmaticTokenAddress);
 
-    setAddress(_ROUTE_WMATIC_TOKEN0_LHS, _routeWmaticToken0Lhs);
-    setAddress(_ROUTE_WMATIC_TOKEN0_RHS, _routeWmaticToken0Rhs);
-    setAddress(_ROUTE_WMATIC_TOKEN1_LHS, _routeWmaticToken1Lhs);
-    setAddress(_ROUTE_WMATIC_TOKEN1_RHS, _routeWmaticToken1Rhs);
+    setAddress(_ROUTE_WMATIC_TOKEN0_LHS, _routeWmaticToken0[0]);
+    setAddress(_ROUTE_WMATIC_TOKEN0_RHS, _routeWmaticToken0[1]);
+    setAddress(_ROUTE_WMATIC_TOKEN1_LHS, _routeWmaticToken1[0]);
+    setAddress(_ROUTE_WMATIC_TOKEN1_RHS, _routeWmaticToken1[1]);
 
-    setAddress(_ROUTER_SUSHI_TOKEN0_LHS, _routeSushiToken0Lhs);
-    setAddress(_ROUTER_SUSHI_TOKEN0_RHS, _routeSushiToken0Rhs);
-    setAddress(_ROUTER_SUSHI_TOKEN1_LHS, _routeSushiToken1Lhs);
-    setAddress(_ROUTER_SUSHI_TOKEN1_RHS, _routeSushiToken1Rhs);
+    setAddress(_ROUTER_SUSHI_TOKEN0_LHS, _routeSushiToken0[0]);
+    setAddress(_ROUTER_SUSHI_TOKEN0_RHS, _routeSushiToken0[1]);
+    setAddress(_ROUTER_SUSHI_TOKEN1_LHS, _routeSushiToken1[0]);
+    setAddress(_ROUTER_SUSHI_TOKEN1_RHS, _routeSushiToken1[1]);
   }
 
-  function getWMaticRoutes() public view returns (address[], address[]){
+  function getWmaticRoutes() public view returns (address[], address[]){
 
     address[] wmaticToken0Route = new address[](2);
     address wmaticToken0Lhs = getAddress(_ROUTE_WMATIC_TOKEN0_LHS)
@@ -229,17 +237,23 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   }
 
   // We Hodl all the rewards
-  function _hodlAndNotify() internal {
+  function _hodlAndNotify() internal return (uint256) {
 
-  //liquidate the Sushi Rewards
-  if (sellSushi()) {
-    liquidateRewardToken(sushiTokenAddress());
-  }
+    uint256 liquidityAdded;
 
-  //liquidate the WMatic Rewards
-  if (sellMatic()) {
-    liquidateRewardToken(wmaticTokenAddress());
-  }
+    //liquidate the Sushi Rewards
+    if (sellSushi()) {
+      (address[] sushiPath0, address[] sushiPath1) = getSushiRoutes();
+      liquidityAdded.add(liquidateRewardToken(sushiTokenAddress(), sushiPath0, sushiPath1));
+    }
+
+    //liquidate the WMatic Rewards
+    if (sellMatic()) {
+      (address[] maticPath0, address[] maticPath1) = getWmaticRoutes()
+      liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
+    }
+
+    return liquidityAdded;
 
       // uint256 rewardBalance = IERC20(rewardToken()).balanceOf(address(this));
       // if(rewardBalance > 0) {
@@ -264,22 +278,73 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     }
   }
 
-   function liquidateRewardToken(address _rewardTokenAddress, address[] _uniswapPath) internal {
-        uint256 _rewardTokenBalance = IERC20(_rewardTokenAddress).balanceOf(address(this));
-        if (_rewardTokenBalance > 0) {
-            emit Liquidating(address(_rewardTokenAddress), _rewardTokenBalance);
-            IERC20(_rewardTokenAddress).safeApprove(uniswapRouterV2, 0);
-            IERC20(_rewardTokenAddress).safeApprove(uniswapRouterV2, _rewardTokenBalance);
-            // we can accept 1 as the minimum because this will be called only by a trusted worker
-            IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
-                _rewardTokenBalance,
-                1,
-                _uniswapPath,
-                address(this),
-                block.timestamp
-            );
-        }
+  function liquidateRewardToken(address _rewardTokenAddress, address[] _uniswapPath0, address[] _uniswapPath1) internal returns (uint256) {
+    uint256 rewardTokenBalance = IERC20(_rewardTokenAddress).balanceOf(address(this));
+
+    if (rewardTokenBalance > 0) {
+      //halve the tokenBalance
+      //first half of tokenBalance will be used to buy token0
+      //second half of tokenBalance will be used to buy token1
+      uint256 half = rewardTokenBalance.div(2);
+      uint256 otherHalf = rewardTokenBalance.sub(half);
+
+      IERC20(_rewardTokenAddress).safeApprove(uniswapRouterV2, 0);
+      IERC20(_rewardTokenAddress).safeApprove(uniswapRouterV2, rewardTokenBalance);
+      
+      // we can accept 1 as the minimum because this will be called only by a trusted worker
+      uint256[] amounts0 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
+        half,
+        1,
+        _uniswapPath0,
+        address(this),
+        block.timestamp
+      );
+
+      uint256 token0Amount = amounts0[amounts0.length - 1];
+
+      // we can accept 1 as the minimum because this will be called only by a trusted worker
+      uint256[] amounts1 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
+        otherHalf,
+        1,
+        _uniswapPath1,
+        address(this),
+        block.timestamp
+      );
+
+      uint256 token1Amount = amounts1[amounts1.length - 1];
+
+      address token0Address = _uniswapPath0[1];
+      address token1Address = _uniswapPath1[1];
+
+      emit LogLiquidateRewardToken(_rewardTokenAddress, token0Address, token1Address, rewardTokenBalance, token0Amount, token1Amount);
+      return addLiquidity(token0Address, token0Amount, token1Address, token1Amount);
+    } else {
+      return 0;
     }
+  }
+
+  function addLiquidity(address token0Address, uint256 token0Amount, address token1Address, uint256 token1Amount) private returns (uint256) {
+    // approve token transfer
+    IERC20(token0Address).safeApprove(uniswapRouterV2, 0);
+    IERC20(token0Address).safeApprove(uniswapRouterV2, token0Amount);
+    IERC20(token1Address).safeApprove(uniswapRouterV2, 0);
+    IERC20(token1Address).safeApprove(uniswapRouterV2, token1Amount);
+
+    // add the liquidity
+    (uint256 amountA, uint256 amountB, uint256 liquidity) = uniswapV2Router.addLiquidity(
+      token0Address,
+      token1Address,
+      token0Amount,
+      token1Amount,
+      1,  // min
+      1,  // min
+      vault(),
+      block.timestamp
+    );
+
+    emit LogLiquidityAdded(token0Address, token1Address, amountA, amountB, liquidity);
+    return liquidity;
+  }
 
   /*
   *   Stakes everything the strategy holds into the reward pool
@@ -297,7 +362,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   */
   function withdrawAllToVault() public restricted {
     exitRewardPool();
-    _hodlAndNotify();
+    uint256 liquidityAdded = _hodlAndNotify();
     IERC20(underlying()).safeTransfer(vault(), IERC20(underlying()).balanceOf(address(this)));
   }
 
@@ -355,7 +420,16 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   */
   function doHardWork() external onlyNotPausedInvesting restricted {
     exitRewardPool();
-    _hodlAndNotify();
+    uint256 liquidityAdded = _hodlAndNotify();
+
+    //compute Fee and transfer Fee to controller
+    if(controller() != address(0)){
+      uint256 fee = liquidityAdded.mul(feeRatio()).div(feeBase());
+      if(fee > 0){
+        IERC20(underlying()).safeTransfer(controller(), fee);
+      }
+    }
+    
     investAllUnderlying();
   }
 
