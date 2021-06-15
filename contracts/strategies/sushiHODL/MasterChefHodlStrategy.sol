@@ -30,28 +30,28 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   bytes32 internal constant _FEE_BASE_UNIT256_SLOT = 0xb03ba70f2714416bbb89d5653110256725bbfd3c1a0a6334c283e953a6ea7993;
  
   //Wmatic -> WETH paths[0]
-  bytes32 internal constant _ROUTE_WMATIC_TOKEN0_LHS = 0x0;
+  bytes32 internal constant _ROUTE_WMATIC_TOKEN0_LHS = 0x6565901a24447709405ab3697f2ea640ce7791edb0ea046095d626972d683601;
   
   //Wmatic -> WETH paths[1]
-  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN0_RHS = 0x0;
+  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN0_RHS = 0x900fb2a9fa2b2b2820f295064f6e6adbf7ddab98fcd6d808328c83637697bcab;
 
   //Wmatic -> underlying paths[0]
-  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN1_LHS = 0x0;
+  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN1_LHS = 0x8faa525983a40d73a9645634c5c07faf273c288aac622ba3f4b00dc2bdcc70ed;
 
   //Wmatic -> underlying paths[1]
-  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN1_RHS = 0x0;
+  bytes32 internal constant _ROUTE_WMATIC_ROUTE_TOKEN1_RHS = 0x11715c74c260a518c242046509eb0522741596bbc940b2effdc1424b13e585fd;
 
   //SUSHI -> WETH paths[0]
-  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN0_LHS = 0x0;
+  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN0_LHS = 0x525d87f3a88df1e5365945ad2b18acddb07378fd70f898bf731c21f78fe2f23b;
 
   //SUSHI -> WETH paths[1]
-  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN0_RHS = 0x0;
+  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN0_RHS = 0x158eb59ee802a12ccb51e0e690e309c49ee37438bb1ded3c31f09ac4348b2923;
 
   //SUSHI -> underlying paths[0]
-  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN1_LHS = 0x0;
+  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN1_LHS = 0x05bbcb07ee015ebbef26793b36c0acd7e35b0da4e41c9be77244c04eb97ad92a;
 
   //SUSHI -> underlying paths[1]
-  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN1_RHS = 0x0;
+  bytes32 internal constant _ROUTE_SUSHI_ROUTE_TOKEN1_RHS = 0xab89abbedde2addb80dde4b5025427e94813c85004af27ed6a3d14614e675d5a;
 
   constructor() public BaseUpgradeableStrategy() {
     assert(_POOLID_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.poolId")) - 1));
@@ -68,10 +68,13 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
     assert(_ROUTE_WMATIC_TOKEN0_LHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token0.lhs")) - 1));
     assert(_ROUTE_WMATIC_TOKEN0_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token0.rhs")) - 1));
+
     assert(_ROUTE_WMATIC_TOKEN1_LHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token1.lhs")) - 1));
     assert(_ROUTE_WMATIC_TOKEN1_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token1.rhs")) - 1));
+
     assert(_ROUTE_SUSHI_TOKEN0_LHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.sushi.token0.lhs")) - 1));
     assert(_ROUTE_SUSHI_TOKEN0_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.sushi.token0.rhs")) - 1));
+    
     assert(_ROUTE_SUSHI_TOKEN1_LHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.sushi.token1.lhs")) - 1));
     assert(_ROUTE_SUSHI_TOKEN1_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.sushi.token1.rhs")) - 1));
   }
