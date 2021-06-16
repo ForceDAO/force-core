@@ -7,9 +7,9 @@ require("dotenv").config();
 
 // npx hardhat compile
 // npx hardhat deploy-vault --network polygonmumbai
-task("deploy-vault", "Deploys a new Vault contract")
+task("deploy-sushiHODL-vault", "Deploys a new Vault contract for sushiHODLVault")
   .setAction(async (args, hre) => {
-    log.info("---------== deploy-Vault");
+    log.info("---------== deploy-sushiHODL-Vault");
     const factoryCtrt = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);
     const vaultContractInstance = await factoryCtrt.deploy();
     logDeployment(vaultContractInstance, hre.network.name);

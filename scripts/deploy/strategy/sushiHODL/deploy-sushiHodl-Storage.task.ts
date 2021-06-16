@@ -6,10 +6,10 @@ const log: Logger = new Logger();
 
 // npx hardhat compile
 // npx hardhat deploy-storage --network polygonmumbai
-task("deploy-storage", "Deploys a new Storage contract")
+task("deploy-sushiHODL-storage", "Deploys a new Storage contract For sushiHODL")
 .setAction(
   async (args, hre) => {
-    log.info("---------== deploy-Storage");
+    log.info("---------== deploy-sushiHODL-Storage");
     const factoryStorage = await hre.ethers.getContractFactory(`contracts/Storage.sol:Storage`);
     const instStorage = await factoryStorage.deploy();
     log.info(`--------- Must Do Activity: ${instStorage} gets in to .env as: STORAGE_CONTRACT_ADDRESS --------- `);
