@@ -1,5 +1,6 @@
 export const sushiHodlStrategyConfig = {  
     network : "polygonmumbai",
+    sushiHodlStrategyFactoryAddress: "",
     underlying: "",
     miniChefV2: "",
     poolId: "",

@@ -1,13 +1,9 @@
-import { logDeployment } from "./deploymentLogUtils";
 import { task, types } from "hardhat/config";
-import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
 require("dotenv").config();
-import * as deployConfig from "./deploy-config";
-const fs = require('fs');
-import {  readFileSync } from 'fs';
-const StorageABIPath = "../artifacts/contracts/Storage.sol/Storage.json";
-
+import * as deployConfig from "../../config/deploy-config";
+import * as sushiHodlStrategyConfig from "../config/deploy-sushiHodl-config";
+import { Logger } from "tslog";
 const log: Logger = new Logger();
 
 // npx hardhat compile
@@ -15,46 +11,64 @@ const log: Logger = new Logger();
 task("deploy-controller", "Deploys a new Controller contract")
   .setAction(async (args, hre) => {
     
-    const addrStorage = deployConfig.deployedContracts.storageAddress || "";
+  const {
+        storageAddress,
+        vaultAddress
+    } = deployConfig.deployedContracts;
 
-    if(addrStorage === "" ) {
-      log.error("storageAddress invalid");
-      return;
-    }
+  assert(storageAddress != "", "storageAddress is invalid");
+  assert(vaultAddress != "", "vaultAddress is invalid");
 
-    const addrFeeRewardForwarder = deployConfig.deployedContracts.feeRewardForwarderAddress || "";
+  const { 
+    sushiHodlStrategyFactoryAddress,
+    underlying, 
+    miniChefV2,
+    poolId,
+    routerAddressV2,
+    sushiTokenAddress,
+    wmaticTokenAddress,
+    routeSushiToken0,
+    routeSushiToken1,
+    routeWmaticToken0,
+    routeWmaticToken1
+  } = sushiHodlStrategyConfig;
 
-    if(addrFeeRewardForwarder === "" ) {
-      log.error("feeRewardForwarderAddress invalid");
-      return;
-    }
+  assert(sushiHodlStrategyFactoryAddress != "", "sushiHodlStrategyFactoryAddress is invalid");
+  assert(underlying != "", "underlying is invalid");
+  assert(miniChefV2 != "", "miniChefV2 is invalid");
+  assert(poolId > 0, "poolId is invalid");
+  assert(routerAddressV2 != "", "routerAddressV2 is invalid");
+  assert(sushiTokenAddress != "", "sushiTokenAddress is invalid");
+  assert(wmaticTokenAddress != "", "wmaticTokenAddress is invalid");
+  assert(routeSushiToken0.length === 2 && routeSushiToken0[0] != "" && routeSushiToken0[1] != "" , "routeSushiToken0 is invalid");
+  assert(routeSushiToken1.length === 2 && routeSushiToken1[0] != "" && routeSushiToken1[1] != "" , "routeSushiToken1 is invalid");
+  assert(routeWmaticToken0.length === 2 && routeWmaticToken0[0] != "" && routeWmaticToken0[1] != "" , "routeWmaticToken0 is invalid");
+  assert(routeWmaticToken1.length === 2 && routeWmaticToken1[0] != "" && routeWmaticToken1[1] != "" , "routeWmaticToken1 is invalid");
 
-    log.info("---------== deploy-Controller");
-    const factoryController = await hre.ethers.getContractFactory(`contracts/Controller.sol:Controller`);
-    const instController = await factoryController.deploy(
-      addrStorage,
-      addrFeeRewardForwarder
-    );
-    logDeployment(instController, hre.network.name);
-    const addrController = instController.address;
+  log.info("---------== create-sushiHODLStrategy");
 
-    // https://ethereum.stackexchange.com/questions/95023/hardhat-how-to-interact-with-a-deployed-contract
+  //create sushiHODLStrategyFactory Contract Instance using sushiHodlStrategyFactory Contract Address & ABI
+  const sushiHodlStrategyFactoryInstance = await hre.ethers.getContractAt(
+    "SushiHodlStrategyFactory",
+    sushiHodlStrategyFactoryAddress
+  );
 
-    
-    if(fs.existsSync(StorageABIPath)){
-      let storageJSON = JSON.parse(readFileSync(StorageABIPath).toString());
+  const sushiHodlStrategyInstanceAddress = await sushiHodlStrategyFactoryInstance.createSushiHodlStrategy(
+    storageAddress,
+    underlying,
+    vaultAddress,
+    miniChefV2,
+    poolId,
+    routerAddressV2,
+    sushiTokenAddress,
+    wmaticTokenAddress
+    routeSushiToken0,
+    routeSushiToken1,
+    routeWmaticToken0,
+    routeWmaticToken1
+  );
 
-      //Load Storage Contract (deployed at address: addrStorage)
-      const accounts = await hre.ethers.getSigners();
-
-      let instStorage = new hre.ethers.Contract(addrStorage, storageJSON.abi, accounts[0]);
-
-      //set the controller address in instStorage
-      await instStorage.setController(addrController);
-      
-    }else{
-      log.error("ABI for Storage contract cannot be located @ path: "+StorageABIPath);
-    }
-  });
+  log.info("SushiHodlStrategy is created on network: "+hre.network.name+" @ address: "+sushiHodlStrategyInstanceAddress);    
+});
 
 module.exports;

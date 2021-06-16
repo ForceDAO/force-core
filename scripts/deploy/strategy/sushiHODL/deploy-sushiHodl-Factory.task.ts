@@ -2,7 +2,6 @@ import { logDeployment } from "./deploymentLogUtils";
 import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
-require("dotenv").config();
 
 const log: Logger = new Logger();
 
