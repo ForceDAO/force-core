@@ -1,15 +1,15 @@
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "./BaseUpgradeableStrategyStorage.sol";
 import "../../ControllableInit.sol";
 
 contract BaseUpgradeableStrategy is Initializable, ControllableInit, BaseUpgradeableStrategyStorage {
-  using SafeMath for uint256;
-  using SafeERC20 for IERC20;
+  using SafeMathUpgradeable for uint256;
+  using SafeERC20Upgradeable for IERC20Upgradeable;
 
   event ProfitsNotCollected(bool sell, bool floor);
   event ProfitLogInReward(uint256 profitAmount, uint256 feeAmount, uint256 timestamp);

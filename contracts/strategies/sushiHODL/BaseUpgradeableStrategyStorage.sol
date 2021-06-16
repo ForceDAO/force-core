@@ -1,6 +1,5 @@
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/Initializable.sol";
 
 contract BaseUpgradeableStrategyStorage {
 
@@ -41,8 +40,6 @@ contract BaseUpgradeableStrategyStorage {
 
     assert(_REWARD_CLAIMABLE_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.rewardClaimable")) - 1));
     assert(_MULTISIG_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.multiSig")) - 1));
-    //TODO - add support for 2nd RewardTokenSlot (new slot goes all the way to the bottom)
-    assert(_SECONDARY_REWARD_TOKEN_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.secondaryRewardToken")) - 1));
   }
 
   function _setUnderlying(address _address) internal {

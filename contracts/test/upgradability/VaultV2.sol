@@ -30,14 +30,6 @@ contract VaultV2 is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, 
   constructor() {
   }
 
-  function controller() public view override(IVault, ControllableInit) returns (address) {
-    return Storage(_storage()).controller();
-  }
-
-  function governance() public view override(GovernableInit,IVault) returns (address) {
-    return Storage(_storage()).governance();
-  }
-
   // the function is name differently to not cause inheritance clash in truffle and allows tests
   function initializeVault(address _storage,
     address _underlying,

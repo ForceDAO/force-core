@@ -5,17 +5,16 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-web3";
 import "solidity-coverage"
 import '@openzeppelin/hardhat-upgrades';
-require("@nomiclabs/hardhat-web3");
-require("@nomiclabs/hardhat-ethers");
-require("@nomiclabs/hardhat-truffle5");
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-truffle5";
 
 import { ethers } from "ethers";
+
 require("dotenv").config();
 
 require("./scripts/accounts.task.ts");
 require("./scripts/balance.task.ts");
 require("./scripts/deploy/deploy-Storage.task.ts");
-require("./scripts/deploy/deploy-Controller.task.ts");
 require("./scripts/deploy/deploy-Vault.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";

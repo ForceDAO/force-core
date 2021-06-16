@@ -26,11 +26,11 @@ contract SushiHodlStrategyFactory {
     uint256 _poolId,
     address _routerAddressV2,
     address _sushiTokenAddress,
-    address _wmaticTokenAddress
+    address _wmaticTokenAddress,
     address[] _routeSushiToken0,
     address[] _routeSushiToken1,
     address[] _routeWmaticToken0,
-    address[] _routeWmaticToken1,
+    address[] _routeWmaticToken1
   );
 
   /// @param _storage Root Storage Contract Address (Storage.sol)
@@ -53,11 +53,11 @@ contract SushiHodlStrategyFactory {
     uint256 _poolId,
     address _routerAddressV2,
     address _sushiTokenAddress,
-    address _wmaticTokenAddress
-    address[] _routeSushiToken0,
-    address[] _routeSushiToken1,
-    address[] _routeWmaticToken0,
-    address[] _routeWmaticToken1,
+    address _wmaticTokenAddress,
+    address[] memory _routeSushiToken0,
+    address[] memory _routeSushiToken1,
+    address[] memory _routeWmaticToken0,
+    address[] memory _routeWmaticToken1
   ) public returns(address) {
     MasterChefHodlStrategy addrNew = new MasterChefHodlStrategy();
     MasterChefHodlStrategy(address(addrNew)).initializeMasterChefHodlStrategy(
@@ -68,11 +68,11 @@ contract SushiHodlStrategyFactory {
       _poolId,
       _routerAddressV2,
       _sushiTokenAddress,
-      _wmaticTokenAddress
+      _wmaticTokenAddress,
       _routeSushiToken0,
       _routeSushiToken1,
       _routeWmaticToken0,
-      _routeWmaticToken1,
+      _routeWmaticToken1
     );
 
     emit LogSushiHodlStrategyCreated(
@@ -83,11 +83,11 @@ contract SushiHodlStrategyFactory {
       _poolId,
       _routerAddressV2,
       _sushiTokenAddress,
-      _wmaticTokenAddress
+      _wmaticTokenAddress,
       _routeSushiToken0,
       _routeSushiToken1,
       _routeWmaticToken0,
-      _routeWmaticToken1,
+      _routeWmaticToken1
     );
     return address(addrNew);
   }

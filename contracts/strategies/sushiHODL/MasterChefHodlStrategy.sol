@@ -1,20 +1,21 @@
-pragma solidity 0.5.16;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/math/Math.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import "../../uniswap/interfaces/IUniswapV2Router02.sol";
 import "../../uniswap/interfaces/IUniswapV2Pair.sol";
-import "../../contracts/hardworkInterface/IStrategy.sol";
-import "../../contracts/hardworkInterface/IVault.sol";
+import "../../hardworkInterface/IStrategy.sol";
+import "../../hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMiniChefV2.sol";
 
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
-  using SafeMath for uint256;
-  using SafeERC20 for IERC20;
+  using SafeMathUpgradeable for uint256;
+  using SafeERC20Upgradeable for IERC20Upgradeable;
 
   // additional storage slots (on top of BaseUpgradeableStrategy ones) are defined here
   bytes32 internal constant _POOLID_SLOT = 0x3fd729bfa2e28b7806b03a6e014729f59477b530f995be4d51defc9dad94810b;
@@ -24,7 +25,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   bytes32 internal constant _SUSHI_TOKEN_ADDRESS_SLOT = 0xcf3b156443750e93863e4613b74db96a0f6b1a281dd67c87ff4afda1c52d545a;
   bytes32 internal constant _WMATIC_TOKEN_ADDRESS_SLOT = 0x9b943037a3ba4823127740ffb7abf7566d132d3c50fe28fa8fd45de2c2a6f834;
   bytes32 internal constant _SELL_SUSHI_BOOL_SLOT = 0xb404b34be2ff9c417c92ed70e602d3743dc67c81ec3e52a56e152248436e66f2;
-  bytes32 internal constant _SELL_MATIC_BOOL_SLOT = 0x73f61035ecc9fe9b9df7f01bc4f1011784dd694ac3cac759bcd208fbf3da6e4a;
+  bytes32 internal constant _SELL_WMATIC_BOOL_SLOT = 0x73f61035ecc9fe9b9df7f01bc4f1011784dd694ac3cac759bcd208fbf3da6e4a;
   bytes32 internal constant _CLAIM_ALLOWED_BOOL_SLOT = 0x643da254e9d7470053896c065c0a957d88a3eb48e03c87bfdfe16b3b5282046a;
   bytes32 internal constant _FEE_BASE_UNIT256_SLOT = 0xb03ba70f2714416bbb89d5653110256725bbfd3c1a0a6334c283e953a6ea7993;
  
@@ -64,7 +65,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     assert(_SUSHI_TOKEN_ADDRESS_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sushiTokenAddress")) - 1));
     assert(_WMATIC_TOKEN_ADDRESS_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.wmaticTokenAddress")) - 1));
     assert(_SELL_SUSHI_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sellSushi")) - 1));
-    assert(_SELL_MATIC_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sellMatic")) - 1));
+    assert(_SELL_WMATIC_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sellMatic")) - 1));
     assert(_CLAIM_ALLOWED_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.claimAllowed")) - 1));
     assert(_FEE_BASE_UNIT256_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeBase")) - 1));
 
@@ -101,11 +102,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     uint256 _poolId,
     address _routerAddressV2,
     address _sushiTokenAddress,
-    address _wmaticTokenAddress
-    address[] _routeSushiToken0,
-    address[] _routeSushiToken1,
-    address[] _routeWmaticToken0,
-    address[] _routeWmaticToken1,
+    address _wmaticTokenAddress,
+    address[] memory _routeSushiToken0,
+    address[] memory _routeSushiToken1,
+    address[] memory _routeWmaticToken0,
+    address[] memory _routeWmaticToken1
   ) public initializer {
     require(_miniChefV2 != address(0), "reward pool is empty");
     require(_poolId != uint256(0), "_poolId is Zero");
@@ -132,18 +133,18 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     );
     
     IMiniChefV2.PoolInfo memory poolInfo = IMiniChefV2(rewardPool()).poolInfo(_poolId);
-    address _lpt = poolInfo.lpToken;
-    require(_lpt == underlying(), "Pool Info does not match underlying");
+    IERC20Upgradeable _lpt = poolInfo.lpToken;
+    require(address(_lpt) == underlying(), "Pool Info does not match underlying");
 
     setUint256(_POOLID_SLOT, _poolId);
     setAddress(_ROUTER_ADDRESS_V2_SLOT, _routerAddressV2);
     setAddress(_SUSHI_TOKEN_ADDRESS_SLOT, _sushiTokenAddress);
     setAddress(_WMATIC_TOKEN_ADDRESS_SLOT, _wmaticTokenAddress);
 
-    setAddress(_ROUTER_SUSHI_TOKEN0_LHS, _routeSushiToken0[0]);
-    setAddress(_ROUTER_SUSHI_TOKEN0_RHS, _routeSushiToken0[1]);
-    setAddress(_ROUTER_SUSHI_TOKEN1_LHS, _routeSushiToken1[0]);
-    setAddress(_ROUTER_SUSHI_TOKEN1_RHS, _routeSushiToken1[1]);
+    setAddress(_ROUTE_SUSHI_TOKEN0_LHS, _routeSushiToken0[0]);
+    setAddress(_ROUTE_SUSHI_TOKEN0_RHS, _routeSushiToken0[1]);
+    setAddress(_ROUTE_SUSHI_TOKEN1_LHS, _routeSushiToken1[0]);
+    setAddress(_ROUTE_SUSHI_TOKEN1_RHS, _routeSushiToken1[1]);
 
     setAddress(_ROUTE_WMATIC_TOKEN0_LHS, _routeWmaticToken0[0]);
     setAddress(_ROUTE_WMATIC_TOKEN0_RHS, _routeWmaticToken0[1]);
@@ -153,42 +154,42 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     setUint256(_FEE_BASE_UNIT256_SLOT, 1000);
   }
 
-  function getWmaticRoutes() public view returns (address[], address[]){
+  function getWmaticRoutes() public view returns (address[] memory, address[] memory){
 
-    address[] wmaticToken0Route = new address[](2);
-    address wmaticToken0Lhs = getAddress(_ROUTE_WMATIC_TOKEN0_LHS)
+    address[] memory wmaticToken0Route = new address[](2);
+    address wmaticToken0Lhs = getAddress(_ROUTE_WMATIC_TOKEN0_LHS);
     wmaticToken0Route[0] = wmaticToken0Lhs;
-    address wmaticToken0Rhs = getAddress(_ROUTE_WMATIC_TOKEN0_RHS)
+    address wmaticToken0Rhs = getAddress(_ROUTE_WMATIC_TOKEN0_RHS);
     wmaticToken0Route[1] = wmaticToken0Rhs;
 
-    address[] wmaticToken1Route = new address[](2);
-    address wmaticToken1Lhs = getAddress(_ROUTE_WMATIC_TOKEN1_LHS)
+    address[] memory wmaticToken1Route = new address[](2);
+    address wmaticToken1Lhs = getAddress(_ROUTE_WMATIC_TOKEN1_LHS);
     wmaticToken1Route[0] = wmaticToken1Lhs;
-    address wmaticToken1Rhs = getAddress(_ROUTE_WMATIC_TOKEN1_LHS)
+    address wmaticToken1Rhs = getAddress(_ROUTE_WMATIC_TOKEN1_LHS);
     wmaticToken1Route[1] = wmaticToken1Rhs;
 
     return (wmaticToken0Route, wmaticToken1Route);
   }
 
 
-  function getSushiRoutes() public view returns (address[], address[]){
+  function getSushiRoutes() public view returns (address[] memory, address[] memory){
 
-    address[] sushiToken0Route = new address[](2);
-    address sushiToken0Lhs = getAddress(_ROUTE_SUSHI_TOKEN0_LHS)
+    address[] memory sushiToken0Route = new address[](2);
+    address sushiToken0Lhs = getAddress(_ROUTE_SUSHI_TOKEN0_LHS);
     sushiToken0Route[0] = sushiToken0Lhs;
-    address sushiToken0Rhs = getAddress(_ROUTE_SUSHI_TOKEN0_RHS)
+    address sushiToken0Rhs = getAddress(_ROUTE_SUSHI_TOKEN0_RHS);
     sushiToken0Route[1] = sushiToken0Rhs;
 
-    address[] sushiToken1Route = new address[](2);
-    address sushiToken1Lhs = getAddress(_ROUTE_SUSHI_TOKEN1_LHS)
+    address[] memory sushiToken1Route = new address[](2);
+    address sushiToken1Lhs = getAddress(_ROUTE_SUSHI_TOKEN1_LHS);
     sushiToken1Route[0] = sushiToken1Lhs;
-    address sushiToken1Rhs = getAddress(_ROUTE_SUSHI_TOKEN1_LHS)
+    address sushiToken1Rhs = getAddress(_ROUTE_SUSHI_TOKEN1_LHS);
     sushiToken1Route[1] = sushiToken1Rhs;
     
     return (sushiToken0Route, sushiToken1Route);
   }
 
-  function depositArbCheck() public view returns(bool) {
+  function depositArbCheck() public view override returns(bool) {
     return true;
   }
 
@@ -215,14 +216,14 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       }
   }
 
-  function unsalvagableTokens(address token) public view returns (bool) {
+  function unsalvagableTokens(address token) public view override returns (bool) {
     return (token == sushiTokenAddress() || token == wmaticTokenAddress() || token == underlying());
   }
 
   function enterRewardPool() internal {
-    uint256 entireBalance = IERC20(underlying()).balanceOf(address(this));
-    IERC20(underlying()).safeApprove(rewardPool(), 0);
-    IERC20(underlying()).safeApprove(rewardPool(), entireBalance);
+    uint256 entireBalance = IERC20Upgradeable(underlying()).balanceOf(address(this));
+    IERC20Upgradeable(underlying()).safeApprove(rewardPool(), 0);
+    IERC20Upgradeable(underlying()).safeApprove(rewardPool(), entireBalance);
     IMiniChefV2(rewardPool()).deposit(poolId(), entireBalance, address(this));
   }
 
@@ -245,27 +246,27 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   }
 
   // We Hodl all the rewards
-  function _hodlAndNotify() internal return (uint256) {
+  function _hodlAndNotify() internal returns (uint256) {
 
     uint256 liquidityAdded;
 
     //liquidate the Sushi Rewards
     if (sellSushi()) {
-      (address[] sushiPath0, address[] sushiPath1) = getSushiRoutes();
+      (address[] memory sushiPath0, address[] memory sushiPath1) = getSushiRoutes();
       liquidityAdded.add(liquidateRewardToken(sushiTokenAddress(), sushiPath0, sushiPath1));
     }
 
     //liquidate the WMatic Rewards
-    if (sellMatic()) {
-      (address[] maticPath0, address[] maticPath1) = getWmaticRoutes()
+    if (sellWMatic()) {
+      (address[] memory maticPath0, address[] memory maticPath1) = getWmaticRoutes();
       liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
     }
 
     return liquidityAdded;
   }
 
-  function liquidateRewardToken(address _rewardTokenAddress, address[] _uniswapPath0, address[] _uniswapPath1) internal returns (uint256) {
-    uint256 rewardTokenBalance = IERC20(_rewardTokenAddress).balanceOf(address(this));
+  function liquidateRewardToken(address _rewardTokenAddress, address[] memory _uniswapPath0, address[] memory _uniswapPath1) internal returns (uint256) {
+    uint256 rewardTokenBalance = IERC20Upgradeable(_rewardTokenAddress).balanceOf(address(this));
 
     if (rewardTokenBalance > 0) {
       //halve the tokenBalance
@@ -274,11 +275,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       uint256 half = rewardTokenBalance.div(2);
       uint256 otherHalf = rewardTokenBalance.sub(half);
 
-      IERC20(_rewardTokenAddress).safeApprove(uniswapRouterV2, 0);
-      IERC20(_rewardTokenAddress).safeApprove(uniswapRouterV2, rewardTokenBalance);
+      IERC20Upgradeable(_rewardTokenAddress).safeApprove(routerAddressV2(), 0);
+      IERC20Upgradeable(_rewardTokenAddress).safeApprove(routerAddressV2(), rewardTokenBalance);
       
       // we can accept 1 as the minimum because this will be called only by a trusted worker
-      uint256[] amounts0 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
+      uint256[] memory amounts0 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
         half,
         1,
         _uniswapPath0,
@@ -289,7 +290,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       uint256 token0Amount = amounts0[amounts0.length - 1];
 
       // we can accept 1 as the minimum because this will be called only by a trusted worker
-      uint256[] amounts1 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
+      uint256[] memory amounts1 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
         otherHalf,
         1,
         _uniswapPath1,
@@ -311,13 +312,13 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   function addLiquidity(address token0Address, uint256 token0Amount, address token1Address, uint256 token1Amount) private returns (uint256) {
     // approve token transfer
-    IERC20(token0Address).safeApprove(uniswapRouterV2, 0);
-    IERC20(token0Address).safeApprove(uniswapRouterV2, token0Amount);
-    IERC20(token1Address).safeApprove(uniswapRouterV2, 0);
-    IERC20(token1Address).safeApprove(uniswapRouterV2, token1Amount);
+    IERC20Upgradeable(token0Address).safeApprove(routerAddressV2(), 0);
+    IERC20Upgradeable(token0Address).safeApprove(routerAddressV2(), token0Amount);
+    IERC20Upgradeable(token1Address).safeApprove(routerAddressV2(), 0);
+    IERC20Upgradeable(token1Address).safeApprove(routerAddressV2(), token1Amount);
 
     // add the liquidity
-    (uint256 amountA, uint256 amountB, uint256 liquidity) = uniswapV2Router.addLiquidity(
+    (uint256 amountA, uint256 amountB, uint256 liquidity) = IUniswapV2Router02(routerAddressV2()).addLiquidity(
       token0Address,
       token1Address,
       token0Amount,
@@ -338,7 +339,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   function investAllUnderlying() internal onlyNotPausedInvesting {
     // this check is needed, because most of the SNX reward pools will revert if
     // you try to stake(0).
-    if(IERC20(underlying()).balanceOf(address(this)) > 0) {
+    if(IERC20Upgradeable(underlying()).balanceOf(address(this)) > 0) {
       enterRewardPool();
     }
   }
@@ -346,54 +347,54 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   /*
   *   Withdraws all the asset to the vault
   */
-  function withdrawAllToVault() public restricted {
+  function withdrawAllToVault() public override restricted {
     exitRewardPool();
     uint256 liquidityAdded = _hodlAndNotify();
-    IERC20(underlying()).safeTransfer(vault(), IERC20(underlying()).balanceOf(address(this)));
+    IERC20Upgradeable(underlying()).safeTransfer(vault(), IERC20Upgradeable(underlying()).balanceOf(address(this)));
   }
 
   /*
   *   Withdraws all the asset to the vault
   */
-  function withdrawToVault(uint256 amount) public restricted {
+  function withdrawToVault(uint256 amount) public override restricted {
     // Typically there wouldn't be any amount here
     // however, it is possible because of the emergencyExit
-    uint256 entireBalance = IERC20(underlying()).balanceOf(address(this));
+    uint256 entireBalance = IERC20Upgradeable(underlying()).balanceOf(address(this));
 
     if(amount > entireBalance){
       // While we have the check above, we still using SafeMath below
       // for the peace of mind (in case something gets changed in between)
       uint256 needToWithdraw = amount.sub(entireBalance);
-      uint256 toWithdraw = Math.min(rewardPoolBalance(), needToWithdraw);
+      uint256 toWithdraw = MathUpgradeable.min(rewardPoolBalance(), needToWithdraw);
       IMiniChefV2(rewardPool()).withdraw(poolId(), toWithdraw, address(this));
     }
 
-    IERC20(underlying()).safeTransfer(vault(), amount);
+    IERC20Upgradeable(underlying()).safeTransfer(vault(), amount);
   }
 
   /*
   *   Note that we currently do not have a mechanism here to include the
   *   amount of reward that is accrued.
   */
-  function investedUnderlyingBalance() external view returns (uint256) {
+  function investedUnderlyingBalance() external view override returns (uint256) {
     if (rewardPool() == address(0)) {
-      return IERC20(underlying()).balanceOf(address(this));
+      return IERC20Upgradeable(underlying()).balanceOf(address(this));
     }
     // Adding the amount locked in the reward pool and the amount that is somehow in this contract
     // both are in the units of "underlying"
     // The second part is needed because there is the emergency exit mechanism
     // which would break the assumption that all the funds are always inside of the reward pool
-    return rewardPoolBalance().add(IERC20(underlying()).balanceOf(address(this)));
+    return rewardPoolBalance().add(IERC20Upgradeable(underlying()).balanceOf(address(this)));
   }
 
   /*
   *   Governance or Controller can claim coins that are somehow transferred into the contract
   *   Note that they cannot come in take away coins that are used and defined in the strategy itself
   */
-  function salvage(address recipient, address token, uint256 amount) external onlyControllerOrGovernance {
+  function salvage(address recipient, address token, uint256 amount) external override onlyControllerOrGovernance {
      // To make sure that governance cannot come in and take away the coins
     require(!unsalvagableTokens(token), "token is defined as not salvagable");
-    IERC20(token).safeTransfer(recipient, amount);
+    IERC20Upgradeable(token).safeTransfer(recipient, amount);
   }
 
   /*
@@ -404,7 +405,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   *   calling `investAllUnderlying()` affectively blocks the usage of `doHardWork`
   *   when the investing is being paused by governance.
   */
-  function doHardWork() external onlyNotPausedInvesting restricted {
+  function doHardWork() external override onlyNotPausedInvesting restricted {
     exitRewardPool();
     uint256 liquidityAdded = _hodlAndNotify();
 
@@ -412,7 +413,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     if(controller() != address(0)){
       uint256 fee = liquidityAdded.mul(feeRatio()).div(feeBase());
       if(fee > 0){
-        IERC20(underlying()).safeTransfer(controller(), fee);
+        IERC20Upgradeable(underlying()).safeTransfer(controller(), fee);
       }
     }
 
@@ -449,6 +450,14 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     return getAddress(_ROUTER_ADDRESS_V2_SLOT);
   }
 
+  function sushiTokenAddress() public view returns (address) {
+    return getAddress(_SUSHI_TOKEN_ADDRESS_SLOT);
+  }
+
+  function wmaticTokenAddress() public view returns (address) {
+    return getAddress(_WMATIC_TOKEN_ADDRESS_SLOT);
+  }
+
   function setSellSushi(bool _sellSushi) internal {
     setBoolean(_SELL_SUSHI_BOOL_SLOT, _sellSushi);
   }
@@ -457,12 +466,12 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     return getBoolean(_SELL_SUSHI_BOOL_SLOT);
   }
 
-  function setSellMatic(bool _sellMatic) internal {
-    setBoolean(_SELL_MATIC_BOOL_SLOT, _sellMatic);
+  function setSellWMatic(bool _sellWMatic) internal {
+    setBoolean(_SELL_WMATIC_BOOL_SLOT, _sellWMatic);
   }
 
-  function sellMatic() public view returns (bool) {
-    return getBoolean(_SELL_MATIC_BOOL_SLOT);
+  function sellWMatic() public view returns (bool) {
+    return getBoolean(_SELL_WMATIC_BOOL_SLOT);
   }
 
   function setClaimAllowed(bool _claimAllowed) internal {
@@ -479,11 +488,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   function setLiquidation(
       bool _sellSushi,
-      bool _sellMatic,
+      bool _sellWMatic,
       bool _claimAllowed
   ) public onlyGovernance {
-      setSushi(_sellSushi);
-      setMatic(_sellMatic);
+      setSellSushi(_sellSushi);
+      setSellWMatic(_sellWMatic);
       setClaimAllowed(_claimAllowed);
   }
 }
