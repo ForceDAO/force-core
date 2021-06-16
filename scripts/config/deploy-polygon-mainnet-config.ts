@@ -1,11 +1,7 @@
 export const deployedContracts = {  
     network : "polyonmainnet",
     storageAddress:  "",
-    vaultAddress: "",
-    farmRewardTokenAddress: "",
-    feeRewardForwarderAddress: "",
-    controllerAddress: "",
-    noMintRewardPoolAddress: ""
+    vaultAddress: ""
    }
    
    export default deployedContracts;
