@@ -10,7 +10,6 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import "./hardworkInterface/IStrategy.sol";
-import "./hardworkInterface/IStrategyV2.sol";
 import "./hardworkInterface/IVault.sol";
 import "./hardworkInterface/IUpgradeSource.sol";
 import "./ControllableInit.sol";
@@ -348,11 +347,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
         underlyingAmountToWithdraw = underlyingBalanceInVault();
       } else {
         uint256 missingUnderlying = underlyingAmountToWithdraw.sub(underlyingBalanceInVault());
-        uint256 missingShares = numberOfSharesPostFee.mul(missingUnderlying).div(underlyingAmountToWithdraw);
-        // When withdrawing to vault here, the vault does not have any assets. Therefore,
-        // all the assets that are in the strategy match the total supply of shares, increased
-        // by the share proportion that was already burned at the beginning of this withdraw transaction.
-        IStrategyV2(strategy()).withdrawToVault(missingShares, (totalSupply()).add(missingShares));
+        IStrategy(strategy()).withdrawToVault(missingUnderlying);
         // recalculate to improve accuracy
         calculatedSharePrice = getPricePerFullShare();
 
