@@ -7,16 +7,16 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import "./hardworkInterface/IStrategy.sol";
 import "./hardworkInterface/IStrategyV2.sol";
 import "./hardworkInterface/IVault.sol";
-import "./hardworkInterface/IController.sol";
 import "./hardworkInterface/IUpgradeSource.sol";
 import "./ControllableInit.sol";
 import "./VaultStorage.sol";
 
-contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, VaultStorage {
+contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, VaultStorage, ReentrancyGuardUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using AddressUpgradeable for address;
   using SafeMathUpgradeable for uint256;
@@ -35,10 +35,10 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   //  Only smart contracts will be affected by this modifier
   modifier defense() {
     require(
-      (msg.sender == tx.origin) ||                // If it is a normal user and not smart contract,
-      // then the requirement will pass
-      !IController(controller()).greyList(msg.sender), // If it is a smart contract, then
-      "This smart contract has been grey listed"  // make sure that it is not on our greyList.
+      (msg.sender == tx.origin) ||  // If it is a normal user and not smart contract,
+                                    // then the requirement will pass
+      Storage(_storage()).checkWhitelist(msg.sender), // If it is a smart contract, then
+      "This smart contract is not whitelisted"        // make sure that it is on our whitelist.
     );
     _;
   }
@@ -61,6 +61,8 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     uint256 _toInvestDenominator,
     uint256 _totalSupplyCap
   ) public initializer {
+    require(_storage != address(0), "Vault: cannot set 0 address");
+    require(_underlying != address(0), "Vault: cannot set 0 address");
     require(_toInvestNumerator <= _toInvestDenominator, "cannot invest more than 100%");
     require(_toInvestDenominator != 0, "cannot divide by 0");
 
@@ -88,6 +90,10 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
 
   function totalSupplyCap() public view returns (uint256) {
     return _totalSupplyCap();
+  }
+
+  function withdrawFee() public view returns (uint256) {
+    return _withdrawFee();
   }
 
   function strategy() public view override returns(address) {
@@ -238,6 +244,11 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     return _setTotalSupplyCap(value);
   }
 
+  function setWithdrawFee(uint256 numerator) external onlyGovernance {
+    require(numerator <= 20, "setWithdrawFee: fee too high");
+    return _setWithdrawFee(((10 ** decimals()) * numerator) / 100);
+  }
+
   function setVaultFractionToInvest(uint256 numerator, uint256 denominator) external override onlyGovernance {
     require(denominator > 0, "denominator must be greater than 0");
     require(numerator <= denominator, "denominator must be greater than or equal to the numerator");
@@ -289,7 +300,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   * Allows for depositing the underlying asset in exchange for shares.
   * Approval is assumed.
   */
-  function deposit(uint256 amount) external override defense {
+  function deposit(uint256 amount) external override defense nonReentrant {
     _deposit(amount, msg.sender, msg.sender);
   }
 
@@ -298,7 +309,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
   * assigned to the holder.
   * This facilitates depositing for someone else (using DepositHelper)
   */
-  function depositFor(uint256 amount, address holder) public override defense {
+  function depositFor(uint256 amount, address holder) public override defense nonReentrant {
     _deposit(amount, msg.sender, holder);
   }
 
@@ -306,26 +317,38 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     IStrategy(strategy()).withdrawAllToVault();
   }
 
-  function withdraw(uint256 numberOfShares) external override {
+  function withdraw(uint256 numberOfShares) external override defense nonReentrant {
     require(totalSupply() > 0, "Vault has no shares");
     require(numberOfShares > 0, "numberOfShares must be greater than 0");
+    
+    require(_getDepositBlock(msg.sender) != block.number, "withdraw: withdraw in same block not permitted");
+    
     uint256 totalShareSupply = totalSupply();
+
+    uint256 withdrawFeeShares = numberOfShares
+      .mul(withdrawFee())
+      .div(10 ** decimals());
+
     _burn(msg.sender, numberOfShares);
+    // Hand fees to controller.
+    _mint(controller(), withdrawFeeShares);
+
+    uint256 numberOfSharesPostFee = numberOfShares.sub(withdrawFeeShares);
 
     uint256 calculatedSharePrice = getPricePerFullShare();
 
-    uint256 underlyingAmountToWithdraw = numberOfShares
+    uint256 underlyingAmountToWithdraw = numberOfSharesPostFee
       .mul(calculatedSharePrice)
       .div(underlyingUnit());
 
     if (underlyingAmountToWithdraw > underlyingBalanceInVault()) {
       // withdraw everything from the strategy to accurately check the share value
-      if (numberOfShares == totalShareSupply) {
+      if (numberOfSharesPostFee == totalShareSupply) {
         IStrategy(strategy()).withdrawAllToVault();
         underlyingAmountToWithdraw = underlyingBalanceInVault();
       } else {
         uint256 missingUnderlying = underlyingAmountToWithdraw.sub(underlyingBalanceInVault());
-        uint256 missingShares = numberOfShares.mul(missingUnderlying).div(underlyingAmountToWithdraw);
+        uint256 missingShares = numberOfSharesPostFee.mul(missingUnderlying).div(underlyingAmountToWithdraw);
         // When withdrawing to vault here, the vault does not have any assets. Therefore,
         // all the assets that are in the strategy match the total supply of shares, increased
         // by the share proportion that was already burned at the beginning of this withdraw transaction.
@@ -333,7 +356,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
         // recalculate to improve accuracy
         calculatedSharePrice = getPricePerFullShare();
 
-        uint256 updatedUnderlyingAmountToWithdraw = numberOfShares
+        uint256 updatedUnderlyingAmountToWithdraw = numberOfSharesPostFee
           .mul(calculatedSharePrice)
           .div(underlyingUnit());
 
@@ -364,6 +387,12 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
       totalSupplyCap() == 0 || totalSupply().add(toMint) <= totalSupplyCap(),
       "Cannot mint more than cap"
     );
+
+    // Prevent deposit and withdraw in same block.
+    _setDepositBlock(beneficiary);
+    if (sender != beneficiary) {
+      _setDepositBlock(sender);
+    }
 
     _mint(beneficiary, toMint);
 
