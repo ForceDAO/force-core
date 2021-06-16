@@ -18,7 +18,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   // additional storage slots (on top of BaseUpgradeableStrategy ones) are defined here
   bytes32 internal constant _POOLID_SLOT = 0x3fd729bfa2e28b7806b03a6e014729f59477b530f995be4d51defc9dad94810b;
-  bytes32 internal constant _HODLVAULT_SLOT = 0xc26d330f887c749cb38ae7c37873ff08ac4bba7aec9113c82d48a0cf6cc145f2;
   bytes32 internal constant _FEERATIO_SLOT = 0xdd068d8a32502e81a10cdf5394059be07ccd47fe6df7741b57a2f9937efedeaf;
   bytes32 internal constant _FEEHOLDER_SLOT = 0x00679b6f1cace16785324a171df0e550ee9f20b64671a53b5c491a3065b30f2b;
   bytes32 internal constant _ROUTER_ADDRESS_V2_SLOT = 0x92199eab42483f175b95375c69585e82b184587d7846fbeb28030f68fbdf2feb;
@@ -59,7 +58,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   constructor() public BaseUpgradeableStrategy() {
     assert(_POOLID_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.poolId")) - 1));
-    assert(_HODLVAULT_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.hodlVault")) - 1));
     assert(_FEERATIO_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeRatio")) - 1));
     assert(_FEEHOLDER_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeHolder")) - 1));
     assert(_ROUTER_ADDRESS_V2_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.routerAddressV2")) - 1));
@@ -83,39 +81,49 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     assert(_ROUTE_SUSHI_TOKEN1_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.sushi.token1.rhs")) - 1));
   }
 
+  /// @param _storage Root Storage Contract Address (Storage.sol)
+  /// @param _underlying Underlying token deposit through vault
+  /// @param _vault Vault Contract Address
+  /// @param _miniChefV2 MiniChefV2 Contract Address
+  /// @param _poolId MiniChefV2 PoolId for the underlying
+  /// @param _routerAddressV2 UniswapRouterV2 Address
+  /// @param _sushiTokenAddress Sushi Reward-Token Address (Incoming Yield paid in Sushi)
+  /// @param _wmaticTokenAddress WMatic Reward-Token Address (Incoming Yield paid in Matic)
+  /// @param _routeSushiToken0 Uniswap-Route for Sushi to Token0 of Pool
+  /// @param _routeSushiToken1 Uniswap-Route for Sushi to Token1 of Pool
+  /// @param _routeWmaticToken0 Uniswap-Route for WMatic to Token0 of Pool
+  /// @param _routeWmaticToken1 Uniswap-Route for WMatic to Token1 of Pool
   function initializeMasterChefHodlStrategy(
     address _storage,
     address _underlying,
     address _vault,
-    address _rewardPool,
+    address _miniChefV2,
     uint256 _poolId,
-    address _hodlVault,
     address _routerAddressV2,
     address _sushiTokenAddress,
     address _wmaticTokenAddress
-    address[] _routeWmaticToken0,
-    address[] _routeWmaticToken1,
     address[] _routeSushiToken0,
     address[] _routeSushiToken1,
+    address[] _routeWmaticToken0,
+    address[] _routeWmaticToken1,
   ) public initializer {
-    require(_rewardPool != address(0), "reward pool is empty");
+    require(_miniChefV2 != address(0), "reward pool is empty");
     require(_poolId != uint256(0), "_poolId is Zero");
-    require(_hodlVault != address(0), "_hodlVault is empty");
     require(_routerAddressV2 != address(0), "routerAddressV2 is empty");
-    require(_routeWmaticToken0.length == 2, "routeWmatic-Token0 is invalid");
-    require(_routeWmaticToken1.length == 2, "routeWmatic-Token1 is invalid");
     require(_routeSushiToken0.length == 2, "routeSushi-Token0 is invalid");
     require(_routeSushiToken1.length == 2, "routeSushi-Token1 is invalid");
-    require(_routeWmaticToken0[0] != address(0) || _routeWmaticToken0[1] != address(0), "Zero-Address is invalid");
-    require(_routeWmaticToken1[0] != address(0) || _routeWmaticToken1[1] != address(0), "Zero-Address is invalid");
+    require(_routeWmaticToken0.length == 2, "routeWmatic-Token0 is invalid");
+    require(_routeWmaticToken1.length == 2, "routeWmatic-Token1 is invalid");
     require(_routeSushiToken0[0] != address(0) || _routeSushiToken0[1] != address(0), "Zero-Address is invalid");
     require(_routeSushiToken1[0] != address(0) || _routeSushiToken1[1] != address(0), "Zero-Address is invalid");
+    require(_routeWmaticToken0[0] != address(0) || _routeWmaticToken0[1] != address(0), "Zero-Address is invalid");
+    require(_routeWmaticToken1[0] != address(0) || _routeWmaticToken1[1] != address(0), "Zero-Address is invalid");
 
     BaseUpgradeableStrategy.initialize(
       _storage,
       _underlying,
       _vault,
-      _rewardPool,
+      _miniChefV2,
       300, // profit sharing numerator
       1000, // profit sharing denominator
       true, // sell
@@ -129,20 +137,19 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _lpt = poolInfo.lpToken; 
     require(_lpt == underlying(), "Pool Info does not match underlying");
     setUint256(_POOLID_SLOT, _poolId);
-    setAddress(_HODLVAULT_SLOT, _hodlVault);
     setAddress(_ROUTER_ADDRESS_V2_SLOT, _routerAddressV2);
     setAddress(_SUSHI_TOKEN_ADDRESS_SLOT, _sushiTokenAddress);
     setAddress(_WMATIC_TOKEN_ADDRESS_SLOT, _wmaticTokenAddress);
-
-    setAddress(_ROUTE_WMATIC_TOKEN0_LHS, _routeWmaticToken0[0]);
-    setAddress(_ROUTE_WMATIC_TOKEN0_RHS, _routeWmaticToken0[1]);
-    setAddress(_ROUTE_WMATIC_TOKEN1_LHS, _routeWmaticToken1[0]);
-    setAddress(_ROUTE_WMATIC_TOKEN1_RHS, _routeWmaticToken1[1]);
 
     setAddress(_ROUTER_SUSHI_TOKEN0_LHS, _routeSushiToken0[0]);
     setAddress(_ROUTER_SUSHI_TOKEN0_RHS, _routeSushiToken0[1]);
     setAddress(_ROUTER_SUSHI_TOKEN1_LHS, _routeSushiToken1[0]);
     setAddress(_ROUTER_SUSHI_TOKEN1_RHS, _routeSushiToken1[1]);
+
+    setAddress(_ROUTE_WMATIC_TOKEN0_LHS, _routeWmaticToken0[0]);
+    setAddress(_ROUTE_WMATIC_TOKEN0_RHS, _routeWmaticToken0[1]);
+    setAddress(_ROUTE_WMATIC_TOKEN1_LHS, _routeWmaticToken1[0]);
+    setAddress(_ROUTE_WMATIC_TOKEN1_RHS, _routeWmaticToken1[1]);
   }
 
   function getWmaticRoutes() public view returns (address[], address[]){
@@ -409,10 +416,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     }
 
     investAllUnderlying();
-  }
-
-  function hodlVault() public view returns (address) {
-    return getAddress(_HODLVAULT_SLOT);
   }
 
   function setFeeRatio(uint256 _value) public onlyGovernance {

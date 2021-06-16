@@ -1,11 +1,8 @@
-export const deployedContracts = {  
+export const deployConfig = {  
     network : "polygonmumbai",
     storageAddress:  "",
     vaultAddress: "",
-    farmRewardTokenAddress: "",
-    feeRewardForwarderAddress: "",
-    controllerAddress: "",
-    noMintRewardPoolAddress: ""
+   
 }
 
-export default deployedContracts;
+export default deployConfig;
