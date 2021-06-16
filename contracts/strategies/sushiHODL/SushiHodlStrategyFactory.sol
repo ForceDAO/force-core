@@ -18,32 +18,20 @@ contract SushiHodlStrategyFactory {
       address _sushiswapRouterV2Address
   );
 
-  //   function initializeMasterChefHodlStrategy(
-  //   address _storage,
-  //   address _underlying,
-  //   address _vault,
-  //   address _rewardPool,
-  //   uint256 _poolId,
-  //   address _hodlVault,
-  //   address _routerAddressV2,
-  //   address _sushiTokenAddress,
-  //   address _wmaticTokenAddress
-  //   address[] _routeWmaticToken0,
-  //   address[] _routeWmaticToken1,
-  //   address[] _routeSushiToken0,
-  //   address[] _routeSushiToken1,
-  // ) public initializer {
-
   function createSushiHodlStrategy(
     address _storage,
     address _underlyingPair,
     address _vault,
     address _masterChef, // _rewardPool
-    address _sushiToken,    // _rewardToken
     uint256 _poolId,  // Sushi reward pool id
     address _fsushi //_hodlVault Sushi hodlVault fsushi
-    address _uniswapRouterV2Address,
-    address _sushiswapRouterV2Address
+    address _routerAddressV2, //uniswap Router
+    address _sushiTokenAddress, //sushi tokenAddress
+    address _wmaticTokenAddress, //wmatic tokenAddress
+    address[] _routeWmaticToken0, //wmatic->pool-token0 route
+    address[] _routeWmaticToken1, //wmatic->pool-token1 route
+    address[] _routeSushiToken0, //sushi->pool-token0 route
+    address[] _routeSushiToken1 //sushi->pool-token0 route
   ) public returns(address) {
     MasterChefHodlStrategy addrNew = new MasterChefHodlStrategy();
 
@@ -56,8 +44,7 @@ contract SushiHodlStrategyFactory {
       _poolId,
       _fsushi,
       address(0x0000000000000000000000000000000000000000) // manually set it later,
-      _uniswapRouterV2Address,
-      _sushiswapRouterV2Address
+      _uniswapRouterV2Address
     );
     emit LogSushiHodlStrategyCreated(
         _storage,
