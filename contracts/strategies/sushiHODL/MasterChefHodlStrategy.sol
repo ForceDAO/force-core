@@ -130,12 +130,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       1e18, // sell floor
       12 hours // implementation change delay
     );
-
-    setUint256(_FEE_BASE_UNIT256_SLOT, 1000);
     
     IMiniChefV2.PoolInfo memory poolInfo = IMiniChefV2(rewardPool()).poolInfo(_poolId);
-    address _lpt = poolInfo.lpToken; 
+    address _lpt = poolInfo.lpToken;
     require(_lpt == underlying(), "Pool Info does not match underlying");
+
     setUint256(_POOLID_SLOT, _poolId);
     setAddress(_ROUTER_ADDRESS_V2_SLOT, _routerAddressV2);
     setAddress(_SUSHI_TOKEN_ADDRESS_SLOT, _sushiTokenAddress);
@@ -150,6 +149,8 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     setAddress(_ROUTE_WMATIC_TOKEN0_RHS, _routeWmaticToken0[1]);
     setAddress(_ROUTE_WMATIC_TOKEN1_LHS, _routeWmaticToken1[0]);
     setAddress(_ROUTE_WMATIC_TOKEN1_RHS, _routeWmaticToken1[1]);
+    
+    setUint256(_FEE_BASE_UNIT256_SLOT, 1000);
   }
 
   function getWmaticRoutes() public view returns (address[], address[]){
