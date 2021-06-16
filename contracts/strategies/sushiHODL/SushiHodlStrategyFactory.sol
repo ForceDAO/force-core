@@ -18,6 +18,22 @@ contract SushiHodlStrategyFactory {
       address _sushiswapRouterV2Address
   );
 
+  //   function initializeMasterChefHodlStrategy(
+  //   address _storage,
+  //   address _underlying,
+  //   address _vault,
+  //   address _rewardPool,
+  //   uint256 _poolId,
+  //   address _hodlVault,
+  //   address _routerAddressV2,
+  //   address _sushiTokenAddress,
+  //   address _wmaticTokenAddress
+  //   address[] _routeWmaticToken0,
+  //   address[] _routeWmaticToken1,
+  //   address[] _routeSushiToken0,
+  //   address[] _routeSushiToken1,
+  // ) public initializer {
+
   function createSushiHodlStrategy(
     address _storage,
     address _underlyingPair,
@@ -57,41 +73,3 @@ contract SushiHodlStrategyFactory {
     return address(addrNew);
   }
 }
-/**
-
-
-    // Give Multisig Control
-    await forceToken.grantRole(
-      utils.id("SNAPSHOT_ROLE"),
-      args.multisig,
-      { gasLimit: 100000 }
-    );
-
-    await forceToken.grantRole(constants.HashZero, args.multisig, {
-      gasLimit: 100000,
-    });
-
-
-    // Renounce Control from Deployer
-    await forceToken.renounceRole(
-      utils.id("SNAPSHOT_ROLE"),
-      mainSigner.address,
-      {
-        gasLimit: 100000,
-      }
-    );
-    await forceToken.renounceRole(
-      constants.HashZero,
-      mainSigner.address,
-      {
-        gasLimit: 100000,
-      }
-    );
-
-    // Transfer Tokens
-    await forceToken.transfer(args.multisig, utils.parseEther("100000000"), {
-      gasLimit: 100000,
-    }); 
-
-
- */

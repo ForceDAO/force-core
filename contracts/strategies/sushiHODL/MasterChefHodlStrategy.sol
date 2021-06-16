@@ -254,28 +254,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     }
 
     return liquidityAdded;
-
-      // uint256 rewardBalance = IERC20(rewardToken()).balanceOf(address(this));
-      // if(rewardBalance > 0) {
-      //   uint256 fee = 0;
-      //   uint256 remainingReward = rewardBalance;
-      //   if(feeHolder() != address(0)){
-      //     fee = rewardBalance.mul(feeRatio()).div(feeBase());
-      //     remainingReward = rewardBalance.sub(fee);
-      //     if(fee > 0){
-      //       IERC20(rewardToken()).safeTransfer(feeHolder(), fee);
-      //     }
-      //   }
-
-      //   IERC20(rewardToken()).safeApprove(hodlVault(), 0);
-      //   IERC20(rewardToken()).safeApprove(hodlVault(), remainingReward);
-
-
-
-      //   IVault(hodlVault()).deposit(remainingReward);
-      //   uint256 fRewardBalance = IERC20(hodlVault()).balanceOf(address(this));
-      //   IERC20(hodlVault()).safeTransfer(controller(), fRewardBalance);
-    }
   }
 
   function liquidateRewardToken(address _rewardTokenAddress, address[] _uniswapPath0, address[] _uniswapPath1) internal returns (uint256) {
@@ -429,7 +407,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
         IERC20(underlying()).safeTransfer(controller(), fee);
       }
     }
-    
+
     investAllUnderlying();
   }
 
