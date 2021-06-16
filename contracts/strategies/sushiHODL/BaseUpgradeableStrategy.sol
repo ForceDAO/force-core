@@ -6,8 +6,6 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/utils/Saf
 import "@openzeppelin/contracts-ethereum-package/contracts/utils/math/SafeMath.sol";
 import "./BaseUpgradeableStrategyStorage.sol";
 import "../../ControllableInit.sol";
-import "./IController.sol";
-import "./IFeeRewardForwarderV6.sol";
 
 contract BaseUpgradeableStrategy is Initializable, ControllableInit, BaseUpgradeableStrategyStorage {
   using SafeMath for uint256;
