@@ -121,7 +121,7 @@ contract StaticsHelper is Ownable {
                 .mul(1e18)
                 .div(IERC20Upgradeable(_lp).totalSupply())
                 .div(10**uint256(18));
-                //.div(10**uint256(ERC20Upgradeable(subToken).decimals()));
+                //.div(10**uint256(ERC20Detailed(subToken).decimals()));
         return lpPrice;
     }
 
@@ -159,7 +159,7 @@ contract StaticsHelper is Ownable {
             portfolio = portfolio.add(
                 prices[i].mul(balances[i]).div(
                     10**uint256(18))
-                    //10**uint256(ERC20Upgradeable(tokens[i]).decimals())
+                    //10**uint256(ERC20Detailed(tokens[i]).decimals())
             );
         }
         return portfolio;
