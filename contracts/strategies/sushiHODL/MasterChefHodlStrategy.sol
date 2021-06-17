@@ -108,6 +108,9 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address[] memory _routeWmaticToken0,
     address[] memory _routeWmaticToken1
   ) public initializer {
+    require(_storage != address(0), "storage is empty");
+    require(_underlying != address(0), "underlying is empty");
+    require(_vault != address(0), "vault is empty");
     require(_miniChefV2 != address(0), "reward pool is empty");
     require(_poolId != uint256(0), "_poolId is Zero");
     require(_routerAddressV2 != address(0), "routerAddressV2 is empty");
