@@ -2,8 +2,9 @@ import { task, types } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 require("dotenv").config();
 import * as deployConfig from "../../config/deploy-config";
-import * as sushiHodlStrategyConfig from "../config/deploy-sushiHodl-config";
+import * as sushiHodlStrategyConfig from "./config/deploy-sushiHodl-config";
 import { Logger } from "tslog";
+import { assert } from "console";
 const log: Logger = new Logger();
 
 // npx hardhat compile
@@ -31,7 +32,7 @@ task("deploy-controller", "Deploys a new Controller contract")
     routeSushiToken1,
     routeWmaticToken0,
     routeWmaticToken1
-  } = sushiHodlStrategyConfig;
+  } = sushiHodlStrategyConfig.default;
 
   assert(sushiHodlStrategyFactoryAddress != "", "sushiHodlStrategyFactoryAddress is invalid");
   assert(underlying != "", "underlying is invalid");
@@ -61,7 +62,7 @@ task("deploy-controller", "Deploys a new Controller contract")
     poolId,
     routerAddressV2,
     sushiTokenAddress,
-    wmaticTokenAddress
+    wmaticTokenAddress,
     routeSushiToken0,
     routeSushiToken1,
     routeWmaticToken0,

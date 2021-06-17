@@ -1,4 +1,3 @@
-import { logDeployment } from "./deploymentLogUtils";
 import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
@@ -13,7 +12,7 @@ task("deploy-sushiHodl-factory", "Deploys a new SushiHodl-Factory contract")
     log.info("---------== deploy-sushiHodl-factory");
     const sushiHodlStrategyFactory = await hre.ethers.getContractFactory(`contracts/strategies/sushiHODL/SushiHodlStrategyFactory.sol:SushiHodlStrategyFactory`);
     const instSushiHodlStrategyFactory = await sushiHodlStrategyFactory.deploy();
-    logDeployment(instSushiHodlStrategyFactory, hre.network.name);
+    //logDeployment(instSushiHodlStrategyFactory, hre.network.name);
     const addrSushiHodlStrategyFactory = instSushiHodlStrategyFactory.address;
     log.info("SushiHodlStrategyFactory is deployed on network: "+hre.network.name+" - @ address: "+addrSushiHodlStrategyFactory);
   });
