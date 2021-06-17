@@ -54,35 +54,35 @@ abstract contract MockCUSDC is ERC20Burnable, ERC20PresetMinterPauser {
     return 0;
   }
 
-  function balanceOfUnderlying(address account) external returns (uint256) {
+  function balanceOfUnderlying(address account) external view returns (uint256) {
     return balanceOf(account);
   }
 
-  function borrowBalanceCurrent(address account) external returns (uint256) {
+  function borrowBalanceCurrent(address account) external view returns (uint256) {
     return debt[account];
   }
 
-  function getCash() public view returns (uint256) {
+  function getCash() public pure returns (uint256) {
     // from compound
     return 104576645048646;
   }
 
-  function totalBorrows() public view returns (uint256) {
+  function totalBorrows() public pure returns (uint256) {
     // from compound
     return 71094422510667;
   }
 
-  function borrowRatePerBlock() public view returns (uint256) {
+  function borrowRatePerBlock() public pure returns (uint256) {
     // from compound 28762459275;
     return 30000000000;
   }
 
-  function supplyRatePerBlock() public view returns (uint256) {
+  function supplyRatePerBlock() public pure returns (uint256) {
     // from compound
     return 11067331897;
   }
 
-  function totalBorrowsCurrent() public view returns (uint256) {
+  function totalBorrowsCurrent() public pure returns (uint256) {
     // 1 million for testing
     return 1000000000000;
   }

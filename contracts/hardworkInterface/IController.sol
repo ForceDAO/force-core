@@ -20,4 +20,11 @@ interface IController {
     function notifyFee(address _underlying, uint256 fee) external;
     function profitSharingNumerator() external view returns (uint256);
     function profitSharingDenominator() external view returns (uint256);
+
+    //functions for sushiHODL Strategy
+    function feeRewardForwarder() external view returns(address);
+    function setFeeRewardForwarder(address _value) external;
+
+    function addHardWorker(address _worker) external;
+
 }

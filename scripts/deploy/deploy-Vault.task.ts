@@ -13,8 +13,8 @@ task("deploy-vault", "Deploys a new Vault contract")
     const factoryCtrt = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);
     const vaultContractInstance = await factoryCtrt.deploy();
     logDeployment(vaultContractInstance, hre.network.name);
-    //TODO set Deployed Vault Address in .env as: VAULT_ADDRESS
-    log.info(`--------- Must Do Activity: ${vaultContractInstance.address} gets in to .env as: VAULT_ADDRESS --------- `);
+    //TODO set Deployed Vault Address in deploy-config.ts as: vaultAddress
+    log.info(`--------- Must Do Activity: ${vaultContractInstance.address} deploy-config.ts as: vaultAddress --------- `);
 
     //const addrVault = "0x31c797dE59B3c4D0168d206Cb39287713fae628d";
   });
