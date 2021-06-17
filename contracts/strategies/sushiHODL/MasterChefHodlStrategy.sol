@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: MITpragma solidity ^0.8.0;
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -57,7 +58,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   event LogLiquidityAdded(address indexed token0Address, address indexed token1Address, uint256 amountA, uint256 amountB, uint256 liquidity);
 
 
-  constructor() public BaseUpgradeableStrategy() {
+  constructor() BaseUpgradeableStrategy() {
     assert(_POOLID_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.poolId")) - 1));
     assert(_FEERATIO_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeRatio")) - 1));
     assert(_FEEHOLDER_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeHolder")) - 1));
@@ -192,7 +193,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     return (sushiToken0Route, sushiToken1Route);
   }
 
-  function depositArbCheck() public view override returns(bool) {
+  function depositArbCheck() public pure override returns(bool) {
     return true;
   }
 
@@ -249,7 +250,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   }
 
   // We Hodl all the rewards
-  function _hodlAndNotify() internal returns (uint256) {
+  function _hodlAndNotify() internal {
 
     uint256 liquidityAdded;
 
@@ -265,7 +266,14 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
     }
 
-    return liquidityAdded;
+    //compute Fee and transfer Fee to controller
+    if(controller() != address(0)){
+      uint256 fee = liquidityAdded.mul(feeRatio()).div(feeBase());
+      if(fee > 0){
+        IERC20Upgradeable(underlying()).safeTransfer(controller(), fee);
+      }
+    }
+
   }
 
   function liquidateRewardToken(address _rewardTokenAddress, address[] memory _uniswapPath0, address[] memory _uniswapPath1) internal returns (uint256) {
@@ -352,7 +360,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   */
   function withdrawAllToVault() public override restricted {
     exitRewardPool();
-    uint256 liquidityAdded = _hodlAndNotify();
+    _hodlAndNotify();
     IERC20Upgradeable(underlying()).safeTransfer(vault(), IERC20Upgradeable(underlying()).balanceOf(address(this)));
   }
 
@@ -410,16 +418,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   */
   function doHardWork() external override onlyNotPausedInvesting restricted {
     exitRewardPool();
-    uint256 liquidityAdded = _hodlAndNotify();
-
-    //compute Fee and transfer Fee to controller
-    if(controller() != address(0)){
-      uint256 fee = liquidityAdded.mul(feeRatio()).div(feeBase());
-      if(fee > 0){
-        IERC20Upgradeable(underlying()).safeTransfer(controller(), fee);
-      }
-    }
-
+    _hodlAndNotify();
     investAllUnderlying();
   }
 

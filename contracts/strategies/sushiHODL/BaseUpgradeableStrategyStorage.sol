@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: MITpragma solidity ^0.8.0;
 pragma solidity ^0.8.0;
 
 
@@ -22,7 +23,7 @@ contract BaseUpgradeableStrategyStorage {
   bytes32 internal constant _MULTISIG_SLOT = 0x3e9de78b54c338efbc04e3a091b87dc7efb5d7024738302c548fc59fba1c34e6;
   
 
-  constructor() public {
+  constructor() {
     assert(_UNDERLYING_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.underlying")) - 1));
     assert(_VAULT_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.vault")) - 1));
 
