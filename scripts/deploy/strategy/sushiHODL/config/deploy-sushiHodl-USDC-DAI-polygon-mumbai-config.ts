@@ -1,5 +1,6 @@
 export const sushiHodlStrategyConfig = {  
     network : "polygonmumbai",
+    pairName: "USDC-DAI",
     sushiHodlStrategyFactoryAddress: "",
     underlying: "",
     miniChefV2: "",

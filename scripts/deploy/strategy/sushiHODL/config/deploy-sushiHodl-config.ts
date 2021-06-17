@@ -1,5 +1,6 @@
 export interface SushiHodlStrategyConfig {
     network : string;
+    pairName: string;
     sushiHodlStrategyFactoryAddress: string;
     underlying: string;
     miniChefV2: string;
@@ -15,6 +16,7 @@ export interface SushiHodlStrategyConfig {
 
 const sushiHodlStrategyConfig = {  
     network : "polygonmumbai",
+    pairName: "USDC-DAI",
     sushiHodlStrategyFactoryAddress: "",
     underlying: "",
     miniChefV2: "",
