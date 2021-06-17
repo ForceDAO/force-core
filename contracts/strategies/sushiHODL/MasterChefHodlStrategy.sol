@@ -486,6 +486,14 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     return getUint256(_FEE_BASE_UNIT256_SLOT);
   }
 
+  function getVault() public view override returns (address) {
+    return vault();
+  }
+
+  function getUnderlying() public view override returns (address) {
+    return underlying();
+  }
+
   function setLiquidation(
       bool _sellSushi,
       bool _sellWMatic,

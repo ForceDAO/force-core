@@ -223,8 +223,8 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     require(canUpdateStrategy(_strategy),
       "The strategy exists and switch timelock did not elapse yet");
     require(_strategy != address(0), "new _strategy cannot be empty");
-    require(IStrategy(_strategy).underlying() == address(underlying()), "Vault underlying must match Strategy underlying");
-    require(IStrategy(_strategy).vault() == address(this), "the strategy does not belong to this vault");
+    require(IStrategy(_strategy).getUnderlying() == address(underlying()), "Vault underlying must match Strategy underlying");
+    require(IStrategy(_strategy).getVault() == address(this), "the strategy does not belong to this vault");
 
     emit StrategyChanged(_strategy, strategy());
     if (address(_strategy) != address(strategy())) {
