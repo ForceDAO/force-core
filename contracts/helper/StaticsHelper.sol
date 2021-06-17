@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "../hardworkInterface/IVault.sol";
@@ -120,8 +121,7 @@ contract StaticsHelper is Ownable {
                 .mul(subTokenPrice)
                 .mul(1e18)
                 .div(IERC20Upgradeable(_lp).totalSupply())
-                .div(10**uint256(18));
-                //.div(10**uint256(ERC20Detailed(subToken).decimals()));
+                .div(10**uint256(IERC20Metadata(subToken).decimals()));
         return lpPrice;
     }
 
@@ -158,8 +158,7 @@ contract StaticsHelper is Ownable {
         for (uint256 i = 0; i < tokens.length; i += 1) {
             portfolio = portfolio.add(
                 prices[i].mul(balances[i]).div(
-                    10**uint256(18))
-                    //10**uint256(ERC20Detailed(tokens[i]).decimals())
+                    10**uint256(IERC20Metadata(tokens[i]).decimals()))
             );
         }
         return portfolio;
