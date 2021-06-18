@@ -1,28 +1,16 @@
 # Guide to use the contract deployment scripts
 
-## List of scripts:
-
-- table for contract-name and associated deployment-script & in order of execution-sequence ascending
-
-  |Sequence | Contract Name | Script Name | Constructor Arguments | Description |
-  |---|---|---|---|---|
-  |1 | Storage | deploy-storage.task.ts | - | Storage contract -> Copy the deployed contract address to .env |
-  |2| Vault | deploy-Vault.task.ts | Controller | Storage | For constructor Argument, refer to the storageAddress in deploy-config.ts & For initialise arguments refer to vaultInit in deploy-config.ts |
-  |3| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - | No Constructor arguments. |
-  |4| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | | For Constructor arguments refer to:  |
-
-
-
 ## Mainnet - Deployed Contracts:
 
-Deployer: 0x9782968954A2948EB5A611235b7E3D227457DeC0
+- table for contract-name and associated deployment-script & in order of execution-sequence ascending
+- Deployer: 0x9782968954A2948EB5A611235b7E3D227457DeC0
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
 |1 | Storage | deploy-storage.task.ts | - | 0xf92C971628828b3d2fb091FD6343DEd5Bb3234Eb |
-|2| Vault | deploy-Vault.task.ts | - | 0x8E379F2b3f42517Ae195EC4EE1781045DAc28937 |
+|2| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0x8E379F2b3f42517Ae195EC4EE1781045DAc28937 |
 |3| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x8De1CDd4a292a65F1fbff4967ddE6d09cBC1FB13 |
-|4| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | | 0x8eA874C0d1cA8C7F55B1FC5A3B0603D43D6a9f9E |
+|4| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x8eA874C0d1cA8C7F55B1FC5A3B0603D43D6a9f9E |
 |5| StaticsHelper | deploy-statichelper.task.ts | | 0x9A38bC56D3A81B7A8B73450c277891D4900c5870 |
 
 ## Mainnet - Deployment Log:
