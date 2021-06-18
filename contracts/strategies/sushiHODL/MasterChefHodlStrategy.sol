@@ -136,9 +136,8 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       12 hours // implementation change delay
     );
     
-    IMiniChefV2.PoolInfo memory poolInfo = IMiniChefV2(rewardPool()).poolInfo(_poolId);
-    IERC20Upgradeable _lpt = poolInfo.lpToken;
-    require(address(_lpt) == underlying(), "Pool Info does not match underlying");
+    address _lpt = IMiniChefV2(rewardPool()).lpToken(_poolId);
+    require(_lpt == underlying(), "Pool Info does not match underlying");
 
     setUint256(_POOLID_SLOT, _poolId);
     setAddress(_ROUTER_ADDRESS_V2_SLOT, _routerAddressV2);

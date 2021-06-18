@@ -1,15 +1,15 @@
-import { task, types } from "hardhat/config";
+import { task } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 require("dotenv").config();
 import * as deployConfig from "../../config/deploy-config";
 import * as sushiHodlStrategyConfig from "./config/deploy-sushiHodl-config";
 import { Logger } from "tslog";
-import { assert } from "console";
+import { strict as assert } from 'assert';
 const log: Logger = new Logger();
 
 // npx hardhat compile
-// npx hardhat deploy-controller --network polygonmumbai
-task("deploy-controller", "Deploys a new Controller contract")
+// npx hardhat deploy-sushihodl-strategy --network polygonmainnet
+task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushiHODLFactory Contract")
   .setAction(async (args, hre) => {
     
   const {
@@ -54,7 +54,7 @@ task("deploy-controller", "Deploys a new Controller contract")
     sushiHodlStrategyFactoryAddress
   );
 
-  const sushiHodlStrategyInstanceAddress = await sushiHodlStrategyFactoryInstance.createSushiHodlStrategy(
+  const sushiHodlStrategyCreationTransactionResponse = await sushiHodlStrategyFactoryInstance.createSushiHodlStrategy(
     storageAddress,
     underlying,
     vaultAddress,
@@ -69,7 +69,16 @@ task("deploy-controller", "Deploys a new Controller contract")
     routeWmaticToken1
   );
 
-  log.info("SushiHodlStrategy is created on network: "+hre.network.name+" @ address: "+sushiHodlStrategyInstanceAddress);    
+  log.info(`Created and Initialised SushiHodlStrategy: ${JSON.stringify(sushiHodlStrategyCreationTransactionResponse)} on network: ${hre.network.name} with arguments: \n`);
+  log.info(`sushiHodlStrategyFactoryAddress: ${sushiHodlStrategyFactoryAddress}`);
+  log.info(`underlying: ${underlying}`); 
+  log.info(`miniChefV2: ${miniChefV2}`);
+  log.info(`poolId: ${poolId}`);
+  log.info(`routerAddressV2: ${routerAddressV2}`);
+  log.info(`sushiTokenAddress: ${sushiTokenAddress}`);
+  log.info(`wmaticTokenAddress: ${wmaticTokenAddress}`);
+  log.info(`routeSushiToken0: ${routeSushiToken0}`);
+  log.info(`routeSushiToken1: ${routeSushiToken1}`);
+  log.info(`routeWmaticToken0: ${routeWmaticToken0}`);
+  log.info(`routeWmaticToken1: ${routeWmaticToken1}`);
 });
-
-module.exports;
