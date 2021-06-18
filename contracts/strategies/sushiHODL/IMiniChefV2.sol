@@ -40,19 +40,10 @@ interface IMiniChefV2 {
 
     function userInfo(uint256 _pid, address _user) external view returns (IMiniChefV2.UserInfo memory);
 
-
-    struct PoolInfo {
-        IERC20Upgradeable lpToken;  // Address of LP token contract.
-        uint256 allocPoint;         // How many allocation points assigned to this pool. SUSHI to distribute per block.
-        uint256 lastRewardBlock;    // Last block number that SUSHI distribution occurs.
-        uint256 accSushiPerShare;   // Accumulated SUSHI per share, times 1e12. See below.
-    }
-
-    function poolInfo(uint256 pid) external view returns (IMiniChefV2.PoolInfo memory);
-
-
-
     /// @notice Update reward variables for all pools. Be careful of gas spending!
     /// @param pids Pool IDs of all to be updated. Make sure to update all active pools.
     function massUpdatePools(uint256[] calldata pids) external;
+
+    /// @param pid The index of the pool.
+    function lpToken(uint256 pid) external returns (address);
 }

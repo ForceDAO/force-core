@@ -1,7 +1,7 @@
 const sushiHodlStrategyConfig = {  
     network : "polygonmainnet",
     pairName: "USDC-USDT",
-    sushiHodlStrategyFactoryAddress: "0x1f3E124DcB6e817Fd4Ecf86b3f7376A937AFEc77",
+    sushiHodlStrategyFactoryAddress: "0x8De1CDd4a292a65F1fbff4967ddE6d09cBC1FB13",
     underlying: "0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001",
     miniChefV2: "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F",
     poolId: 8,
