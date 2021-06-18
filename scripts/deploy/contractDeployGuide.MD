@@ -1,32 +1,21 @@
 # Guide to use the contract deployment scripts
 
-## List of scripts:
-
-- table for contract-name and associated deployment-script & in order of execution-sequence ascending
-
-  |Sequence | Contract Name | Script Name | Constructor Arguments | Description |
-  |---|---|---|---|---|
-  |1 | Storage | deploy-storage.task.ts | - | Storage contract -> Copy the deployed contract address to .env |
-  |2| Vault | deploy-Vault.task.ts | Controller | Storage | For constructor Argument, refer to the storageAddress in deploy-config.ts & For initialise arguments refer to vaultInit in deploy-config.ts |
-  |3| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - | No Constructor arguments. |
-  |4| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | | For Constructor arguments refer to:  |
-
-
-
 ## Mainnet - Deployed Contracts:
 
-Deployer: 0x9782968954A2948EB5A611235b7E3D227457DeC0
+- table for contract-name and associated deployment-script & in order of execution-sequence ascending
+- Deployer: 0x9782968954A2948EB5A611235b7E3D227457DeC0
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
 |1 | Storage | deploy-storage.task.ts | - | 0xf92C971628828b3d2fb091FD6343DEd5Bb3234Eb |
-|2| Vault | deploy-Vault.task.ts | - | 0x8E379F2b3f42517Ae195EC4EE1781045DAc28937 |
+|2| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0x8E379F2b3f42517Ae195EC4EE1781045DAc28937 |
 |3| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x8De1CDd4a292a65F1fbff4967ddE6d09cBC1FB13 |
-|4| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | | 0x8eA874C0d1cA8C7F55B1FC5A3B0603D43D6a9f9E |
+|4| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x8eA874C0d1cA8C7F55B1FC5A3B0603D43D6a9f9E |
+|5| StaticsHelper | deploy-statichelper.task.ts | | 0x9A38bC56D3A81B7A8B73450c277891D4900c5870 |
 
 ## Mainnet - Deployment Log:
 
-- Storage Deployment Log:
+### Storage Deployment Log:
 
 ```
 % npx hardhat deploy-storage --network polygonmainnet
@@ -35,7 +24,7 @@ Deployer: 0x9782968954A2948EB5A611235b7E3D227457DeC0
 2021-06-18 16:23:21.060  INFO [scripts/deploy/deploy-Storage.task.ts:15 undefined.<anonymous>] Deployed address: 0x14d305796672579ee5805c193e4c2A2636c6B61F 
 ```
 
-- Vault Deployment Log:
+### Vault Deployment Log:
 
 ```
 % npx hardhat deploy-vault --network polygonmainnet
@@ -51,7 +40,7 @@ Deployer: 0x9782968954A2948EB5A611235b7E3D227457DeC0
 2021-06-18 17:32:45.410  INFO [scripts/deploy/deploy-Vault.task.ts:50 undefined.<anonymous>] totalSupplyCap: 10 
 ```
 
-- SushiHodlStrategyFactory Deployment Log:
+### SushiHodlStrategyFactory Deployment Log:
 
 ```
 % npx hardhat deploy-sushihodl-factory --network polygonmainnet 
@@ -59,7 +48,7 @@ Deployer: 0x9782968954A2948EB5A611235b7E3D227457DeC0
 2021-06-18 19:39:39.453  INFO [scripts/deploy/strategy/sushiHODL/deploy-sushihodl-factory.task.ts:14 undefined.<anonymous>] SushiHodlStrategyFactory: 0x8De1CDd4a292a65F1fbff4967ddE6d09cBC1FB13 is deployed on network: polygonmainnet 
 ```
 
-- Create and initialise Strategy:
+### Create and initialise Strategy:
 
 ```
 % npx hardhat deploy-sushihodl-strategy --network polygonmainnet
@@ -77,4 +66,12 @@ Deployer: 0x9782968954A2948EB5A611235b7E3D227457DeC0
 2021-06-18 19:40:02.327  INFO [scripts/deploy/strategy/sushiHODL/deploy-sushihodl-strategy.task.ts:81 undefined.<anonymous>] routeSushiToken1: 0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a,0xc2132D05D31c914a87C6611C10748AEb04B58e8F 
 2021-06-18 19:40:02.332  INFO [scripts/deploy/strategy/sushiHODL/deploy-sushihodl-strategy.task.ts:82 undefined.<anonymous>] routeWmaticToken0: 0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270,0x2791bca1f2de4661ed88a30c99a7a9449aa84174 
 2021-06-18 19:40:02.332  INFO [scripts/deploy/strategy/sushiHODL/deploy-sushihodl-strategy.task.ts:83 undefined.<anonymous>] routeWmaticToken1: 0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270,0xc2132D05D31c914a87C6611C10748AEb04B58e8F 
+```
+
+### StaticHelper Deployment Log:
+
+```
+% npx hardhat deploy-staticshelper --network polygonmainnet
+2021-06-18 19:57:50.693  INFO [scripts/deploy/deploy-staticshelper.task.ts:13 undefined.<anonymous>] ---------== deploy-statichelper on network: polygonmainnet 
+2021-06-18 19:57:53.762  INFO [scripts/deploy/deploy-staticshelper.task.ts:16 undefined.<anonymous>] --------- Must Do Activity: 0x9A38bC56D3A81B7A8B73450c277891D4900c5870 deploy-config.ts as: staticsHelper ---------  
 ```
