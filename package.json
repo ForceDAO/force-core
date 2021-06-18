@@ -24,6 +24,7 @@
     "url": "https://github.com/ForceDAO/harvest-fork/issues"
   },
   "dependencies": {
+    "@chainlink/contracts": "^0.1.6",
     "@openzeppelin/contracts": "^4.1.0",
     "@openzeppelin/contracts-upgradeable": "^4.1.0",
     "@studydefi/money-legos": "^2.4.2",
