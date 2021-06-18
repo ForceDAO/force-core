@@ -17,7 +17,7 @@
 Deployer: 0x9782968954A2948EB5A611235b7E3D227457DeC0
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
-|---|---|---|---|---|---|
+|---|---|---|---|---|
 |1 | Storage | deploy-storage.task.ts | - | 0xf92C971628828b3d2fb091FD6343DEd5Bb3234Eb |
 |2| Vault | deploy-Vault.task.ts | - | 0x14d305796672579ee5805c193e4c2A2636c6B61F |
 
