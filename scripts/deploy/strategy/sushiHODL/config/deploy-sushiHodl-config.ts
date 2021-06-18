@@ -1,33 +1,17 @@
-export interface SushiHodlStrategyConfig {
-    network : string;
-    pairName: string;
-    sushiHodlStrategyFactoryAddress: string;
-    underlying: string;
-    miniChefV2: string;
-    poolId: string;
-    routerAddressV2: string;
-    sushiTokenAddress: string;
-    wmaticTokenAddress: string;
-    routeSushiToken0: Array<String>;
-    routeSushiToken1: Array<String>;
-    routeWmaticToken0: Array<String>;
-    routeWmaticToken1: Array<String>;
-}
-
 const sushiHodlStrategyConfig = {  
-    network : "polygonmumbai",
-    pairName: "USDC-DAI",
-    sushiHodlStrategyFactoryAddress: "",
-    underlying: "",
-    miniChefV2: "",
-    poolId: "",
-    routerAddressV2: "",
-    sushiTokenAddress: "",
-    wmaticTokenAddress: "",
-    routeSushiToken0: ["", ""],
-    routeSushiToken1: ["", ""],
-    routeWmaticToken0: ["", ""],
-    routeWmaticToken1: ["", ""]
+    network : "polygonmainnet",
+    pairName: "USDC-USDT",
+    sushiHodlStrategyFactoryAddress: "0x1f3E124DcB6e817Fd4Ecf86b3f7376A937AFEc77",
+    underlying: "0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001",
+    miniChefV2: "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F",
+    poolId: 8,
+    routerAddressV2: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
+    sushiTokenAddress: "0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a",
+    wmaticTokenAddress: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+    routeSushiToken0: ["0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"],
+    routeSushiToken1: ["0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],
+    routeWmaticToken0: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"],
+    routeWmaticToken1: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"]
 }
 
 export default sushiHodlStrategyConfig as any;

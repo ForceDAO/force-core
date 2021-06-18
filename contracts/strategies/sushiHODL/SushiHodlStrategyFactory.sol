@@ -7,6 +7,7 @@ contract SushiHodlStrategyFactory {
 
   address public abc_xyz_unused; // just a differentiator for the bytecode
 
+  /// @param _masterChefHodlStrategy newly deployed masterChefHodlStrategy Address
   /// @param _storage Root Storage Contract Address (Storage.sol)
   /// @param _underlying Underlying token deposit through vault
   /// @param _vault Vault Contract Address
@@ -20,6 +21,7 @@ contract SushiHodlStrategyFactory {
   /// @param _routeWmaticToken0 Uniswap-Route for WMatic to Token0 of Pool
   /// @param _routeWmaticToken1 Uniswap-Route for WMatic to Token1 of Pool
   event LogSushiHodlStrategyCreated(
+    address _masterChefHodlStrategy,
     address _storage,
     address _underlying,
     address _vault,
@@ -60,8 +62,8 @@ contract SushiHodlStrategyFactory {
     address[] memory _routeWmaticToken0,
     address[] memory _routeWmaticToken1
   ) public returns(address) {
-    MasterChefHodlStrategy addrNew = new MasterChefHodlStrategy();
-    MasterChefHodlStrategy(address(addrNew)).initializeMasterChefHodlStrategy(
+    MasterChefHodlStrategy masterChefHodlStrategy = new MasterChefHodlStrategy();
+    MasterChefHodlStrategy(address(masterChefHodlStrategy)).initializeMasterChefHodlStrategy(
       _storage,
       _underlying,
       _vault,
@@ -77,6 +79,7 @@ contract SushiHodlStrategyFactory {
     );
 
     emit LogSushiHodlStrategyCreated(
+      strategyAddress,
       _storage,
       _underlying,
       _vault,
@@ -90,6 +93,6 @@ contract SushiHodlStrategyFactory {
       _routeWmaticToken0,
       _routeWmaticToken1
     );
-    return address(addrNew);
+    return address(masterChefHodlStrategy);
   }
 }
