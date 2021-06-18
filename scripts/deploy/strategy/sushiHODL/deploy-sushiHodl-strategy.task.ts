@@ -54,7 +54,7 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
     sushiHodlStrategyFactoryAddress
   );
 
-  const sushiHodlStrategyCreationTransactionReceipt = await sushiHodlStrategyFactoryInstance.createSushiHodlStrategy(
+  const sushiHodlStrategyCreationTransactionResponse = await sushiHodlStrategyFactoryInstance.createSushiHodlStrategy(
     storageAddress,
     underlying,
     vaultAddress,
@@ -69,7 +69,7 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
     routeWmaticToken1
   );
 
-  log.info(`Created and Initialised SushiHodlStrategy: ${JSON.stringify(sushiHodlStrategyCreationTransactionReceipt)} on network: ${hre.network.name} with arguments: \n`);
+  log.info(`Created and Initialised SushiHodlStrategy: ${JSON.stringify(sushiHodlStrategyCreationTransactionResponse)} on network: ${hre.network.name} with arguments: \n`);
   log.info(`sushiHodlStrategyFactoryAddress: ${sushiHodlStrategyFactoryAddress}`);
   log.info(`underlying: ${underlying}`); 
   log.info(`miniChefV2: ${miniChefV2}`);
@@ -81,8 +81,4 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
   log.info(`routeSushiToken1: ${routeSushiToken1}`);
   log.info(`routeWmaticToken0: ${routeWmaticToken0}`);
   log.info(`routeWmaticToken1: ${routeWmaticToken1}`);
-
-  const transactionHash = sushiHodlStrategyCreationTransactionReceipt.
 });
-
-module.exports;
