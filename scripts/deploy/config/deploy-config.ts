@@ -7,8 +7,7 @@ export const deployedContracts = {
         toInvestNumerator: 1000,
         toInvestDenominator: 1000,
         totalSupplyCap: 10
-    },
-    staticsHelper: ""
+    }
 }
 
 export default deployedContracts;
