@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 require("dotenv").config();
-import * as sushiHodlStrategyConfig from "./config/deploy-sushiHodl-config";
+import * as sushiHodlStrategyConfig from "../../../config/deploy-sushiHodl-config";
 import { Logger } from "tslog";
 const log: Logger = new Logger();
 

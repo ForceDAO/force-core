@@ -19,6 +19,7 @@ require("./scripts/deploy/deploy-Vault.task.ts");
 require("./scripts/deploy/strategy/sushiHODL/deploy-sushihodl-factory.task.ts");
 require("./scripts/deploy/strategy/sushiHODL/deploy-sushihodl-strategy.task.ts");
 require("./scripts/deploy/deploy-staticshelper.task.ts");
+require("./scripts/deploy/strategy/sushiHODL/verify-sushihodl-vault.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
@@ -86,7 +87,7 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: POLYGONSCAN_API_KEY,
   },
   solidity: {
     compilers: [
