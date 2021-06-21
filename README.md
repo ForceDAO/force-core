@@ -28,4 +28,3 @@ Notably, inherits both ControllableInit and VaultStorage.
 VaultStorage is where all of the vault's data is stored and uses the `eip1967` pattern. There should be no data stored here other than what is accessed through `eip1967` getters. Everything else is logic and getter/setter functions.
 
 The vault is the interface to strategies. Deposits into the vaults are subsequently sent to strategies. 
-
