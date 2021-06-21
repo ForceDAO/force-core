@@ -5,7 +5,6 @@ import * as sushiHodlStrategyConfig from "../../../config/deploy-sushiHodl-confi
 import { Logger } from "tslog";
 const log: Logger = new Logger();
 
-
 task("verify-sushihodl-factory", "Verify the sushi-HODL Strategy's Factory contract on Polygon Scan")
   .setAction(async (args, hre) => {
     

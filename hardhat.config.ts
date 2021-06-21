@@ -20,23 +20,29 @@ require("./scripts/deploy/strategy/sushiHODL/deploy-sushihodl-factory.task.ts");
 require("./scripts/deploy/strategy/sushiHODL/deploy-sushihodl-strategy.task.ts");
 require("./scripts/deploy/deploy-staticshelper.task.ts");
 require("./scripts/verify/strategy/sushiHODL/verify-sushihodl-vault.task.ts");
+require("./scripts/verify/strategy/sushiHODL/verify-sushihodl-storage.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 const MATICVIGIL_APP_ID = process.env.MATICVIGIL_APP_ID || "";
 const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "";
+const INFURA_POLYGON_MAINNET_KEY = process.env.INFURA_POLYGON_MAINNET_KEY || "";
 
 //---------------------==
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
-    localhost: {
-      url: "http://127.0.0.1:8545"
-    },
+    // localhost: {
+    //   url: "http://127.0.0.1:8545"
+    // },
     hardhat: {
       gas: 7000000,
       gasPrice: ethers.utils.parseUnits("10", "gwei").toNumber(),
+      forking: {
+        url: `https://polygon-mainnet.infura.io/v3/${INFURA_POLYGON_MAINNET_KEY}`,
+        blockNumber: 15981218,
+      },
     },
     polygonmumbai: {
       url: `https://rpc-mumbai.maticvigil.com/v1/${MATICVIGIL_APP_ID}`,

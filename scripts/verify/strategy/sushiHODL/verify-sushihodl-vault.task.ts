@@ -5,7 +5,7 @@ import * as deployConfig from "../../../deploy/config/deploy-config";
 import { Logger } from "tslog";
 const log: Logger = new Logger();
 
-
+// npx hardhat verify-sushihodl-vault  --network polygonmainnet
 task("verify-sushihodl-vault", "Verify the sushi-HODL Strategy's Vault contract on Polygon Scan")
   .setAction(async (args, hre) => {
     
