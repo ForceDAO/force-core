@@ -11,7 +11,10 @@ export const sushiHodlStrategyConfig = {
     routeSushiToken0: ["0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"],
     routeSushiToken1: ["0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],
     routeWmaticToken0: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"],
-    routeWmaticToken1: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"]
+    routeWmaticToken1: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],
+    masterChefHodlStrategyAddress: "0x8eA874C0d1cA8C7F55B1FC5A3B0603D43D6a9f9E",
+    storageAddress:  "0x14d305796672579ee5805c193e4c2A2636c6B61F",
+    vaultAddress: "0x8E379F2b3f42517Ae195EC4EE1781045DAc28937",
 }
 
 export default sushiHodlStrategyConfig;
