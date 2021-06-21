@@ -9,7 +9,7 @@ contract NoopYVault is ERC20Burnable, ERC20PresetMinterPauser {
 
   IERC20 underlying;
 
-  constructor(address _underlying, uint8 decim) ERC20PresetMinterPauser("Mock Token", "MOCK") {
+  constructor(address _underlying) ERC20PresetMinterPauser("Mock Token", "MOCK") {
     underlying = IERC20(_underlying);
   }
 
@@ -28,7 +28,7 @@ contract NoopYVault is ERC20Burnable, ERC20PresetMinterPauser {
     underlying.transfer(msg.sender, _amount);
   }
 
-  function getPricePerFullShare() public view returns(uint256) {
+  function getPricePerFullShare() public pure returns(uint256) {
     return 1000000000000000000;
   }
 }

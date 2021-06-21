@@ -10,7 +10,6 @@ import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 import "./hardworkInterface/IStrategy.sol";
-import "./hardworkInterface/IStrategyV2.sol";
 import "./hardworkInterface/IVault.sol";
 import "./hardworkInterface/IUpgradeSource.sol";
 import "./ControllableInit.sol";
@@ -224,8 +223,8 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     require(canUpdateStrategy(_strategy),
       "The strategy exists and switch timelock did not elapse yet");
     require(_strategy != address(0), "new _strategy cannot be empty");
-    require(IStrategy(_strategy).underlying() == address(underlying()), "Vault underlying must match Strategy underlying");
-    require(IStrategy(_strategy).vault() == address(this), "the strategy does not belong to this vault");
+    require(IStrategy(_strategy).getUnderlying() == address(underlying()), "Vault underlying must match Strategy underlying");
+    require(IStrategy(_strategy).getVault() == address(this), "the strategy does not belong to this vault");
 
     emit StrategyChanged(_strategy, strategy());
     if (address(_strategy) != address(strategy())) {
@@ -348,11 +347,7 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
         underlyingAmountToWithdraw = underlyingBalanceInVault();
       } else {
         uint256 missingUnderlying = underlyingAmountToWithdraw.sub(underlyingBalanceInVault());
-        uint256 missingShares = numberOfSharesPostFee.mul(missingUnderlying).div(underlyingAmountToWithdraw);
-        // When withdrawing to vault here, the vault does not have any assets. Therefore,
-        // all the assets that are in the strategy match the total supply of shares, increased
-        // by the share proportion that was already burned at the beginning of this withdraw transaction.
-        IStrategyV2(strategy()).withdrawToVault(missingShares, (totalSupply()).add(missingShares));
+        IStrategy(strategy()).withdrawToVault(missingUnderlying);
         // recalculate to improve accuracy
         calculatedSharePrice = getPricePerFullShare();
 

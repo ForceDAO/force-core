@@ -27,3 +27,4 @@ aPictures1
 scripts/hardhat.configOld.ts
 yarn.lock
 .openzeppelin
+slither-output.txt
