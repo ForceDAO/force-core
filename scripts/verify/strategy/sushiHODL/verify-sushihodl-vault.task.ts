@@ -1,7 +1,7 @@
 import { task } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 require("dotenv").config();
-import * as deployConfig from "../../config/deploy-config";
+import * as deployConfig from "../../../deploy/config/deploy-config";
 import { Logger } from "tslog";
 const log: Logger = new Logger();
 
