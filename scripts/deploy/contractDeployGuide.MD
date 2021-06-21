@@ -7,7 +7,7 @@
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
-|1 | Storage | deploy-storage.task.ts | - | 0xf92C971628828b3d2fb091FD6343DEd5Bb3234Eb |
+|1 | Storage | deploy-storage.task.ts | - | 0x14d305796672579ee5805c193e4c2A2636c6B61F |
 |2| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0x8E379F2b3f42517Ae195EC4EE1781045DAc28937 |
 |3| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x8De1CDd4a292a65F1fbff4967ddE6d09cBC1FB13 |
 |4| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x8eA874C0d1cA8C7F55B1FC5A3B0603D43D6a9f9E |
