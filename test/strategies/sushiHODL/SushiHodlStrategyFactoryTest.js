@@ -23,7 +23,7 @@ const strategyOwner = PMFTC.STRATEGY_OWNER;
 const sushiswapV2Router = PMFTC.SUSHISWAP_V2_ROUTER02_ADDRESS;
 const SushiHodlStrategyFactoryAddress = PMFTC.SUSHI_HODL_FACTORY_ADDRESS;
 
-describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
+describe("SushiHodlStrategyFactory - Strategy Creation mainnet fork Tests", function () {
     let WMatic, WETH, USDC, USDT;
     let logicOwner, dao, user;
     before(async function () {
