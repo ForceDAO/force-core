@@ -1,7 +1,7 @@
 export const deployedContracts = {  
     network : "polygonmainnet",
-    storageAddress:  "0x14d305796672579ee5805c193e4c2A2636c6B61F",
-    vaultAddress: "0x8E379F2b3f42517Ae195EC4EE1781045DAc28937",
+    storageAddress:  "0x7E428A383D0F3A3B8e2D4a0cA2cDde8792878e2c",
+    vaultAddress: "0x8D7f8722B796526B7DBe94055cb405148cc47719",
     vaultInit: {
         underlying: "0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001",
         toInvestNumerator: 1000,

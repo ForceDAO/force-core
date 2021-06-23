@@ -1,7 +1,7 @@
 export const sushiHodlStrategyConfig = {  
     network : "polygonmainnet",
     pairName: "USDC-USDT",
-    sushiHodlStrategyFactoryAddress: "0x8De1CDd4a292a65F1fbff4967ddE6d09cBC1FB13",
+    sushiHodlStrategyFactoryAddress: "0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9",
     underlying: "0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001",
     miniChefV2: "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F",
     poolId: 8,
@@ -12,9 +12,9 @@ export const sushiHodlStrategyConfig = {
     routeSushiToken1: ["0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],
     routeWmaticToken0: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"],
     routeWmaticToken1: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],
-    masterChefHodlStrategyAddress: "0x8eA874C0d1cA8C7F55B1FC5A3B0603D43D6a9f9E",
-    storageAddress:  "0x14d305796672579ee5805c193e4c2A2636c6B61F",
-    vaultAddress: "0x8E379F2b3f42517Ae195EC4EE1781045DAc28937",
+    masterChefHodlStrategyAddress: "0x40b14dd05873423f75eea6d0ab6c3a4805518e69",
+    storageAddress:  "0x7E428A383D0F3A3B8e2D4a0cA2cDde8792878e2c",
+    vaultAddress: "0x8D7f8722B796526B7DBe94055cb405148cc47719",
 }
 
 export default sushiHodlStrategyConfig;
