@@ -58,6 +58,9 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
   it("masterChefHodlStrategy should have feeBase initialised with correct Value");
   it("masterChefHodlStrategy should return correct Vault Address");
   it("masterChefHodlStrategy should return correct Underlying Address");
+  it("masterChefHodlStrategy Governance Address should be able to update LiquidationParameters via setLiquidation");
+  it("masterChefHodlStrategy Governance Address should be able to update feeRatio via setFeeHolder");
+  it("masterChefHodlStrategy Governance Address should be able to update feeHolder via setFeeRatio");
 
-  
+
 });

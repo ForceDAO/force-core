@@ -272,7 +272,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
         IERC20Upgradeable(underlying()).safeTransfer(controller(), fee);
       }
     }
-
   }
 
   function liquidateRewardToken(address _rewardTokenAddress, address[] memory _uniswapPath0, address[] memory _uniswapPath1) internal returns (uint256) {
