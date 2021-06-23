@@ -10,7 +10,7 @@
 |1 | Storage | verify-sushihodl-usdc-usdt-storage.task.ts | scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-USDC-USDT-polygon-mainnet-config.ts | 0x7E428A383D0F3A3B8e2D4a0cA2cDde8792878e2c | https://polygonscan.com/address/0x7E428A383D0F3A3B8e2D4a0cA2cDde8792878e2c#code |
 |2| Vault | verify-sushihodl-usdc-usdt-vault.task.ts | scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-USDC-USDT-polygon-mainnet-config.ts | 0x8D7f8722B796526B7DBe94055cb405148cc47719 | https://polygonscan.com/address/0x8D7f8722B796526B7DBe94055cb405148cc47719#code |
 |3| SushiHodlStrategyFactory | verify-sushihodl-factory.task.ts | scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-config.ts |  0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9 | https://polygonscan.com/address/0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9#code |
-|4| MasterChefHodlStrategy | verify-sushihodl-usdc-usdt-strategy.task.ts | scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-USDC-USDT-polygon-mainnet-config.ts  | 0x40b14dd05873423f75eea6d0ab6c3a4805518e69 | https://polygonscan.com/address/0x40b14dd05873423f75eea6d0ab6c3a4805518e69#code |
+|4| MasterChefHodlStrategy | verify-sushihodl-usdc-usdt-strategy.task.ts | scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-USDC-USDT-polygon-mainnet-config.ts  | 0x5e6dccb2df12d78c13fb1e3195f05f1afefce5d1 | https://polygonscan.com/address/0x5e6dccb2df12d78c13fb1e3195f05f1afefce5d1#code |
 |5| StaticsHelper | verify-statichelper.task.ts | - | 0xC1f99f723C7bDF1313140BFA29390138F1b325bf | https://polygonscan.com/address/0xC1f99f723C7bDF1313140BFA29390138F1b325bf#code |
 
 ## Mainnet - Verification Steps:
