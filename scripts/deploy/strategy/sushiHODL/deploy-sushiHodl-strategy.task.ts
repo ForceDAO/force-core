@@ -1,24 +1,21 @@
 import { task } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 require("dotenv").config();
-import * as deployConfig from "../../config/deploy-config";
-import * as sushiHodlStrategyConfig from "./config/deploy-sushiHodl-config";
+import { network as globalConfigNetwork, storageAddress }  from "../../config/deploy-config-global";
+import { network as strategyConfigNetwork, strategies } from "./config/deploy-sushiHodl-polygon-mainnet-config";
+import { network as vaultConfigNetwork, vaults }  from "../../config/deploy-config-vaults";
 import { Logger } from "tslog";
 import { strict as assert } from 'assert';
 const log: Logger = new Logger();
 
-// npx hardhat compile
-// npx hardhat deploy-sushihodl-strategy --network polygonmainnet
 task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushiHODLFactory Contract")
+  .addParam("strategyname","name of the strategy, for Example: SUSHIHODL-USDC-USDT-V1")
   .setAction(async (args, hre) => {
-    
-  const {
-        storageAddress,
-        vaultAddress
-    } = deployConfig.deployedContracts;
 
-  assert(storageAddress != "", "storageAddress is invalid");
-  assert(vaultAddress != "", "vaultAddress is invalid");
+  assert(globalConfigNetwork === strategyConfigNetwork, "network mismatch");
+  assert(globalConfigNetwork === vaultConfigNetwork, "network mismatch");
+  const strategyInit = strategies[args.strategyname];
+  const vaultAddress = vaults[strategyInit.pairName].vaultAddress;
 
   const { 
     sushiHodlStrategyFactoryAddress,
@@ -32,7 +29,7 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
     routeSushiToken1,
     routeWmaticToken0,
     routeWmaticToken1
-  } = sushiHodlStrategyConfig.default;
+  } = strategyInit;
 
   assert(sushiHodlStrategyFactoryAddress != "", "sushiHodlStrategyFactoryAddress is invalid");
   assert(underlying != "", "underlying is invalid");

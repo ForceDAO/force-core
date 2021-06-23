@@ -2,28 +2,29 @@ import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
 const log: Logger = new Logger();
-import * as deployConfig from "./config/deploy-config";
 import { strict as assert } from 'assert';
+import { network as globalConfigNetwork, storageAddress }  from "./config/deploy-config-global";
+import { network as vaultConfigNetwork, vaults }  from "./config/deploy-config-vaults";
 
-// npx hardhat compile
-// npx hardhat deploy-vault --network polygonmainnet
 task("deploy-vault", "Deploys a new Vault contract")
+  .addParam("underlyingname","name of the underlying, for Example: USDC-USDT")
   .setAction(async (args, hre) => {
 
-  const { 
-    storageAddress,
-    vaultInit
-  } = deployConfig.default;
-
+  assert(globalConfigNetwork === vaultConfigNetwork, "network mismatch");
   assert(storageAddress != "", "vaultInit argument: storage is invalid");
+
+  const underlyingname : string = args.underlyingname;
+  const vaultInit : any = vaults[underlyingname];
+  
+  assert(vaultInit, "vaultInit is Invalid");
   assert(vaultInit.underlying != "", "vaultInit argument: underlying is invalid");
   assert(vaultInit.toInvestNumerator > 0, "vaultInit argument: toInvestNumerator is invalid");
   assert(vaultInit.toInvestDenominator > 0, "vaultInit argument: toInvestDenominator is invalid");
   assert(vaultInit.totalSupplyCap > 0, "vaultInit argument: totalSupplyCap is invalid");
 
   log.info(`---------== deploy-Vault on network: ${hre.network.name}`);
-  const factoryCtrt = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);
-  const vaultContractInstance = await factoryCtrt.deploy();
+  const vaultContract = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);
+  const vaultContractInstance = await vaultContract.deploy();
   log.info(`--------- Must Do Activity: ${vaultContractInstance.address} deploy-config.ts as: vaultAddress --------- `);
   const vaultAddress = vaultContractInstance.address;
 
