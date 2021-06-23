@@ -38,12 +38,26 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
   it("masterChefHodlStrategy should have WMatic routes initialised", async () => {
     const signer = await ethers.provider.getSigner("0x364d6D0333432C3Ac016Ca832fb8594A8cE43Ca6");
     expect(signer).to.not.be.null; 
-    let strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", masterChefHodlStrategyAddress);
+
+    console.log(`masterChefHodlStrategyAddress is: ${masterChefHodlStrategyAddress}`);
+    const strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", masterChefHodlStrategyAddress);
     expect(strategyInstance).to.not.be.null; 
 
-    let routes = await strategyInstance.getWmaticRoutes();
-    expect(routes).to.not.be.null;
+    const feeHolder = await strategyInstance.feeHolder();
+    console.log(`feeHolder from strategy are: ${feeHolder}`); 
+
+    const depositArbCheck = await strategyInstance.depositArbCheck();
+    console.log(`depositArbCheck from strategy are: ${depositArbCheck}`); 
+    expect(depositArbCheck).to.be.true;
+    
+    const sushiRoutes = await strategyInstance.getSushiRoutes();
+    console.log(`sushiRoutes from strategy are: ${sushiRoutes}`); 
+    expect(sushiRoutes).to.not.be.null;
+
+    const routes = await strategyInstance.getWmaticRoutes();
     console.log(`routes from strategy are: ${routes}`); 
+    expect(routes).to.not.be.null;
+
   });
 
   it("masterChefHodlStrategy should have Sushi routes initialised");
