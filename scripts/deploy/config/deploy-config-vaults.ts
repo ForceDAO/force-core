@@ -16,7 +16,7 @@ export interface VaultInit {
     totalSupplyCap: number;
 }
 
-export const vaults = {  
+export const vaults: VaultData = {  
     "USDC-USDT": {
         vaultAddress: "0x8D7f8722B796526B7DBe94055cb405148cc47719",
         vaultInit: {

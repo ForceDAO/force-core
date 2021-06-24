@@ -15,14 +15,15 @@ task("set-strategy", "set the Strategy to the Vault")
     const underlyingname : string = args.underlyingname;
     const vault : Vault = vaults[underlyingname];
     const vaultAddress : string = vault.vaultAddress;
-    assert(ethers.utils.getAddress(vaultAddress) == vaultAddress, "Invalid vaultAddress");
+    assert(ethers.utils.getAddress(vaultAddress) == ethers.utils.getAddress(vaultAddress), "Invalid vaultAddress");
+    log.info(`vaultAddress : ${vaultAddress} for underlying: ${underlyingname}`);
 
     const strategy : Strategy = strategies[args.strategyname];
     const strategyAddress : string = strategy.masterChefHodlStrategyAddress;
-    assert(ethers.utils.getAddress(strategyAddress) == strategyAddress, "Invalid strategyAddress");
+    log.info(`strategyAddress : ${strategyAddress} for underlying: ${underlyingname}`);
+    assert(ethers.utils.getAddress(strategyAddress) == ethers.utils.getAddress(strategyAddress), "Invalid strategyAddress");
     assert(strategy.pairName == underlyingname, "Incorrect Strategy for the underlying");
 
-    //Initialise Vault
     log.info(`---------== About to set Strategy: ${strategyAddress} for Vault: ${vaultAddress}`);
     const vaultInstance = await hre.ethers.getContractAt(
       "Vault",

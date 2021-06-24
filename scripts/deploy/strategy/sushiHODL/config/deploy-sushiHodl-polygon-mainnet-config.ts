@@ -19,7 +19,7 @@ export interface Strategy {
     masterChefHodlStrategyAddress: string;
 }
 
-export const strategies = {  
+export const strategies: StrategyData = {  
     "SUSHIHODL-USDC-USDT-V1": {
         pairName: "USDC-USDT",
         sushiHodlStrategyFactoryAddress: "0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9",

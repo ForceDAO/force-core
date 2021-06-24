@@ -29,7 +29,7 @@ task("announce-strategy", "announce the Strategy for the Vault")
       vaultAddress
     );
 
-    await vaultInstance.announceStrategy(
+    await vaultInstance.announceStrategyUpdate(
       strategyAddress
     );
 });
