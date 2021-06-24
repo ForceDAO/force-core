@@ -3,14 +3,16 @@ import "@nomiclabs/hardhat-ethers";
 require("dotenv").config();
 import { Logger } from "tslog";
 const log: Logger = new Logger();
+import { ethers } from "ethers";
+import { strict as assert } from 'assert';
+import { staticsHelperAddress } from "../deploy/config/deploy-config-global";
 
-// npx hardhat verify-staticshelper --network polygonmainnet
 task("verify-staticshelper", "Verify the staticshelper contract on Polygon Scan")
   .setAction(async (args, hre) => {
-    
+    assert(ethers.utils.getAddress(staticsHelperAddress) == staticsHelperAddress, "Cannot validate Invalid staticsHelperAddress");
     log.info("---------== verify-statichelper");
 
     await hre.run("verify:verify", {
-        address: "0xC1f99f723C7bDF1313140BFA29390138F1b325bf"
-    })
+        address: staticsHelperAddress
+    });
 });

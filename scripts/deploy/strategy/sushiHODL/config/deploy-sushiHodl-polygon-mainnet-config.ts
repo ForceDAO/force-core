@@ -1,5 +1,24 @@
 export const network = "polygonmainnet";
 
+export interface StrategyData {
+    [strategyname: string] : Strategy;
+}
+
+export interface Strategy {
+    pairName: string;
+    sushiHodlStrategyFactoryAddress: string;
+    miniChefV2: string;
+    poolId: number;
+    routerAddressV2: string;
+    sushiTokenAddress: string;
+    wmaticTokenAddress: string;
+    routeSushiToken0: string[];
+    routeSushiToken1: string[];
+    routeWmaticToken0: string[];
+    routeWmaticToken1: string[];
+    masterChefHodlStrategyAddress: string;
+}
+
 export const strategies = {  
     "SUSHIHODL-USDC-USDT-V1": {
         pairName: "USDC-USDT",
@@ -15,4 +34,4 @@ export const strategies = {
         routeWmaticToken1: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],
         masterChefHodlStrategyAddress: "0x5e6dccb2df12d78c13fb1e3195f05f1afefce5d1"
     }
-};
+}  as StrategyData;

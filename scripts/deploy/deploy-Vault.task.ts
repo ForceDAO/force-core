@@ -4,18 +4,18 @@ import "@nomiclabs/hardhat-ethers";
 const log: Logger = new Logger();
 import { strict as assert } from 'assert';
 import { network as globalConfigNetwork, storageAddress }  from "./config/deploy-config-global";
-import { network as vaultConfigNetwork, vaults }  from "./config/deploy-config-vaults";
+import { network as vaultConfigNetwork, vaults, VaultData, Vault, VaultInit }  from "./config/deploy-config-vaults";
 
 task("deploy-vault", "Deploys a new Vault contract")
   .addParam("underlyingname","name of the underlying, for Example: USDC-USDT")
   .setAction(async (args, hre) => {
 
   assert(globalConfigNetwork === vaultConfigNetwork, "network mismatch");
-  assert(storageAddress != "", "vaultInit argument: storage is invalid");
 
   const underlyingname : string = args.underlyingname;
-  const vaultInit : any = vaults[underlyingname];
-  
+  const vault : Vault = vaults[underlyingname];
+  const vaultInit : VaultInit = vault.vaultInit;
+
   assert(vaultInit, "vaultInit is Invalid");
   assert(vaultInit.underlying != "", "vaultInit argument: underlying is invalid");
   assert(vaultInit.toInvestNumerator > 0, "vaultInit argument: toInvestNumerator is invalid");

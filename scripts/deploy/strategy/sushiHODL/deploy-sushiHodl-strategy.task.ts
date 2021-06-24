@@ -2,8 +2,9 @@ import { task } from "hardhat/config";
 import "@nomiclabs/hardhat-ethers";
 require("dotenv").config();
 import { network as globalConfigNetwork, storageAddress }  from "../../config/deploy-config-global";
-import { network as strategyConfigNetwork, strategies } from "./config/deploy-sushiHodl-polygon-mainnet-config";
-import { network as vaultConfigNetwork, vaults }  from "../../config/deploy-config-vaults";
+import { network as strategyConfigNetwork, strategies, StrategyData, Strategy } from "./config/deploy-sushiHodl-polygon-mainnet-config";
+import { network as vaultConfigNetwork, vaults, VaultData, Vault, VaultInit }  from "../../config/deploy-config-vaults";
+
 import { Logger } from "tslog";
 import { strict as assert } from 'assert';
 const log: Logger = new Logger();
@@ -14,12 +15,16 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
 
   assert(globalConfigNetwork === strategyConfigNetwork, "network mismatch");
   assert(globalConfigNetwork === vaultConfigNetwork, "network mismatch");
-  const strategyInit = strategies[args.strategyname];
-  const vaultAddress = vaults[strategyInit.pairName].vaultAddress;
+
+  const strategyInit : Strategy = strategies[args.strategyname];
+
+  const underlyingname : string = strategyInit.pairName;
+  const vault : Vault = vaults[underlyingname];
+  const vaultAddress : string = vault.vaultAddress;
+  const underlying : string = vault.vaultInit.underlying;
 
   const { 
     sushiHodlStrategyFactoryAddress,
-    underlying, 
     miniChefV2,
     poolId,
     routerAddressV2,

@@ -1,5 +1,21 @@
 export const network = "polygonmainnet";
 
+export interface VaultData {
+    [underlyingname: string] : Vault;
+}
+
+export interface Vault {
+    vaultAddress: string;
+    vaultInit: VaultInit;
+}
+
+export interface VaultInit {
+    underlying: string;
+    toInvestNumerator: number;
+    toInvestDenominator: number;
+    totalSupplyCap: number;
+}
+
 export const vaults = {  
     "USDC-USDT": {
         vaultAddress: "0x8D7f8722B796526B7DBe94055cb405148cc47719",
@@ -10,4 +26,4 @@ export const vaults = {
             totalSupplyCap: 10
         }
     }
-}
+} as VaultData;
