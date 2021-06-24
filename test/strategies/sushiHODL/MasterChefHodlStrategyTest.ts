@@ -16,7 +16,7 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
     );
   });
 
-  it("masterChefHodlStrategy should have WMatic routes initialised", async () => {
+  it("should have WMatic routes initialised", async () => {
     const signer = await ethers.provider.getSigner("0x364d6D0333432C3Ac016Ca832fb8594A8cE43Ca6");
     expect(signer).to.not.be.null; 
 
@@ -41,21 +41,21 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
 
   });
 
-  it("masterChefHodlStrategy should have Sushi routes initialised");
-  it("masterChefHodlStrategy should return depositArbCheck as initialised with correct value");
-  it("masterChefHodlStrategy should have poolId initialised with correct Value");
-  it("masterChefHodlStrategy should have routerAddressV2 initialised with correct Value");
-  it("masterChefHodlStrategy should have sushiTokenAddress initialised with correct Value");
-  it("masterChefHodlStrategy should have wmaticTokenAddress initialised with correct Value");
-  it("masterChefHodlStrategy should have sellSushi initialised with correct Value");
-  it("masterChefHodlStrategy should have sellWMatic initialised with correct Value");
-  it("masterChefHodlStrategy should have claimAllowed initialised with correct Value");
-  it("masterChefHodlStrategy should have feeBase initialised with correct Value");
-  it("masterChefHodlStrategy should return correct Vault Address");
-  it("masterChefHodlStrategy should return correct Underlying Address");
-  it("masterChefHodlStrategy Governance Address should be able to update LiquidationParameters via setLiquidation");
-  it("masterChefHodlStrategy Governance Address should be able to update feeRatio via setFeeHolder");
-  it("masterChefHodlStrategy Governance Address should be able to update feeHolder via setFeeRatio");
+  it("should have Sushi routes initialised");
+  it("should return depositArbCheck as initialised with correct value");
+  it("should have poolId initialised with correct Value");
+  it("should have routerAddressV2 initialised with correct Value");
+  it("should have sushiTokenAddress initialised with correct Value");
+  it("should have wmaticTokenAddress initialised with correct Value");
+  it("should have sellSushi initialised with correct Value");
+  it("should have sellWMatic initialised with correct Value");
+  it("should have claimAllowed initialised with correct Value");
+  it("should have feeBase initialised with correct Value");
+  it("should return correct Vault Address");
+  it("should return correct Underlying Address");
+  it("Governance Address should be able to update LiquidationParameters via setLiquidation");
+  it("Governance Address should be able to update feeRatio via setFeeHolder");
+  it("Governance Address should be able to update feeHolder via setFeeRatio");
 
 
 });
