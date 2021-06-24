@@ -2,33 +2,34 @@ import { task, types } from "hardhat/config";
 import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
 const log: Logger = new Logger();
-import * as deployConfig from "./config/deploy-config";
+import { ethers } from "ethers";
 import { strict as assert } from 'assert';
+import { network as vaultConfigNetwork, vaults, VaultData, Vault, VaultInit }  from "../deploy/config/deploy-config-vaults";
+import { network as strategyConfigNetwork, strategies, StrategyData, Strategy } from "../deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config";
 
 task("announce-strategy", "announce the Strategy for the Vault")
+.addParam("underlyingname","name of the underlying, for Example: USDC-USDT")
+.addParam("strategyname","name of the strategy, for Example: SUSHIHODL-USDC-USDT-V1")  
   .setAction(async (args, hre) => {
-  const { 
-    vaultAddress
-  } = deployConfig.default;
 
-  assert(vaultAddress != "", "vaultInit argument: vaultAddress is invalid");
-  assert(vaultInit.underlying != "", "vaultInit argument: underlying is invalid");
-  assert(vaultInit.toInvestNumerator > 0, "vaultInit argument: toInvestNumerator is invalid");
-  assert(vaultInit.toInvestDenominator > 0, "vaultInit argument: toInvestDenominator is invalid");
-  assert(vaultInit.totalSupplyCap > 0, "vaultInit argument: totalSupplyCap is invalid");
+    const underlyingname : string = args.underlyingname;
+    const vault : Vault = vaults[underlyingname];
+    const vaultAddress : string = vault.vaultAddress;
+    assert(ethers.utils.getAddress(vaultAddress) == vaultAddress, "Invalid vaultAddress");
 
-  //Initialise Vault
-  log.info("---------== About to Initialise Vault: "+vaultAddress);
-  const vaultInstance = await hre.ethers.getContractAt(
-    "Vault",
-    vaultAddress
-  );
+    const strategy : Strategy = strategies[args.strategyname];
+    const strategyAddress : string = strategy.masterChefHodlStrategyAddress;
+    assert(ethers.utils.getAddress(strategyAddress) == strategyAddress, "Invalid strategyAddress");
+    assert(strategy.pairName == underlyingname, "Incorrect Strategy for the underlying");
 
-  await vaultInstance.initializeVault(
-    storageAddress,
-    vaultInit.underlying,
-    vaultInit.toInvestNumerator,
-    vaultInit.toInvestDenominator,
-    vaultInit.totalSupplyCap
-  );
+    //Initialise Vault
+    log.info(`---------== About to announce Strategy: ${strategyAddress} for Vault: ${vaultAddress}`);
+    const vaultInstance = await hre.ethers.getContractAt(
+      "Vault",
+      vaultAddress
+    );
+
+    await vaultInstance.announceStrategy(
+      strategyAddress
+    );
 });
