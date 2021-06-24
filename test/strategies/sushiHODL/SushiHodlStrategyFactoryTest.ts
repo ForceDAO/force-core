@@ -1,46 +1,23 @@
-const { ethers, upgrades } = require("hardhat");
-const { expect, use } = require("chai");
-const chaiAlmost = require("chai-almost");
-const PMFTC = require("../../polygon-mainnet-fork-test-config.js");
+import { ethers, upgrades, network } from "hardhat";
+import { expect, use } from "chai";
+import { STRATEGY_OWNER, SUSHI_HODL_FACTORY_ADDRESS } from "../../polygon-mainnet-fork-test-config";
 
-use(chaiAlmost());
-
-const checkAlmostSame = (a, b) => {
-  expect(ethers.BigNumber.from(a).gt(ethers.BigNumber.from(b).mul(99).div(100))).to.be.true;
-  expect(ethers.BigNumber.from(a).lt(ethers.BigNumber.from(b).mul(101).div(100))).to.be.true;
-};
-
-const units = (value) => ethers.utils.parseUnits(value.toString());
-
-const wmatic = PMFTC.WMATIC_ADDRESS;
-const force = PMFTC.FORCE_ADDRESS;
-const sushi = PMFTC.SUSHI_ADDRESS;
-const usdc = PMFTC.USDC_ADDRESS;
-const usdt = PMFTC.USDT_ADDRESS;
-const ZERO_ADDRESS = PMFTC.ZERO_ADDRESS;
-const masterChefHodlStrategyAddress = PMFTC.MASTER_CHEF_HODL_STRATEGY_ADDRESS;
-const strategyOwner = PMFTC.STRATEGY_OWNER;
-const sushiswapV2Router = PMFTC.SUSHISWAP_V2_ROUTER02_ADDRESS;
-const SushiHodlStrategyFactoryAddress = PMFTC.SUSHI_HODL_FACTORY_ADDRESS;
-
-describe("SushiHodlStrategyFactory - Strategy Creation mainnet fork Tests", function () {
-    let WMatic, WETH, USDC, USDT;
-    let logicOwner, dao, user;
-    before(async function () {
+describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
+  let logicOwner, dao, user;
+  before(async function () {
     [user] = await ethers.getSigners();
 
-    await hre.network.provider.request({
-      method: "hardhat_impersonateAccount",
-      params: [strategyOwner]}
+    await network.provider.request({
+        method: "hardhat_impersonateAccount",
+        params: [STRATEGY_OWNER]}
     );
-    
   });
 
   it("SushiHodlStrategyFactory should create a new Strategy", async () => {
-    const signer = await ethers.provider.getSigner("0x364d6D0333432C3Ac016Ca832fb8594A8cE43Ca6");
+    const signer = await ethers.provider.getSigner(STRATEGY_OWNER);
     expect(signer).to.not.be.null; 
 
-    let sushiHODLstrategyFactoryInstance = await ethers.getContractAt("SushiHodlStrategyFactory", SushiHodlStrategyFactoryAddress);
+    let sushiHODLstrategyFactoryInstance = await ethers.getContractAt("SushiHodlStrategyFactory", SUSHI_HODL_FACTORY_ADDRESS);
     expect(sushiHODLstrategyFactoryInstance).to.not.be.null; 
   });
 });
