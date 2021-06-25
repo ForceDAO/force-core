@@ -168,7 +168,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address[] memory wmaticToken1Route = new address[](2);
     address wmaticToken1Lhs = getAddress(_ROUTE_WMATIC_TOKEN1_LHS);
     wmaticToken1Route[0] = wmaticToken1Lhs;
-    address wmaticToken1Rhs = getAddress(_ROUTE_WMATIC_TOKEN1_LHS);
+    address wmaticToken1Rhs = getAddress(_ROUTE_WMATIC_TOKEN1_RHS);
     wmaticToken1Route[1] = wmaticToken1Rhs;
 
     return (wmaticToken0Route, wmaticToken1Route);
@@ -186,7 +186,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address[] memory sushiToken1Route = new address[](2);
     address sushiToken1Lhs = getAddress(_ROUTE_SUSHI_TOKEN1_LHS);
     sushiToken1Route[0] = sushiToken1Lhs;
-    address sushiToken1Rhs = getAddress(_ROUTE_SUSHI_TOKEN1_LHS);
+    address sushiToken1Rhs = getAddress(_ROUTE_SUSHI_TOKEN1_RHS);
     sushiToken1Route[1] = sushiToken1Rhs;
     
     return (sushiToken0Route, sushiToken1Route);
@@ -272,7 +272,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
         IERC20Upgradeable(underlying()).safeTransfer(controller(), fee);
       }
     }
-
   }
 
   function liquidateRewardToken(address _rewardTokenAddress, address[] memory _uniswapPath0, address[] memory _uniswapPath1) internal returns (uint256) {

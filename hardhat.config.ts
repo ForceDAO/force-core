@@ -19,11 +19,12 @@ require("./scripts/deploy/deploy-Vault.task.ts");
 require("./scripts/deploy/strategy/sushiHODL/deploy-sushihodl-factory.task.ts");
 require("./scripts/deploy/strategy/sushiHODL/deploy-sushihodl-strategy.task.ts");
 require("./scripts/deploy/deploy-staticshelper.task.ts");
-require("./scripts/verify/verify-staticshelper.task.ts");
 require("./scripts/verify/strategy/sushiHODL/verify-sushihodl-factory.task.ts");
-require("./scripts/verify/strategy/sushiHODL/usdc-usdt/verify-sushihodl-usdc-usdt-vault.task.ts");
-require("./scripts/verify/strategy/sushiHODL/usdc-usdt/verify-sushihodl-usdc-usdt-storage.task.ts");
-require("./scripts/verify/strategy/sushiHODL/usdc-usdt/verify-sushihodl-usdc-usdt-strategy.task.ts");
+require("./scripts/verify/strategy/sushiHODL/verify-sushihodl-vault.task.ts");
+require("./scripts/verify/strategy/sushiHODL/verify-sushihodl-strategy.task.ts");
+require("./scripts/verify/verify-storage.task.ts");
+require("./scripts/verify/verify-staticshelper.task.ts");
+require("./scripts/vaults/set-strategy.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
@@ -44,7 +45,7 @@ const config: HardhatUserConfig = {
       gasPrice: ethers.utils.parseUnits("10", "gwei").toNumber(),
       forking: {
         url: `https://polygon-mainnet.infura.io/v3/${INFURA_POLYGON_MAINNET_KEY}`,
-        blockNumber: 15981218,
+        blockNumber: 16066077,
       },
     },
     polygonmumbai: {
@@ -101,7 +102,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: [
       {
-        version: "0.8.0",
+        version: "0.8.4",
         settings: {
           optimizer: {
             enabled: true,
