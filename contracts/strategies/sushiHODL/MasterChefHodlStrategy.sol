@@ -219,7 +219,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       }
   }
 
-  function unsalvagableTokens(address token) external view override returns (bool) {
+  function unsalvagableTokens(address token) public view override returns (bool) {
     return (token == sushiTokenAddress() || token == wmaticTokenAddress() || token == underlying());
   }
 
