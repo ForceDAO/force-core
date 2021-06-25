@@ -13,7 +13,7 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
     );
   });
 
-  it("SushiHodlStrategyFactory should create a new Strategy", async () => {
+  it("should create a new Strategy", async () => {
     const signer = await ethers.provider.getSigner(STRATEGY_OWNER);
     expect(signer).to.not.be.null; 
 
