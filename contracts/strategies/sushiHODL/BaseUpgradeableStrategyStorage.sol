@@ -46,7 +46,7 @@ contract BaseUpgradeableStrategyStorage {
     setAddress(_UNDERLYING_SLOT, _address);
   }
 
-  function underlying() external view returns (address) {
+  function underlying() public view returns (address) {
     return getAddress(_UNDERLYING_SLOT);
   }
 
@@ -54,7 +54,7 @@ contract BaseUpgradeableStrategyStorage {
     setAddress(_REWARD_POOL_SLOT, _address);
   }
 
-  function rewardPool() external view returns (address) {
+  function rewardPool() public view returns (address) {
     return getAddress(_REWARD_POOL_SLOT);
   }
 
@@ -62,7 +62,7 @@ contract BaseUpgradeableStrategyStorage {
     setAddress(_VAULT_SLOT, _address);
   }
 
-  function vault() external view returns (address) {
+  function vault() public view returns (address) {
     return getAddress(_VAULT_SLOT);
   }
 
@@ -79,7 +79,7 @@ contract BaseUpgradeableStrategyStorage {
     setBoolean(_PAUSED_INVESTING_SLOT, _value);
   }
 
-  function pausedInvesting() external view returns (bool) {
+  function pausedInvesting() public view returns (bool) {
     return getBoolean(_PAUSED_INVESTING_SLOT);
   }
 
@@ -129,7 +129,7 @@ contract BaseUpgradeableStrategyStorage {
     setAddress(_NEXT_IMPLEMENTATION_SLOT, _address);
   }
 
-  function nextImplementation() external view returns (address) {
+  function nextImplementation() public view returns (address) {
     return getAddress(_NEXT_IMPLEMENTATION_SLOT);
   }
 
@@ -137,7 +137,7 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_NEXT_IMPLEMENTATION_TIMESTAMP_SLOT, _value);
   }
 
-  function nextImplementationTimestamp() external view returns (uint256) {
+  function nextImplementationTimestamp() public view returns (uint256) {
     return getUint256(_NEXT_IMPLEMENTATION_TIMESTAMP_SLOT);
   }
 
@@ -145,7 +145,7 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_NEXT_IMPLEMENTATION_DELAY_SLOT, _value);
   }
 
-  function nextImplementationDelay() external view returns (uint256) {
+  function nextImplementationDelay() public view returns (uint256) {
     return getUint256(_NEXT_IMPLEMENTATION_DELAY_SLOT);
   }
 

@@ -42,7 +42,7 @@ contract GovernableInit is Initializable {
     }
   }
 
-  function governance() external view virtual returns (address) {
+  function governance() public view virtual returns (address) {
     return Storage(_storage()).governance();
   }
 }

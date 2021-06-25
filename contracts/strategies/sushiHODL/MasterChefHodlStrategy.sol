@@ -442,7 +442,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     _finalizeUpgrade();
   }
 
-  function poolId() external view returns (uint256) {
+  function poolId() public view returns (uint256) {
     return getUint256(_POOLID_SLOT);
   }
 

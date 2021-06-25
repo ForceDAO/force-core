@@ -33,7 +33,7 @@ contract Storage {
     controller = _controller;
   }
 
-  function isGovernance(address account) external view returns (bool) {
+  function isGovernance(address account) public view returns (bool) {
     return account == governance;
   }
 
