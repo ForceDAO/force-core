@@ -42,11 +42,11 @@ contract Storage {
   }
 
   // Only smart contracts will be affected by the whiteList.
-  function addToWhiteList(address _target) public onlyGovernance {
+  function addToWhiteList(address _target) external onlyGovernance {
     whiteList[_target] = true;
   }
 
-  function removeFromWhiteList(address _target) public onlyGovernance {
+  function removeFromWhiteList(address _target) external onlyGovernance {
     whiteList[_target] = false;
   }
 
