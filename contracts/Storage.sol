@@ -33,11 +33,11 @@ contract Storage {
     controller = _controller;
   }
 
-  function isGovernance(address account) public view returns (bool) {
+  function isGovernance(address account) external view returns (bool) {
     return account == governance;
   }
 
-  function isController(address account) public view returns (bool) {
+  function isController(address account) external view returns (bool) {
     return account == controller;
   }
 
@@ -50,7 +50,7 @@ contract Storage {
     whiteList[_target] = false;
   }
 
-  function checkWhitelist(address _target) public view returns (bool) {
+  function checkWhitelist(address _target) external view returns (bool) {
     return whiteList[_target];
   }
 }

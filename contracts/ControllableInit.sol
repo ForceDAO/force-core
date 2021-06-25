@@ -24,7 +24,7 @@ contract ControllableInit is GovernableInit {
     _;
   }
 
-  function controller() public view virtual returns (address) {
+  function controller() external view virtual returns (address) {
     return Storage(_storage()).controller();
   }
 }

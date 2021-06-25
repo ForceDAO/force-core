@@ -192,7 +192,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     return (sushiToken0Route, sushiToken1Route);
   }
 
-  function depositArbCheck() public pure override returns(bool) {
+  function depositArbCheck() external pure override returns(bool) {
     return true;
   }
 
@@ -219,7 +219,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       }
   }
 
-  function unsalvagableTokens(address token) public view override returns (bool) {
+  function unsalvagableTokens(address token) external view override returns (bool) {
     return (token == sushiTokenAddress() || token == wmaticTokenAddress() || token == underlying());
   }
 
@@ -443,7 +443,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     _finalizeUpgrade();
   }
 
-  function poolId() public view returns (uint256) {
+  function poolId() external view returns (uint256) {
     return getUint256(_POOLID_SLOT);
   }
 
@@ -487,11 +487,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     return getUint256(_FEE_BASE_UNIT256_SLOT);
   }
 
-  function getVault() public view override returns (address) {
+  function getVault() external view override returns (address) {
     return vault();
   }
 
-  function getUnderlying() public view override returns (address) {
+  function getUnderlying() external view override returns (address) {
     return underlying();
   }
 

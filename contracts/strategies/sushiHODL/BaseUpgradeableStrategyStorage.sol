@@ -22,8 +22,7 @@ contract BaseUpgradeableStrategyStorage {
   bytes32 internal constant _REWARD_CLAIMABLE_SLOT = 0xbc7c0d42a71b75c3129b337a259c346200f901408f273707402da4b51db3b8e7;
   bytes32 internal constant _MULTISIG_SLOT = 0x3e9de78b54c338efbc04e3a091b87dc7efb5d7024738302c548fc59fba1c34e6;
   
-
-  constructor() {
+  constructor() public {
     assert(_UNDERLYING_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.underlying")) - 1));
     assert(_VAULT_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.vault")) - 1));
 
@@ -47,7 +46,7 @@ contract BaseUpgradeableStrategyStorage {
     setAddress(_UNDERLYING_SLOT, _address);
   }
 
-  function underlying() public view returns (address) {
+  function underlying() external view returns (address) {
     return getAddress(_UNDERLYING_SLOT);
   }
 
@@ -55,7 +54,7 @@ contract BaseUpgradeableStrategyStorage {
     setAddress(_REWARD_POOL_SLOT, _address);
   }
 
-  function rewardPool() public view returns (address) {
+  function rewardPool() external view returns (address) {
     return getAddress(_REWARD_POOL_SLOT);
   }
 
@@ -63,7 +62,7 @@ contract BaseUpgradeableStrategyStorage {
     setAddress(_VAULT_SLOT, _address);
   }
 
-  function vault() public view returns (address) {
+  function vault() external view returns (address) {
     return getAddress(_VAULT_SLOT);
   }
 
@@ -72,7 +71,7 @@ contract BaseUpgradeableStrategyStorage {
     setBoolean(_SELL_SLOT, _value);
   }
 
-  function sell() public view returns (bool) {
+  function sell() external view returns (bool) {
     return getBoolean(_SELL_SLOT);
   }
 
@@ -80,7 +79,7 @@ contract BaseUpgradeableStrategyStorage {
     setBoolean(_PAUSED_INVESTING_SLOT, _value);
   }
 
-  function pausedInvesting() public view returns (bool) {
+  function pausedInvesting() external view returns (bool) {
     return getBoolean(_PAUSED_INVESTING_SLOT);
   }
 
@@ -88,7 +87,7 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_SELL_FLOOR_SLOT, _value);
   }
 
-  function sellFloor() public view returns (uint256) {
+  function sellFloor() external view returns (uint256) {
     return getUint256(_SELL_FLOOR_SLOT);
   }
 
@@ -96,7 +95,7 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_PROFIT_SHARING_NUMERATOR_SLOT, _value);
   }
 
-  function profitSharingNumerator() public view returns (uint256) {
+  function profitSharingNumerator() external view returns (uint256) {
     return getUint256(_PROFIT_SHARING_NUMERATOR_SLOT);
   }
 
@@ -104,11 +103,11 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_PROFIT_SHARING_DENOMINATOR_SLOT, _value);
   }
 
-  function profitSharingDenominator() public view returns (uint256) {
+  function profitSharingDenominator() external view returns (uint256) {
     return getUint256(_PROFIT_SHARING_DENOMINATOR_SLOT);
   }
 
-  function allowedRewardClaimable() public view returns (bool) {
+  function allowedRewardClaimable() external view returns (bool) {
     return getBoolean(_REWARD_CLAIMABLE_SLOT);
   }
 
@@ -116,7 +115,7 @@ contract BaseUpgradeableStrategyStorage {
     setBoolean(_REWARD_CLAIMABLE_SLOT, _value);
   }
 
-  function multiSig() public view returns(address) {
+  function multiSig() external view returns(address) {
     return getAddress(_MULTISIG_SLOT);
   }
 
@@ -130,7 +129,7 @@ contract BaseUpgradeableStrategyStorage {
     setAddress(_NEXT_IMPLEMENTATION_SLOT, _address);
   }
 
-  function nextImplementation() public view returns (address) {
+  function nextImplementation() external view returns (address) {
     return getAddress(_NEXT_IMPLEMENTATION_SLOT);
   }
 
@@ -138,7 +137,7 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_NEXT_IMPLEMENTATION_TIMESTAMP_SLOT, _value);
   }
 
-  function nextImplementationTimestamp() public view returns (uint256) {
+  function nextImplementationTimestamp() external view returns (uint256) {
     return getUint256(_NEXT_IMPLEMENTATION_TIMESTAMP_SLOT);
   }
 
@@ -146,7 +145,7 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_NEXT_IMPLEMENTATION_DELAY_SLOT, _value);
   }
 
-  function nextImplementationDelay() public view returns (uint256) {
+  function nextImplementationDelay() external view returns (uint256) {
     return getUint256(_NEXT_IMPLEMENTATION_DELAY_SLOT);
   }
 

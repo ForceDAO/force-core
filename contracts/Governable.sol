@@ -22,7 +22,7 @@ contract Governable {
     store = Storage(_store);
   }
 
-  function governance() public view virtual returns (address) {
+  function governance() external view virtual returns (address) {
     return store.governance();
   }
 }
