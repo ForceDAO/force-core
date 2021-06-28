@@ -27,7 +27,7 @@ force-core % npx hardhat deploy-storage --network polygonmainnet
 ### Vault Deployment Log:
 
 ```
-force-core % npx hardhat  deploy-vault --underlyingname USDC-USDT  --network hardhat
+force-core % npx hardhat  deploy-vault --underlyingname USDC-USDT  --network polygonmainnet
 2021-06-28 14:37:23.341  INFO [scripts/deploy/deploy-Vault.task.ts:26 undefined.<anonymous>] ---------== deploy-Vault on network: hardhat 
 Warning: Potentially unsafe deployment of Vault
 
