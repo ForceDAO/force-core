@@ -26,9 +26,9 @@
 
 ## SushiHodlStrategyFactory
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
-|---|---|---|---|---|
-|1| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9 |
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | PolygonScan |
+|---|---|---|---|---|---|
+|1| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9 | https://polygonscan.com/address/0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9#code |
 
 ## sushiHODL Strategies
 
