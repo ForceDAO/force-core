@@ -23,34 +23,33 @@
 | 5 | WMATIC | 0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270 | https://polygonscan.com/address/0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270 |
 | 6 | SUSHI  | 0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a | https://polygonscan.com/token/0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a |
 
-## sushiHODL Strategy Contracts
 
-### SushiHodlStrategyFactory
+## SushiHodlStrategyFactory
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
 |1| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9 |
 
+## sushiHODL Strategies
 
-### WMATIC-WETH
+### Strategy: SUSHIHODL-WMATIC-WETH-V1 <-> Underlying: WMATIC-WETH
 
-| PoolId | Underlying Address | Token-0 Address | Token-1 Address |
+| PoolId | Underlying Address | Token-0 Address | Token-1 Address | 
 |---|---|---|---|
-| 0 | [WMATIC-WETH](https://polygonscan.com/address/0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E) | (WMATIC)[https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15]  | (WETH)[https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15] |
+| 0 | [WMATIC-WETH](https://polygonscan.com/address/0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E) | [Token-0: WMATIC](https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15)  | [Token-1: WETH](https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15) |
 
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
+|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | |
+|2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  |
 
 
+### Strategy: SUSHIHODL-USDC-USDT-V1 <-> Underlying: USDC-USDT
 
-
-### USDC-USDT
-
-| PoolId | Underlying Address | Underlying Name | Token-0 Address | Token-1 Address |
-|---|---|---|---|---|---|
-| 1 |  |  |  |  |  |  
-
+| PoolId | Underlying Address | Token-0 Address | Token-1 Address |
+|---|---|---|---|
+| 0 | [USDC-USDT](https://polygonscan.com/address/0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001) | [Token-0: USDC](https://polygonscan.com/readContract?m=normal&a=0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15)  | [Token-1: USDT](https://polygonscan.com/readContract?m=normal&a=0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse16) |
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
@@ -58,20 +57,40 @@
 |2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x26D79892361850E683BB87803D6C34E6D923BF8c |
 
 
-### WETH-USDT
+### Strategy: SUSHIHODL-WETH-USDT-V1 <-> Underlying: WETH-USDT
+
+| PoolId | Underlying Address | Token-0 Address | Token-1 Address |
+|---|---|---|---|
+| 0 | [WMATIC-WETH](https://polygonscan.com/address/0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E) | [Token-0: WMATIC](https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15)  | [Token-1: WETH](https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15) |
+
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
+|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | |
+|2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  |
 
 
+### Strategy: SUSHIHODL-USDC-WETH-V1 <-> Underlying: USDC-WETH
 
-### USDC-WETH
+| PoolId | Underlying Address | Token-0 Address | Token-1 Address |
+|---|---|---|---|
+| 0 | [WMATIC-WETH](https://polygonscan.com/address/0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E) | [Token-0: WMATIC](https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15)  | [Token-1: WETH](https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15) |
+
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
+|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | |
+|2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  |
 
 
-### WETH-DAI
+### Strategy: SUSHIHODL-WETH-DAI-V1 <-> Underlying: WETH-DAI
+
+| PoolId | Underlying Address | Token-0 Address | Token-1 Address |
+|---|---|---|---|
+| 0 | [WMATIC-WETH](https://polygonscan.com/address/0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E) | [Token-0: WMATIC](https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15)  | [Token-1: WETH](https://polygonscan.com/readContract?m=normal&a=0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E&v=0x85de135ff062df790a5f20b79120f17d3da63b2d&t=false#readCollapse15) |
+
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
+|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | |
+|2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  |
