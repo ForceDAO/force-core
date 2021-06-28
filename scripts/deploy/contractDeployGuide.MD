@@ -27,17 +27,22 @@ force-core % npx hardhat deploy-storage --network polygonmainnet
 ### Vault Deployment Log:
 
 ```
-npx hardhat deploy-vault --network polygonmainnet
-2021-06-23 18:15:58.837  INFO [scripts/deploy/deploy-Vault.task.ts:24 undefined.<anonymous>] ---------== deploy-Vault on network: polygonmainnet 
-2021-06-23 18:16:02.866  INFO [scripts/deploy/deploy-Vault.task.ts:27 undefined.<anonymous>] --------- Must Do Activity: 0x8D7f8722B796526B7DBe94055cb405148cc47719 deploy-config.ts as: vaultAddress ---------  
-2021-06-23 18:16:02.867  INFO [scripts/deploy/deploy-Vault.task.ts:31 undefined.<anonymous>] ---------== About to Initialise Vault: 0x8D7f8722B796526B7DBe94055cb405148cc47719 
-2021-06-23 18:16:04.292  INFO [scripts/deploy/deploy-Vault.task.ts:45 undefined.<anonymous>] Initialised Vault: 0x8D7f8722B796526B7DBe94055cb405148cc47719 on network: polygonmainnet with arguments: 
+force-core % npx hardhat  deploy-vault --underlyingname USDC-USDT  --network hardhat
+2021-06-28 14:37:23.341  INFO [scripts/deploy/deploy-Vault.task.ts:26 undefined.<anonymous>] ---------== deploy-Vault on network: hardhat 
+Warning: Potentially unsafe deployment of Vault
+
+    You are using the `unsafeAllow.constructor` flag.
+
+2021-06-28 14:37:39.798  INFO [scripts/deploy/deploy-Vault.task.ts:43 undefined.<anonymous>] --------- Must Do Activity: 0xCa57C1d3c2c35E667745448Fef8407dd25487ff8 deploy-config-vaults.ts as: vaultAddress ---------  
+2021-06-28 14:37:39.801  INFO [scripts/deploy/deploy-Vault.task.ts:46 undefined.<anonymous>] Vault Proxy has implementation: 0xd0EC100F1252a53322051a95CF05c32f0C174354 
+2021-06-28 14:37:39.801  INFO [scripts/deploy/deploy-Vault.task.ts:48 undefined.<anonymous>] Initialised Vault: 0xCa57C1d3c2c35E667745448Fef8407dd25487ff8 on network: hardhat with arguments: 
  
-2021-06-23 18:16:04.293  INFO [scripts/deploy/deploy-Vault.task.ts:46 undefined.<anonymous>] storageAddress: 0x7E428A383D0F3A3B8e2D4a0cA2cDde8792878e2c 
-2021-06-23 18:16:04.293  INFO [scripts/deploy/deploy-Vault.task.ts:47 undefined.<anonymous>] underlying: 0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001 
-2021-06-23 18:16:04.294  INFO [scripts/deploy/deploy-Vault.task.ts:48 undefined.<anonymous>] toInvestNumerator: 1000 
-2021-06-23 18:16:04.294  INFO [scripts/deploy/deploy-Vault.task.ts:49 undefined.<anonymous>] toInvestDenominator: 1000 
-2021-06-23 18:16:04.295  INFO [scripts/deploy/deploy-Vault.task.ts:50 undefined.<anonymous>] totalSupplyCap: 10 
+2021-06-28 14:37:39.802  INFO [scripts/deploy/deploy-Vault.task.ts:49 undefined.<anonymous>] storageAddress: 0x7E428A383D0F3A3B8e2D4a0cA2cDde8792878e2c 
+2021-06-28 14:37:39.802  INFO [scripts/deploy/deploy-Vault.task.ts:50 undefined.<anonymous>] underlying: 0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001 
+2021-06-28 14:37:39.802  INFO [scripts/deploy/deploy-Vault.task.ts:51 undefined.<anonymous>] toInvestNumerator: 1000 
+2021-06-28 14:37:39.802  INFO [scripts/deploy/deploy-Vault.task.ts:52 undefined.<anonymous>] toInvestDenominator: 1000 
+2021-06-28 14:37:39.809  INFO [scripts/deploy/deploy-Vault.task.ts:53 undefined.<anonymous>] totalSupplyCap: 10 
+lakshmikanthp@lakshmikanths-MacBook-Pro force-core % 
 ```
 
 ### SushiHodlStrategyFactory Deployment Log:
