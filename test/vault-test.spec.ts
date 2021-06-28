@@ -26,6 +26,8 @@ import { WMATIC_ADDRESS, FORCE_ADDRESS, SUSHI_ADDRESS,
     var vaultImplementationAddress: string;
     var underlying: any;
     var underlyingAddress: any;
+    var MockUpgradedVault: any;
+    var vaultUpgradedImplementationAddress: string;
 
     const underlyingSymbol = "MOCK";
     let underlyingDecimals = "18";
@@ -79,8 +81,8 @@ import { WMATIC_ADDRESS, FORCE_ADDRESS, SUSHI_ADDRESS,
       vaultProxyAddress = vaultProxyInst.address;
       console.log(`Vault is deployed with proxy-address: ${vaultProxyAddress}`);
 
-      const currentImplAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
-      console.log(`Vault Proxy has implementation: ${currentImplAddress}`)
+      vaultImplementationAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
+      console.log(`Vault Proxy has implementation: ${vaultImplementationAddress}`)
     });
 
     it('should fail if deployed with zero addresses', async () => {
@@ -122,6 +124,25 @@ import { WMATIC_ADDRESS, FORCE_ADDRESS, SUSHI_ADDRESS,
         )
       ).to.be.revertedWith('Vault: cannot set 0 address');
 
+    });
+
+    it('proxy should upgrade to new Vault', async () => {
+
+      MockUpgradedVault = await ethers.getContractFactory("MockUpgradedVault");
+      
+      const vaultUpgraded = await upgrades.upgradeProxy(
+        vaultProxyAddress,
+        MockUpgradedVault,
+        {
+          unsafeAllow: ['constructor'],
+          unsafeAllowCustomTypes: true
+          //,from: governance
+        });
+      
+      const vaultUpgradedImplementationAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
+      console.log(`Vault Proxy  upgraded has implementation: ${vaultUpgradedImplementationAddress}`);
+
+      expect(vaultUpgradedImplementationAddress).not.to.be.equal(vaultImplementationAddress);
     });
 
     it('Vault name should have "FORCE" prefix', async () => {
