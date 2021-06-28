@@ -83,6 +83,47 @@ import { WMATIC_ADDRESS, FORCE_ADDRESS, SUSHI_ADDRESS,
       console.log(`Vault Proxy has implementation: ${currentImplAddress}`)
     });
 
+    it('should fail if deployed with zero addresses', async () => {
+      await expect(
+        upgrades.deployProxy(
+          Vault,
+          [
+            constants.AddressZero,
+            underlyingAddress,
+            100,
+            100,
+            totalSupplyCap
+          ],
+          {
+            initializer: 'initializeVault(address,address,uint256,uint256,uint256)',
+            unsafeAllow: ['constructor'],
+            unsafeAllowCustomTypes: true
+            //,from: governanceAddress
+          }
+        )
+      ).to.be.revertedWith('Vault: cannot set 0 address');
+
+      await expect(
+        upgrades.deployProxy(
+          Vault,
+          [
+            storageInstance.address,
+            constants.AddressZero,
+            100,
+            100,
+            totalSupplyCap
+          ],
+          {
+            initializer: 'initializeVault(address,address,uint256,uint256,uint256)',
+            unsafeAllow: ['constructor'],
+            unsafeAllowCustomTypes: true
+            //,from: governanceAddress
+          }
+        )
+      ).to.be.revertedWith('Vault: cannot set 0 address');
+
+    });
+
     it('Vault name should have "FORCE" prefix', async () => {
       const vaultTokenName = await vaultProxyInst.name();
       expect(vaultTokenName).to.be.equal(`FORCE_${underlyingSymbol}`);
