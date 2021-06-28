@@ -10,8 +10,7 @@
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
 |---|---|---|---|---|
 |1 | Storage | deploy-storage.task.ts | - | 0x7E428A383D0F3A3B8e2D4a0cA2cDde8792878e2c |
-|2| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0xcDE80036e5BA91d3cAF62ce83a4FF83bAf4f8738 |
-|3| StaticsHelper | deploy-statichelper.task.ts | | 0xC1f99f723C7bDF1313140BFA29390138F1b325bf |
+|2 | StaticsHelper | deploy-statichelper.task.ts | | 0xC1f99f723C7bDF1313140BFA29390138F1b325bf |
 
 ## sushiHODL Strategy Contracts
 
