@@ -42,9 +42,6 @@ task("deploy-vault", "Deploys a new Vault contract")
 
   log.info(`--------- Must Do Activity: ${vaultProxyContractInstance.address} deploy-config-vaults.ts as: vaultAddress --------- `);
   
-  const vaultImplementationAddress = await getImplementationAddress(hre.network.provider, vaultProxyContractInstance.address);
-  log.info(`Vault Proxy has implementation: ${vaultImplementationAddress}`);
-
   log.info(`Initialised Vault: ${vaultProxyContractInstance.address} on network: ${hre.network.name} with arguments: \n`);
   log.info(`storageAddress: ${storageAddress}`);
   log.info(`underlying: ${vaultInit.underlying}`);

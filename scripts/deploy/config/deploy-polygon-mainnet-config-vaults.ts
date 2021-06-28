@@ -19,8 +19,8 @@ export interface VaultInit {
 
 export const vaults = {  
     "USDC-USDT": {
-        vaultAddress: "0xa0bCe1e38a2CAe963933c72Ea67B2B64fA712dD2",
-        vaultImplementationAddress: "",
+        vaultAddress: "0xcDE80036e5BA91d3cAF62ce83a4FF83bAf4f8738",
+        vaultImplementationAddress: "0xB9786644eBE59749341Da925bBEC40E4C20c432F",
         vaultInit: {
             underlying: "0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001",
             toInvestNumerator: 1000,
