@@ -52,7 +52,7 @@
 | 1 | [USDC-WETH](https://polygonscan.com/address/0x34965ba0ac2451A34a0471F04CCa3F990b8dea27#readContract) | [Token-0: USDC](https://polygonscan.com/address/0x2791bca1f2de4661ed88a30c99a7a9449aa84174) | [Token-1: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | PolygonScan Verified & Published |
 |---|---|---|---|---|---|
 |1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts |  | |
 |2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  | |
@@ -60,12 +60,12 @@
 
 ### Strategy: SUSHIHODL-WETH-USDT-V1 <-> Underlying: WETH-USDT
 
-| PoolId | Underlying Address | Token-0 Address | Token-1 Address |
+| PoolId | Underlying Address | Token-0 Address | Token-1 Address | 
 |---|---|---|---|
 | 2 | [WETH-USDT](https://polygonscan.com/address/0xc2755915a85C6f6c1C0F3a86ac8C058F11Caa9C9#readContract) | [Token-0: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619)  | [Token-1: USDT](https://polygonscan.com/address/0xc2132d05d31c914a87c6611c10748aeb04b58e8f) |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | PolygonScan Verified & Published |
 |---|---|---|---|---|---|
 |1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | | |
 |2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  | |
@@ -73,12 +73,12 @@
 
 ### Strategy: SUSHIHODL-WETH-DAI-V1 <-> Underlying: WETH-DAI
 
-| PoolId | Underlying Address | Token-0 Address | Token-1 Address |
+| PoolId | Underlying Address | Token-0 Address | Token-1 Address | 
 |---|---|---|---|
 | 5 | [WETH-DAI](https://polygonscan.com/address/0x6FF62bfb8c12109E8000935A6De54daD83a4f39f#readContract) | [Token-0: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619)  | [Token-1: DAI](https://polygonscan.com/address/0x8f3cf7ad23cd3cadbd9735aff958023239c6a063) |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address |
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | PolygonScan Verified & Published |
 |---|---|---|---|---|---|
 |1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | | |
 |2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  | |
@@ -86,11 +86,11 @@
 
 ### Strategy: SUSHIHODL-USDC-USDT-V1 <-> Underlying: USDC-USDT
 
-| PoolId | Underlying Address | Token-0 Address | Token-1 Address |
+| PoolId | Underlying Address | Token-0 Address | Token-1 Address | 
 |---|---|---|---|
 | 8 | [USDC-USDT](https://polygonscan.com/address/0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001#readContract) | [Token-0: USDC](https://polygonscan.com/token/0x2791bca1f2de4661ed88a30c99a7a9449aa84174) | [Token-1: USDT](https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f) |
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Contract Address |
+|Sequence | Contract Name | Script Name | Constructor Arguments | Contract Address | PolygonScan Verified & Published |
 |---|---|---|---|---|---|
 |1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | |
 |2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  |
