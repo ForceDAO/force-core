@@ -17,7 +17,47 @@ export interface VaultInit {
     totalSupplyCap: number;
 }
 
-export const vaults: VaultData = {  
+export const vaults: VaultData = {
+    "WMATIC-WETH": {
+        vaultAddress: "",
+        vaultImplementationAddress: "",
+        vaultInit: {
+            underlying: "0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E",
+            toInvestNumerator: 1000,
+            toInvestDenominator: 1000,
+            totalSupplyCap: 10
+        }
+    },
+    "USDC-WETH": {
+        vaultAddress: "",
+        vaultImplementationAddress: "",
+        vaultInit: {
+            underlying: "0x34965ba0ac2451A34a0471F04CCa3F990b8dea27",
+            toInvestNumerator: 1000,
+            toInvestDenominator: 1000,
+            totalSupplyCap: 10
+        }
+    },
+    "WETH-USDT": {
+        vaultAddress: "",
+        vaultImplementationAddress: "",
+        vaultInit: {
+            underlying: "0xc2755915a85C6f6c1C0F3a86ac8C058F11Caa9C9",
+            toInvestNumerator: 1000,
+            toInvestDenominator: 1000,
+            totalSupplyCap: 10
+        }
+    },    
+    "WETH-DAI": {
+        vaultAddress: "",
+        vaultImplementationAddress: "",
+        vaultInit: {
+            underlying: "0x6FF62bfb8c12109E8000935A6De54daD83a4f39f",
+            toInvestNumerator: 1000,
+            toInvestDenominator: 1000,
+            totalSupplyCap: 10
+        }
+    },       
     "USDC-USDT": {
         vaultAddress: "0xcDE80036e5BA91d3cAF62ce83a4FF83bAf4f8738",
         vaultImplementationAddress: "0xB9786644eBE59749341Da925bBEC40E4C20c432F",
