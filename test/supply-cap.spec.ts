@@ -60,36 +60,37 @@ describe("SupplyCap Tests", () => {
     });
 
     it('Check total supply cap', async () => {
-      expect(await vaultInst.totalSupplyCap()).to.equal(totalSupplyCap);
+      expect(await vaultProxyInst.totalSupplyCap()).to.be.equal(totalSupplyCap);
     });
 
     it('Revert from non-governance', async () => {
-      let signers = await hre.ethers.getSigners();
+      let signers = await ethers.getSigners();
       await expect(
-        vaultInst.connect(signers[3]).setTotalSupplyCap(newTotalSupplyCap)
+        vaultProxyInst.connect(signers[3]).setTotalSupplyCap(newTotalSupplyCap)
       ).to.be.revertedWith('Not governance');
     });
 
     it('Only governance can set total supply cap', async () => {
-      await vaultInst.setTotalSupplyCap(newTotalSupplyCap, { from: governanceAddress });
-      assert.equal(
-        await vaultInst.totalSupplyCap(),
-        newTotalSupplyCap.toString(),
-      );
+      await vaultProxyInst.setTotalSupplyCap(newTotalSupplyCap, { from: governanceAddress });
+      const totalSupplyCap = await vaultProxyInst.totalSupplyCap();
+      expect(totalSupplyCap).to.be.equal(newTotalSupplyCap.toString());
     });
 
     it('Revert when exceed total supply limit', async () => {
-      let signers = await hre.ethers.getSigners();
+      let signers = await ethers.getSigners();
       const depositAmount = totalSupplyCap.add(1);
+
       await expect(
-        vaultInst.connect(signers[2]).deposit(depositAmount)
+        vaultProxyInst.connect(signers[2]).deposit(depositAmount)
       ).to.be.revertedWith("Cannot mint more than cap");
+
       await expect(
-        vaultInst.connect(signers[3]).depositFor(depositAmount, signers[3].address)
+        vaultProxyInst.connect(signers[3]).depositFor(depositAmount, signers[3].address)
       ).to.be.revertedWith("Cannot mint more than cap");
+
     });
 
     after('Reset', async () => {
-      await vaultInst.setTotalSupplyCap(totalSupplyCap, { from: governanceAddress });
+      await vaultProxyInst.setTotalSupplyCap(totalSupplyCap, { from: governanceAddress });
     });
   });
