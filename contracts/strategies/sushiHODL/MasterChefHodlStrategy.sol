@@ -113,7 +113,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     require(_underlying != address(0), "underlying is empty");
     require(_vault != address(0), "vault is empty");
     require(_miniChefV2 != address(0), "reward pool is empty");
-    require(_poolId != uint256(0), "_poolId is Zero");
     require(_routerAddressV2 != address(0), "routerAddressV2 is empty");
     require(_routeSushiToken0.length == 2, "routeSushi-Token0 is invalid");
     require(_routeSushiToken1.length == 2, "routeSushi-Token1 is invalid");

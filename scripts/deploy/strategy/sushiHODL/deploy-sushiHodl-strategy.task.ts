@@ -39,7 +39,7 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
   assert(sushiHodlStrategyFactoryAddress != "", "sushiHodlStrategyFactoryAddress is invalid");
   assert(underlying != "", "underlying is invalid");
   assert(miniChefV2 != "", "miniChefV2 is invalid");
-  assert(poolId > 0, "poolId is invalid");
+  assert(poolId >= 0, "poolId is invalid");
   assert(routerAddressV2 != "", "routerAddressV2 is invalid");
   assert(sushiTokenAddress != "", "sushiTokenAddress is invalid");
   assert(wmaticTokenAddress != "", "wmaticTokenAddress is invalid");
@@ -48,7 +48,7 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
   assert(routeWmaticToken0.length === 2 && routeWmaticToken0[0] != "" && routeWmaticToken0[1] != "" , "routeWmaticToken0 is invalid");
   assert(routeWmaticToken1.length === 2 && routeWmaticToken1[0] != "" && routeWmaticToken1[1] != "" , "routeWmaticToken1 is invalid");
 
-  log.info("---------== create-sushiHODLStrategy");
+  log.info(`creating sushiHODLStrategy for : ${args.strategyname} and underlying: ${underlyingname}`);
 
   //create sushiHODLStrategyFactory Contract Instance using sushiHodlStrategyFactory Contract Address & ABI
   const sushiHodlStrategyFactoryInstance = await hre.ethers.getContractAt(

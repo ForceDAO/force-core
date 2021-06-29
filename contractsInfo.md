@@ -35,7 +35,7 @@
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | PolygonScan |
 |---|---|---|---|---|---|
-|1| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9 | https://polygonscan.com/address/0x274Fd47DE106dB114Bd87f7c52e28996B5F066f9#code |
+|1| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x156Bf6C58C54237423Ffd7803Cc9303AeaF45ada | https://polygonscan.com/address/0x156Bf6C58C54237423Ffd7803Cc9303AeaF45ada#code |
 
 ---
 
@@ -50,10 +50,14 @@
 | 0 | [WMATIC-WETH](https://polygonscan.com/address/0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E#readContract) 0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E | [Token-0: WMATIC](https://polygonscan.com/address/0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270) 0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270 | [Token-1: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619 | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/vaultProxyUpgradeTask/scripts/deploy/config/deploy-config-vaults.ts#L21-L30) |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | PolygonScan Verified & Published |
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
 |---|---|---|---|---|---|
-|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | |
-|2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  |
+|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0xD8491D3C6746F58d94aE09D45AD3e12639637aA4 | https://polygonscan.com/address/0xD8491D3C6746F58d94aE09D45AD3e12639637aA4#code | https://polygonscan.com/address/0xb9786644ebe59749341da925bbec40e4c20c432f#code |
+
+
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Strategy Address | Strategy On PolygonScan |
+|---|---|---|---|---|---|
+|1| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x963DF23c43f3624C7C700e5aA3b049D227019413 | https://polygonscan.com/address/0x963DF23c43f3624C7C700e5aA3b049D227019413#code |
 
 ------
 

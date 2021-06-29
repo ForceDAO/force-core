@@ -11,7 +11,7 @@ task("verify-sushihodl-factory", "Verify the sushi-HODL Strategy's Factory contr
   .setAction(async (args, hre) => {
     assert(ethers.utils.getAddress(sushiHodlStrategyFactoryAddress) == sushiHodlStrategyFactoryAddress,
            "sushiHodlStrategyFactoryAddress is invalid");
-    log.info("---------== verify-sushihodl-factory");
+    log.info("verifying-sushihodl-factory");
     await hre.run("verify:verify", {
         address: sushiHodlStrategyFactoryAddress
     })

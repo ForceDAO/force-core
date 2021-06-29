@@ -23,7 +23,7 @@ task("deploy-vault", "Deploys a new Vault contract")
   assert(vaultInit.toInvestDenominator > 0, "vaultInit argument: toInvestDenominator is invalid");
   assert(vaultInit.totalSupplyCap > 0, "vaultInit argument: totalSupplyCap is invalid");
 
-  log.info(`---------== deploy-Vault on network: ${hre.network.name}`);
+  log.info(`deploying Vault on network: ${hre.network.name}`);
   const vaultContract = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);
 
   const vaultProxyContractInstance = await hre.upgrades.deployProxy(vaultContract, 
@@ -40,7 +40,7 @@ task("deploy-vault", "Deploys a new Vault contract")
          unsafeAllowCustomTypes: true
       });
 
-  log.info(`--------- Must Do Activity: ${vaultProxyContractInstance.address} deploy-config-vaults.ts as: vaultAddress --------- `);
+  log.info(`Must Do Activity: ${vaultProxyContractInstance.address} deploy-config-vaults.ts as: vaultAddress`);
   
   log.info(`Initialised Vault: ${vaultProxyContractInstance.address} on network: ${hre.network.name} with arguments: \n`);
   log.info(`storageAddress: ${storageAddress}`);

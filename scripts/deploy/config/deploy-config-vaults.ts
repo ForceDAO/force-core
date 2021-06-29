@@ -19,8 +19,8 @@ export interface VaultInit {
 
 export const vaults: VaultData = {
     "WMATIC-WETH": {
-        vaultAddress: "",
-        vaultImplementationAddress: "",
+        vaultAddress: "0xD8491D3C6746F58d94aE09D45AD3e12639637aA4",
+        vaultImplementationAddress: "0xb9786644ebe59749341da925bbec40e4c20c432f",
         vaultInit: {
             underlying: "0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E",
             toInvestNumerator: 1000,
