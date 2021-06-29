@@ -49,18 +49,18 @@ export const vaults: VaultData = {
         }
     },    
     "WETH-DAI": {
-        vaultAddress: "",
-        vaultImplementationAddress: "",
+        vaultAddress: "0xe16F92e6c8274b6BC7e6aDd5270ccC2E8B8dd950",
+        vaultImplementationAddress: "0xb9786644ebe59749341da925bbec40e4c20c432f",
         vaultInit: {
             underlying: "0x6FF62bfb8c12109E8000935A6De54daD83a4f39f",
             toInvestNumerator: 1000,
             toInvestDenominator: 1000,
             totalSupplyCap: 10
         }
-    },       
+    },
     "USDC-USDT": {
-        vaultAddress: "",
-        vaultImplementationAddress: "",
+        vaultAddress: "0xc71a794B1532dDfe57B81C97283201f4c4378274",
+        vaultImplementationAddress: "0xb9786644ebe59749341da925bbec40e4c20c432f",
         vaultInit: {
             underlying: "0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001",
             toInvestNumerator: 1000,

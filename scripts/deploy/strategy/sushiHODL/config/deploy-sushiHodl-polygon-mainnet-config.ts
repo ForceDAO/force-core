@@ -74,7 +74,7 @@ export const strategies: StrategyData = {
         routeSushiToken1: ["0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a", "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"],
         routeWmaticToken0: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619"],
         routeWmaticToken1: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063"],
-        masterChefHodlStrategyAddress: ""
+        masterChefHodlStrategyAddress: "0xaA6704E14802b55363ec9B44411ECC69832e3089"
     },
     "SUSHIHODL-USDC-USDT-V1": {
         pairName: "USDC-USDT",
@@ -88,6 +88,6 @@ export const strategies: StrategyData = {
         routeSushiToken1: ["0x0b3f868e0be5597d5db7feb59e1cadbb0fdda50a", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],
         routeWmaticToken0: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"],
         routeWmaticToken1: ["0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"],
-        masterChefHodlStrategyAddress: ""
+        masterChefHodlStrategyAddress: "0x552f3af01ea30d271e1dcc1149cb27bc368f7aa3"
     },
 }  as StrategyData;

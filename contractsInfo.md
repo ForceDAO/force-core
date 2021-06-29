@@ -104,11 +104,15 @@
 | 5 | [WETH-DAI](https://polygonscan.com/address/0x6FF62bfb8c12109E8000935A6De54daD83a4f39f#readContract) 0x6FF62bfb8c12109E8000935A6De54daD83a4f39f | [Token-0: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619  | [Token-1: DAI](https://polygonscan.com/address/0x8f3cf7ad23cd3cadbd9735aff958023239c6a063) 0x8f3cf7ad23cd3cadbd9735aff958023239c6a063 | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/vaultProxyUpgradeTask/scripts/deploy/config/deploy-config-vaults.ts#L21-L30) |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | PolygonScan Verified & Published |
-|---|---|---|---|---|---|
-|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | | |
-|2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  | |
 
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
+|---|---|---|---|---|---|---|
+|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0xe16F92e6c8274b6BC7e6aDd5270ccC2E8B8dd950 | https://polygonscan.com/address/0xe16F92e6c8274b6BC7e6aDd5270ccC2E8B8dd950#code | https://polygonscan.com/address/0xb9786644ebe59749341da925bbec40e4c20c432f#code |
+
+
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Strategy Address | Strategy On PolygonScan |
+|---|---|---|---|---|---|
+|1| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0xaA6704E14802b55363ec9B44411ECC69832e3089 | https://polygonscan.com/address/0xaA6704E14802b55363ec9B44411ECC69832e3089#code |
 ------
 
 ### Strategy: SUSHIHODL-USDC-USDT-V1 <-> Underlying: USDC-USDT
@@ -117,7 +121,11 @@
 |---|---|---|---|---|
 | 8 | [USDC-USDT](https://polygonscan.com/address/0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001#readContract) 0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001 | [Token-0: USDC](https://polygonscan.com/token/0x2791bca1f2de4661ed88a30c99a7a9449aa84174) 0x2791bca1f2de4661ed88a30c99a7a9449aa84174 | [Token-1: USDT](https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f) 0xc2132d05d31c914a87c6611c10748aeb04b58e8f | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/vaultProxyUpgradeTask/scripts/deploy/config/deploy-config-vaults.ts#L21-L30) |
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Contract Address | PolygonScan Verified & Published |
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
+|---|---|---|---|---|---|---|
+|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0xc71a794B1532dDfe57B81C97283201f4c4378274 | https://polygonscan.com/address/0xc71a794B1532dDfe57B81C97283201f4c4378274#code | https://polygonscan.com/address/0xb9786644ebe59749341da925bbec40e4c20c432f#code |
+
+
+|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Strategy Address | Strategy On PolygonScan |
 |---|---|---|---|---|---|
-|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | |
-|2| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  |  |
+|1| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x552f3af01ea30d271e1dcc1149cb27bc368f7aa3 | https://polygonscan.com/address/0x552f3af01ea30d271e1dcc1149cb27bc368f7aa3#code |
