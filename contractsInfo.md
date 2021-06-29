@@ -87,7 +87,7 @@
 ### Strategy: SUSHIHODL-USDC-USDT-V1 <-> Underlying: USDC-USDT
 
 | PoolId | Underlying Address | Token-0 Address | Token-1 Address | VaultInfo | 
-|---|---|---|---|
+|---|---|---|---|---|
 | 8 | [USDC-USDT](https://polygonscan.com/address/0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001#readContract) | [Token-0: USDC](https://polygonscan.com/token/0x2791bca1f2de4661ed88a30c99a7a9449aa84174) | [Token-1: USDT](https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f) | (Vault Config) https://github.com/ForceDAO/force-core/blob/feat/vaultProxyUpgradeTask/scripts/deploy/config/deploy-config-vaults.ts#L21-L30 |
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Contract Address | PolygonScan Verified & Published |
