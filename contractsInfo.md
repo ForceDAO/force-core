@@ -51,7 +51,7 @@
 
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 |1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0xD8491D3C6746F58d94aE09D45AD3e12639637aA4 | https://polygonscan.com/address/0xD8491D3C6746F58d94aE09D45AD3e12639637aA4#code | https://polygonscan.com/address/0xb9786644ebe59749341da925bbec40e4c20c432f#code |
 
 
