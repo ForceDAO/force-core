@@ -29,8 +29,8 @@ export const vaults: VaultData = {
         }
     },
     "USDC-WETH": {
-        vaultAddress: "",
-        vaultImplementationAddress: "",
+        vaultAddress: "0x4E506c75D25996D3dbEFEd6d6764e3672fC2e59B",
+        vaultImplementationAddress: "0xB9786644eBE59749341Da925bBEC40E4C20c432F",
         vaultInit: {
             underlying: "0x34965ba0ac2451A34a0471F04CCa3F990b8dea27",
             toInvestNumerator: 1000,
@@ -39,8 +39,8 @@ export const vaults: VaultData = {
         }
     },
     "WETH-USDT": {
-        vaultAddress: "",
-        vaultImplementationAddress: "",
+        vaultAddress: "0x53F06D447467546Cd0490BAd720A811f2A3b4634",
+        vaultImplementationAddress: "0xb9786644ebe59749341da925bbec40e4c20c432f",
         vaultInit: {
             underlying: "0xc2755915a85C6f6c1C0F3a86ac8C058F11Caa9C9",
             toInvestNumerator: 1000,
