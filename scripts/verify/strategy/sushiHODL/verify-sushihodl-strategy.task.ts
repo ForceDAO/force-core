@@ -15,7 +15,7 @@ task("verify-sushihodl-strategy", "Verify the sushi-HODL Strategy contract for a
     const strategyAddress : string = strategy.masterChefHodlStrategyAddress;
     assert(ethers.utils.getAddress(strategyAddress) == strategyAddress, "Cannot validate Invalid strategyAddress");
 
-    log.info("---------== verify-sushihodl-strategy");
+    log.info("verify-sushihodl-strategy");
 
     await hre.run("verify:verify", {
         address: strategyAddress
