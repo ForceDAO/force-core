@@ -4,7 +4,6 @@ import { WMATIC_ADDRESS, FORCE_ADDRESS, SUSHI_ADDRESS,
          USDC_ADDRESS, USDT_ADDRESS, ZERO_ADDRESS, MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT, 
          STRATEGY_OWNER, SUSHISWAP_V2_ROUTER02_ADDRESS} 
          from "../../polygon-mainnet-fork-test-config";
-import { id } from "@ethersproject/hash";
 
 describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
     let user : any;
