@@ -99,5 +99,10 @@ describe("Whitelisting Functions",  () => {
     });
   });
 
+  describe('Deposit from Whitelisted and non-Whitelisted Accounts', () => {
+    it('Revert to deposit from non-whitelisted contracts');
+    it('Deposit from whitelisted contracts');
+    it('should fail to deposit and withdraw in the same block');
+  });
   
 });
