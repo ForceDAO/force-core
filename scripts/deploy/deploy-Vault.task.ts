@@ -5,6 +5,7 @@ const log: Logger = new Logger();
 import { strict as assert } from 'assert';
 import { network as globalConfigNetwork, storageAddress }  from "./config/deploy-config-global";
 import { network as vaultConfigNetwork, vaults, VaultData, Vault, VaultInit }  from "./config/deploy-config-vaults";
+import { getImplementationAddress } from '@openzeppelin/upgrades-core';
 
 task("deploy-vault", "Deploys a new Vault contract")
   .addParam("underlyingname","name of the underlying, for Example: USDC-USDT")
@@ -22,28 +23,26 @@ task("deploy-vault", "Deploys a new Vault contract")
   assert(vaultInit.toInvestDenominator > 0, "vaultInit argument: toInvestDenominator is invalid");
   assert(vaultInit.totalSupplyCap > 0, "vaultInit argument: totalSupplyCap is invalid");
 
-  log.info(`---------== deploy-Vault on network: ${hre.network.name}`);
+  log.info(`deploying Vault on network: ${hre.network.name}`);
   const vaultContract = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);
-  const vaultContractInstance = await vaultContract.deploy();
-  log.info(`--------- Must Do Activity: ${vaultContractInstance.address} deploy-config.ts as: vaultAddress --------- `);
-  const vaultAddress = vaultContractInstance.address;
 
-  //Initialise Vault
-  log.info("---------== About to Initialise Vault: "+vaultAddress);
-  const vaultInstance = await hre.ethers.getContractAt(
-    "Vault",
-    vaultAddress
-  );
+  const vaultProxyContractInstance = await hre.upgrades.deployProxy(vaultContract, 
+      [
+        storageAddress,
+        vaultInit.underlying,
+        vaultInit.toInvestNumerator,
+        vaultInit.toInvestDenominator,
+        vaultInit.totalSupplyCap
+      ],
+      {
+         initializer: 'initializeVault(address,address,uint256,uint256,uint256)', 
+         unsafeAllow: ['constructor'],
+         unsafeAllowCustomTypes: true
+      });
 
-  await vaultInstance.initializeVault(
-    storageAddress,
-    vaultInit.underlying,
-    vaultInit.toInvestNumerator,
-    vaultInit.toInvestDenominator,
-    vaultInit.totalSupplyCap
-  );
-
-  log.info(`Initialised Vault: ${vaultAddress} on network: ${hre.network.name} with arguments: \n`);
+  log.info(`Must Do Activity: ${vaultProxyContractInstance.address} deploy-config-vaults.ts as: vaultAddress`);
+  
+  log.info(`Initialised Vault: ${vaultProxyContractInstance.address} on network: ${hre.network.name} with arguments: \n`);
   log.info(`storageAddress: ${storageAddress}`);
   log.info(`underlying: ${vaultInit.underlying}`);
   log.info(`toInvestNumerator: ${vaultInit.toInvestNumerator}`);

@@ -3,7 +3,8 @@ import { ethers, upgrades, network } from "hardhat";
 import { getImplementationAddress } from '@openzeppelin/upgrades-core';
 import { expect, use } from "chai";
 
-describe("Vault Proxy Functions",  () => {
+describe("SupplyCap Tests", () => {
+
     var governance: any;
     var governanceAddress: string;
     var controller: any;
@@ -18,11 +19,12 @@ describe("Vault Proxy Functions",  () => {
     var underlyingAddress: any;
     var MockUpgradedVault: any;
     var vaultUpgradedImplementationAddress: string;
-
-    const underlyingSymbol = "MOCK";
+    
+    const farmerBalance = "95848503450";
     let underlyingDecimals = "18";
     const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
     const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
+    const newTotalSupplyCap = BigNumber.from(100).mul(underlyingDecimalsBN);
 
     before(async function () {
       [governance, controller] = await ethers.getSigners();
@@ -57,68 +59,38 @@ describe("Vault Proxy Functions",  () => {
       vaultImplementationAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
     });
 
-    it('should fail if deployed with zero addresses', async () => {
+    it('Check total supply cap', async () => {
+      expect(await vaultProxyInst.totalSupplyCap()).to.be.equal(totalSupplyCap);
+    });
+
+    it('Revert from non-governance', async () => {
+      let signers = await ethers.getSigners();
       await expect(
-        upgrades.deployProxy(
-          Vault,
-          [
-            constants.AddressZero,
-            underlyingAddress,
-            100,
-            100,
-            totalSupplyCap
-          ],
-          {
-            initializer: 'initializeVault(address,address,uint256,uint256,uint256)',
-            unsafeAllow: ['constructor'],
-            unsafeAllowCustomTypes: true
-          }
-        )
-      ).to.be.revertedWith('Vault: cannot set 0 address');
+        vaultProxyInst.connect(signers[3]).setTotalSupplyCap(newTotalSupplyCap)
+      ).to.be.revertedWith('Not governance');
+    });
+
+    it('Only governance can set total supply cap', async () => {
+      await vaultProxyInst.setTotalSupplyCap(newTotalSupplyCap, { from: governanceAddress });
+      const totalSupplyCap = await vaultProxyInst.totalSupplyCap();
+      expect(totalSupplyCap).to.be.equal(newTotalSupplyCap.toString());
+    });
+
+    it('Revert when exceed total supply limit', async () => {
+      let signers = await ethers.getSigners();
+      const depositAmount = totalSupplyCap.add(1);
 
       await expect(
-        upgrades.deployProxy(
-          Vault,
-          [
-            storageInstance.address,
-            constants.AddressZero,
-            100,
-            100,
-            totalSupplyCap
-          ],
-          {
-            initializer: 'initializeVault(address,address,uint256,uint256,uint256)',
-            unsafeAllow: ['constructor'],
-            unsafeAllowCustomTypes: true
-          }
-        )
-      ).to.be.revertedWith('Vault: cannot set 0 address');
+        vaultProxyInst.connect(signers[2]).deposit(depositAmount)
+      ).to.be.revertedWith("Cannot mint more than cap");
+
+      await expect(
+        vaultProxyInst.connect(signers[3]).depositFor(depositAmount, signers[3].address)
+      ).to.be.revertedWith("Cannot mint more than cap");
 
     });
 
-    it('proxy should upgrade to new Vault', async () => {
-
-      MockUpgradedVault = await ethers.getContractFactory("MockUpgradedVault");
-      
-      const vaultUpgraded = await upgrades.upgradeProxy(
-        vaultProxyAddress,
-        MockUpgradedVault,
-        {
-          unsafeAllow: ['constructor'],
-          unsafeAllowCustomTypes: true
-        });
-      
-      const vaultUpgradedImplementationAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
-      expect(vaultUpgradedImplementationAddress).not.to.be.equal(vaultImplementationAddress);
+    after('Reset', async () => {
+      await vaultProxyInst.setTotalSupplyCap(totalSupplyCap, { from: governanceAddress });
     });
-
-    it('Vault name should have "FORCE" prefix', async () => {
-      const vaultTokenName = await vaultProxyInst.name();
-      expect(vaultTokenName).to.be.equal(`FORCE_${underlyingSymbol}`);
-    });
-
-    it('Vault symbol should have "x" prefix', async () => {
-      const vaultTokenSymbol = await vaultProxyInst.symbol();
-      expect(vaultTokenSymbol).to.be.equal(`x${underlyingSymbol}`);
-    });
-});
+  });

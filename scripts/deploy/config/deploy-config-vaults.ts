@@ -6,6 +6,7 @@ export interface VaultData {
 
 export interface Vault {
     vaultAddress: string;
+    vaultImplementationAddress: string;
     vaultInit: VaultInit;
 }
 
@@ -16,9 +17,50 @@ export interface VaultInit {
     totalSupplyCap: number;
 }
 
-export const vaults: VaultData = {  
+export const vaults: VaultData = {
+    "WMATIC-WETH": {
+        vaultAddress: "0xD8491D3C6746F58d94aE09D45AD3e12639637aA4",
+        vaultImplementationAddress: "0xb9786644ebe59749341da925bbec40e4c20c432f",
+        vaultInit: {
+            underlying: "0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E",
+            toInvestNumerator: 1000,
+            toInvestDenominator: 1000,
+            totalSupplyCap: 10
+        }
+    },
+    "USDC-WETH": {
+        vaultAddress: "0x4E506c75D25996D3dbEFEd6d6764e3672fC2e59B",
+        vaultImplementationAddress: "0xB9786644eBE59749341Da925bBEC40E4C20c432F",
+        vaultInit: {
+            underlying: "0x34965ba0ac2451A34a0471F04CCa3F990b8dea27",
+            toInvestNumerator: 1000,
+            toInvestDenominator: 1000,
+            totalSupplyCap: 10
+        }
+    },
+    "WETH-USDT": {
+        vaultAddress: "0x53F06D447467546Cd0490BAd720A811f2A3b4634",
+        vaultImplementationAddress: "0xb9786644ebe59749341da925bbec40e4c20c432f",
+        vaultInit: {
+            underlying: "0xc2755915a85C6f6c1C0F3a86ac8C058F11Caa9C9",
+            toInvestNumerator: 1000,
+            toInvestDenominator: 1000,
+            totalSupplyCap: 10
+        }
+    },    
+    "WETH-DAI": {
+        vaultAddress: "0xe16F92e6c8274b6BC7e6aDd5270ccC2E8B8dd950",
+        vaultImplementationAddress: "0xb9786644ebe59749341da925bbec40e4c20c432f",
+        vaultInit: {
+            underlying: "0x6FF62bfb8c12109E8000935A6De54daD83a4f39f",
+            toInvestNumerator: 1000,
+            toInvestDenominator: 1000,
+            totalSupplyCap: 10
+        }
+    },
     "USDC-USDT": {
-        vaultAddress: "0x8D7f8722B796526B7DBe94055cb405148cc47719",
+        vaultAddress: "0xc71a794B1532dDfe57B81C97283201f4c4378274",
+        vaultImplementationAddress: "0xb9786644ebe59749341da925bbec40e4c20c432f",
         vaultInit: {
             underlying: "0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001",
             toInvestNumerator: 1000,

@@ -3,9 +3,11 @@ import { ethers, upgrades, network } from "hardhat";
 import { getImplementationAddress } from '@openzeppelin/upgrades-core';
 import { expect, use } from "chai";
 
-describe("Vault Proxy Functions",  () => {
+describe("Whitelisting Functions",  () => {
     var governance: any;
     var governanceAddress: string;
+    var strangerSigner: any;
+    var strangerAddress: string;
     var controller: any;
     var controllerAddress: string;
     var StorageContract: any;
@@ -18,16 +20,20 @@ describe("Vault Proxy Functions",  () => {
     var underlyingAddress: any;
     var MockUpgradedVault: any;
     var vaultUpgradedImplementationAddress: string;
+    var whitelistSigner : any;
+    var whitelistAddress : string;
 
     const underlyingSymbol = "MOCK";
     let underlyingDecimals = "18";
     const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
     const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
 
-    before(async function () {
-      [governance, controller] = await ethers.getSigners();
+    beforeEach(async function () {
+      [governance, controller, whitelistSigner, strangerSigner] = await ethers.getSigners();
       governanceAddress = await governance.getAddress();
       controllerAddress = await controller.getAddress();
+      whitelistAddress = await whitelistSigner.getAddress();
+      strangerAddress = await strangerSigner.getAddress();
 
       await network.provider.request({
         method: "hardhat_impersonateAccount",
@@ -57,68 +63,49 @@ describe("Vault Proxy Functions",  () => {
       vaultImplementationAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
     });
 
-    it('should fail if deployed with zero addresses', async () => {
-      await expect(
-        upgrades.deployProxy(
-          Vault,
-          [
-            constants.AddressZero,
-            underlyingAddress,
-            100,
-            100,
-            totalSupplyCap
-          ],
-          {
-            initializer: 'initializeVault(address,address,uint256,uint256,uint256)',
-            unsafeAllow: ['constructor'],
-            unsafeAllowCustomTypes: true
-          }
-        )
-      ).to.be.revertedWith('Vault: cannot set 0 address');
+    describe( "Add to Whitelist", () => {
 
-      await expect(
-        upgrades.deployProxy(
-          Vault,
-          [
-            storageInstance.address,
-            constants.AddressZero,
-            100,
-            100,
-            totalSupplyCap
-          ],
-          {
-            initializer: 'initializeVault(address,address,uint256,uint256,uint256)',
-            unsafeAllow: ['constructor'],
-            unsafeAllowCustomTypes: true
-          }
-        )
-      ).to.be.revertedWith('Vault: cannot set 0 address');
-
-    });
-
-    it('proxy should upgrade to new Vault', async () => {
-
-      MockUpgradedVault = await ethers.getContractFactory("MockUpgradedVault");
-      
-      const vaultUpgraded = await upgrades.upgradeProxy(
-        vaultProxyAddress,
-        MockUpgradedVault,
-        {
-          unsafeAllow: ['constructor'],
-          unsafeAllowCustomTypes: true
+        it('Revert from non-owner', async () => {
+            await expect(storageInstance.connect(strangerSigner).addToWhiteList(whitelistAddress))
+            .to.be.revertedWith("Not governance");
         });
-      
-      const vaultUpgradedImplementationAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
-      expect(vaultUpgradedImplementationAddress).not.to.be.equal(vaultImplementationAddress);
+
+        it('Should add to whitelist', async () => {
+            let isWhiteListed = await storageInstance.whiteList(whitelistAddress)
+            expect(isWhiteListed).to.be.false;
+
+            await storageInstance.addToWhiteList(whitelistAddress);
+            let isWhiteListed_1 = await storageInstance.whiteList(whitelistAddress)
+            expect(isWhiteListed_1).to.be.true;
+        });
+   });
+
+   describe('remove From WhiteList', () => {
+
+    it('Revert from non-owner', async () => {
+      await expect(
+        storageInstance.connect(strangerSigner).removeFromWhiteList(whitelistAddress)
+      ).to.be.revertedWith("Not governance");
     });
 
-    it('Vault name should have "FORCE" prefix', async () => {
-      const vaultTokenName = await vaultProxyInst.name();
-      expect(vaultTokenName).to.be.equal(`FORCE_${underlyingSymbol}`);
+    it('Should remove from whitelist', async () => {
+      await storageInstance.addToWhiteList(whitelistAddress);
+      let isWhiteListed = await storageInstance.whiteList(whitelistAddress);
+      expect(isWhiteListed).to.be.true;
+        
+      await storageInstance.removeFromWhiteList(whitelistAddress);
+      let isWhiteListed_1 = await storageInstance.whiteList(whitelistAddress);
+      expect(isWhiteListed_1).to.be.false;
     });
+  });
 
-    it('Vault symbol should have "x" prefix', async () => {
-      const vaultTokenSymbol = await vaultProxyInst.symbol();
-      expect(vaultTokenSymbol).to.be.equal(`x${underlyingSymbol}`);
-    });
+  describe('Deposit from Whitelisted Accounts', () => {
+    it('Deposit from whitelisted contracts');
+    it('should fail to deposit and withdraw in the same block');
+  });
+
+  describe('Deposit from non-Whitelisted Accounts', () => {
+    it('Revert to deposit from non-whitelisted contracts');
+  });
+
 });

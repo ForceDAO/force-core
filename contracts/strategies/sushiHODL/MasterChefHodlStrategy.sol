@@ -113,7 +113,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     require(_underlying != address(0), "underlying is empty");
     require(_vault != address(0), "vault is empty");
     require(_miniChefV2 != address(0), "reward pool is empty");
-    require(_poolId != uint256(0), "_poolId is Zero");
     require(_routerAddressV2 != address(0), "routerAddressV2 is empty");
     require(_routeSushiToken0.length == 2, "routeSushi-Token0 is invalid");
     require(_routeSushiToken1.length == 2, "routeSushi-Token1 is invalid");
@@ -287,27 +286,43 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       IERC20Upgradeable(_rewardTokenAddress).safeApprove(routerAddressV2(), 0);
       IERC20Upgradeable(_rewardTokenAddress).safeApprove(routerAddressV2(), rewardTokenBalance);
       
-      // we can accept 1 as the minimum because this will be called only by a trusted worker
-      uint256[] memory amounts0 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
-        half,
-        1,
-        _uniswapPath0,
-        address(this),
-        block.timestamp
-      );
+      uint256 token0Amount;
 
-      uint256 token0Amount = amounts0[amounts0.length - 1];
+      if(_uniswapPath0[0] != _uniswapPath0[1]){
+        // we can accept 1 as the minimum because this will be called only by a trusted worker
+        uint256[] memory amounts0 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
+          half,
+          1,
+          _uniswapPath0,
+          address(this),
+          block.timestamp
+        );
 
-      // we can accept 1 as the minimum because this will be called only by a trusted worker
-      uint256[] memory amounts1 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
-        otherHalf,
-        1,
-        _uniswapPath1,
-        address(this),
-        block.timestamp
-      );
+        token0Amount = amounts0[amounts0.length - 1];
+      } else {
+        token0Amount = half;
+      }
 
-      uint256 token1Amount = amounts1[amounts1.length - 1];
+      uint256 token1Amount;
+
+      if(_uniswapPath1[0] != _uniswapPath1[1]){
+
+        // we can accept 1 as the minimum because this will be called only by a trusted worker
+        uint256[] memory amounts1 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
+          otherHalf,
+          1,
+          _uniswapPath1,
+          address(this),
+          block.timestamp
+        );
+
+        token1Amount = amounts1[amounts1.length - 1];
+      } else {
+        token1Amount = otherHalf;
+      }
+
+      //reset approval to 0.
+      IERC20Upgradeable(_rewardTokenAddress).safeApprove(routerAddressV2(), 0);
 
       address token0Address = _uniswapPath0[1];
       address token1Address = _uniswapPath1[1];

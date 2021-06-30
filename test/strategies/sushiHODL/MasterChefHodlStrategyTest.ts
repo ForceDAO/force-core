@@ -6,8 +6,9 @@ import { WMATIC_ADDRESS, FORCE_ADDRESS, SUSHI_ADDRESS,
          from "../../polygon-mainnet-fork-test-config";
 
 describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
-    let user;
-    let signer;
+    let user : any;
+    let signer : any;
+    let strategyInstance : any;
     before(async function () {
         [user] = await ethers.getSigners();
 
@@ -17,51 +18,45 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
         );
 
         const signer = await ethers.provider.getSigner("0x364d6D0333432C3Ac016Ca832fb8594A8cE43Ca6");
-        expect(signer).to.not.be.null; 
+        expect(signer).to.not.be.null;
+        const strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
     });
 
     describe("verify Strategy Initialisation", () => {
 
       it("WMatic routes ", async () => {
-        console.log(`masterChefHodlStrategyAddress is: ${MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT}`);
-        const strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
-        expect(strategyInstance).to.not.be.null; 
+        const wMaticRoutes = await strategyInstance.getWmaticRoutes();
+        expect(wMaticRoutes).to.not.be.null; 
       });
 
       it("Sushi routes ", async () => {
         const sushiRoutes = await strategyInstance.getSushiRoutes();
-        console.log(`sushiRoutes from strategy are: ${sushiRoutes}`); 
         expect(sushiRoutes).to.not.be.null;
       });
 
       it("depositArbCheck", async () => {
         const depositArbCheck = await strategyInstance.depositArbCheck();
-        console.log(`depositArbCheck from strategy are: ${depositArbCheck}`); 
         expect(depositArbCheck).to.be.true;
       });
 
       it("governanceAddress ", async () => {
         const governanceAddress = await strategyInstance.governance();
-        console.log(`governanceAddress from strategy are: ${governanceAddress}`); 
         expect(governanceAddress).to.not.be.null;
       });
 
       it("governanceAddress ", async () => {
         const controllerAddress = await strategyInstance.controller();
-        console.log(`controllerAddress from strategy are: ${controllerAddress}`); 
         expect(controllerAddress).to.not.be.null;
       });
 
       it("underlyingAddress ", async () => {
         const underlyingAddress = await strategyInstance.underlying();
-        console.log(`underlyingAddress from strategy are: ${underlyingAddress}`); 
         expect(underlyingAddress).to.not.be.null;
       });
 
 
       it("feeHolder ", async () => {
         const feeHolder = await strategyInstance.feeHolder();
-        console.log(`feeHolder from strategy are: ${feeHolder}`); 
         expect(feeHolder).to.not.be.null;
       });
 
@@ -83,7 +78,3 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
     });
 
   });
-
-
-
-});

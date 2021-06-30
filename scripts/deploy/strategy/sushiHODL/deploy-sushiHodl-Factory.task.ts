@@ -3,11 +3,9 @@ import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
 const log: Logger = new Logger();
 
-// npx hardhat compile
-// npx hardhat deploy-sushihodl-factory --network polygonmainnet
 task("deploy-sushihodl-factory", "Deploys a new SushiHodl-Factory contract")
   .setAction(async (args, hre) => {
-    log.info(`---------== deploy-sushiHodl-factory`);
+    log.info(`deploying deploy-sushiHodl-factory`);
     const sushiHodlStrategyFactory = await hre.ethers.getContractFactory(`contracts/strategies/sushiHODL/SushiHodlStrategyFactory.sol:SushiHodlStrategyFactory`);
     const instSushiHodlStrategyFactory = await sushiHodlStrategyFactory.deploy();
     const addrSushiHodlStrategyFactory = instSushiHodlStrategyFactory.address;
