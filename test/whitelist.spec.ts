@@ -80,7 +80,7 @@ describe("Whitelisting Functions",  () => {
         });
    });
 
-   describe('removeFromWhiteList', () => {
+   describe('remove From WhiteList', () => {
 
     it('Revert from non-owner', async () => {
       await expect(
@@ -99,10 +99,13 @@ describe("Whitelisting Functions",  () => {
     });
   });
 
-  describe('Deposit from Whitelisted and non-Whitelisted Accounts', () => {
-    it('Revert to deposit from non-whitelisted contracts');
+  describe('Deposit from Whitelisted Accounts', () => {
     it('Deposit from whitelisted contracts');
     it('should fail to deposit and withdraw in the same block');
   });
-  
+
+  describe('Deposit from non-Whitelisted Accounts', () => {
+    it('Revert to deposit from non-whitelisted contracts');
+  });
+
 });
