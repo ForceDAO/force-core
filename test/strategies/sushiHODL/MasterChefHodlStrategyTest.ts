@@ -4,6 +4,7 @@ import { WMATIC_ADDRESS, FORCE_ADDRESS, SUSHI_ADDRESS,
          USDC_ADDRESS, USDT_ADDRESS, ZERO_ADDRESS, MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT, 
          STRATEGY_OWNER, SUSHISWAP_V2_ROUTER02_ADDRESS} 
          from "../../polygon-mainnet-fork-test-config";
+import { id } from "@ethersproject/hash";
 
 describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
     let user : any;
@@ -22,7 +23,7 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
         const strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
     });
 
-    describe("verify Strategy Initialisation", () => {
+    describe("verify Strategy Initialization", () => {
 
       it("WMatic routes ", async () => {
         const wMaticRoutes = await strategyInstance.getWmaticRoutes();
@@ -71,10 +72,23 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
       it("should return correct Vault Address");
     });
 
-    describe("verify updates by User with Governance Role", () => {
-      it("Governance Address should be able to update LiquidationParameters via setLiquidation");
-      it("Governance Address should be able to update feeRatio via setFeeHolder");
-      it("Governance Address should be able to update feeHolder via setFeeRatio");
+    describe("deposit and withdraw", () => {
+      
+    });
+
+    describe("doHardWork", () => {
+
+      // deposit into vault, vault deposits into strategy, strategy deposits into MiniChef
+      // then fast forward 1 week
+      // then: 
+      it("should compound rewards after 1 week");
+      it("should send controller share of profit");
+    });
+
+    describe("Governance Address", () => {
+      it("should be able to update LiquidationParameters via setLiquidation");
+      it("should be able to update feeRatio via setFeeHolder");
+      it("should be able to update feeHolder via setFeeRatio");
     });
 
   });
