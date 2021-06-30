@@ -1,11 +1,9 @@
-
 const { BigNumber, constants } = require("ethers");
 import { ethers, upgrades, network } from "hardhat";
 import { getImplementationAddress } from '@openzeppelin/upgrades-core';
 import { expect, use } from "chai";
 
-  describe("Vault Proxy Functions",  () => {
-
+describe("Vault Proxy Functions",  () => {
     var governance: any;
     var governanceAddress: string;
     var controller: any;
@@ -123,5 +121,4 @@ import { expect, use } from "chai";
       const vaultTokenSymbol = await vaultProxyInst.symbol();
       expect(vaultTokenSymbol).to.be.equal(`x${underlyingSymbol}`);
     });
-
-  });
+});

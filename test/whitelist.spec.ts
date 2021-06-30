@@ -1,174 +1,103 @@
-const MockToken = artifacts.require("MockToken");
-const Storage = artifacts.require("Storage");
+const { BigNumber, constants } = require("ethers");
+import { ethers, upgrades, network } from "hardhat";
+import { getImplementationAddress } from '@openzeppelin/upgrades-core';
+import { expect, use } from "chai";
 
-const { expect } = require("chai");
-const { BigNumber } = require("ethers");
+describe("Whitelisting Functions",  () => {
+    var governance: any;
+    var governanceAddress: string;
+    var strangerSigner: any;
+    var strangerAddress: string;
+    var controller: any;
+    var controllerAddress: string;
+    var StorageContract: any;
+    var storageInstance: any;
+    var Vault: any;
+    var vaultProxyInst: any;
+    var vaultProxyAddress: string;
+    var vaultImplementationAddress: string;
+    var underlying: any;
+    var underlyingAddress: any;
+    var MockUpgradedVault: any;
+    var vaultUpgradedImplementationAddress: string;
+    var whitelistSigner : any;
+    var whitelistAddress : string;
 
-describe("Add White List", function () {
-  let alice, bob, carol;
-  let governance, farmer;
-  let storage, VaultFactory, vault, underlying, depositor, signers;
+    const underlyingSymbol = "MOCK";
+    let underlyingDecimals = "18";
+    const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
+    const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
 
-  const underlyingDecimals = "18";
-  const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
-  const farmerBalance = BigNumber.from('80000').mul(underlyingDecimalsBN);
-  const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
+    beforeEach(async function () {
+      [governance, controller, whitelistSigner, strangerSigner] = await ethers.getSigners();
+      governanceAddress = await governance.getAddress();
+      controllerAddress = await controller.getAddress();
+      whitelistAddress = await whitelistSigner.getAddress();
+      strangerAddress = await strangerSigner.getAddress();
 
-  beforeEach(async function () {
-    signers = await hre.ethers.getSigners();
-    governance = signers[0];
-    alice = signers[1].address;
-    bob = signers[2].address;
-    carol = signers[3].address;
-    _whitelist = signers[5].address;
-    farmer = signers[2].address;
+      await network.provider.request({
+        method: "hardhat_impersonateAccount",
+        params: [governanceAddress]}
+      );
 
-    storage = await Storage.new({ from: governance.address });
-    // create the underlying token
-    underlying = await MockToken.new({ from: governance.address });
+      StorageContract = await ethers.getContractFactory("Storage");
+      storageInstance = await StorageContract.deploy();
+      
+      await storageInstance.setController(controllerAddress, { from: governanceAddress });
 
+      // create the underlying token
+      const MockToken = await ethers.getContractFactory("MockToken");
+      underlying = await MockToken.deploy();
+      underlyingAddress = underlying.address;
 
-    const storageFactory = await ethers.getContractFactory("Storage");
-    storage = await storageFactory.deploy();
-    await storage.deployed();
-    expect(storage.address).to.properAddress;
-    await storage.connect(governance).setController(governance.address);
+      Vault = await ethers.getContractFactory("Vault");
 
-
-    //------------==
-    await underlying.mint(farmer, farmerBalance, { from: governance.address });
-    assert.equal(
-      farmerBalance,
-      (await underlying.balanceOf(farmer)).toString()
-    );
-
-    VaultFactory = await ethers.getContractFactory("Vault");
-    vault = await upgrades.deployProxy(
-      VaultFactory,
-      [storage.address, underlying.address, 100, 100, totalSupplyCap],
-      {
-        initializer:
-          "initializeVault(address,address,uint256,uint256,uint256)",
-        unsafeAllowCustomTypes: true,
-        unsafeAllow: ['constructor'],
-        from: governance.address,
-      }
-    );
-
-    const MockVaultDepositorFactory = await ethers.getContractFactory("MockVaultDepositor");
-    depositor = await MockVaultDepositorFactory.deploy();
-    await depositor.deployed();
-    expect(depositor.address).to.properAddress;
-
-
-    //------------==
-    await underlying.mint(governance.address, farmerBalance, { from: governance.address });
-    assert.equal(
-      farmerBalance,
-      (await underlying.balanceOf(governance.address)).toString()
-    );
-    const initalTransferAmount = BigNumber.from('10000').mul(underlyingDecimalsBN);
-
-    await underlying.transfer(alice, initalTransferAmount,{ from: governance.address });
-    await underlying.approve(vault.address, initalTransferAmount, {
-      from: alice,
+      vaultProxyInst = await upgrades.deployProxy(Vault, 
+      [storageInstance.address, underlying.address, 100, 100, totalSupplyCap],
+       {
+         initializer: 'initializeVault(address,address,uint256,uint256,uint256)', 
+         unsafeAllow: ['constructor'],
+         unsafeAllowCustomTypes: true
+      });
+      vaultProxyAddress = vaultProxyInst.address;
+      vaultImplementationAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
     });
-    await underlying.approve(depositor.address, initalTransferAmount, {
-      from: alice,
-    });
-    await underlying.transfer(bob, initalTransferAmount);
-    await underlying.approve(vault.address, initalTransferAmount, {
-      from: bob,
-    });
-    await underlying.transfer(carol, initalTransferAmount);
-    await underlying.approve(vault.address, initalTransferAmount, {
-      from: carol,
-    });
-  });
 
-  describe('addToWhiteList', () => {
+    describe( "Add to Whitelist", () => {
+
+        it('Revert from non-owner', async () => {
+            await expect(storageInstance.connect(strangerSigner).addToWhiteList(whitelistAddress))
+            .to.be.revertedWith("Not governance");
+        });
+
+        it('Should add to whitelist', async () => {
+            let isWhiteListed = await storageInstance.whiteList(whitelistAddress)
+            expect(isWhiteListed).to.be.false;
+
+            await storageInstance.addToWhiteList(whitelistAddress);
+            let isWhiteListed_1 = await storageInstance.whiteList(whitelistAddress)
+            expect(isWhiteListed_1).to.be.true;
+        });
+   });
+
+   describe('removeFromWhiteList', () => {
 
     it('Revert from non-owner', async () => {
-      nonGov = signers[4];
-
       await expect(
-        storage.connect(nonGov).addToWhiteList(_whitelist)
-      ).to.be.revertedWith("Not governance");
-    });
-
-    it('Should add to whitelist', async () => {
-      assert.equal(await storage.whiteList(_whitelist), false);
-      await storage.addToWhiteList(_whitelist);
-      assert.equal(await storage.whiteList(_whitelist), true);
-    });
-  });
-
-  describe('removeFromWhiteList', () => {
-
-    it('Revert from non-owner', async () => {
-      nonGov = signers[4];
-
-      await expect(
-        storage.connect(nonGov).removeFromWhiteList(_whitelist)
+        storageInstance.connect(strangerSigner).removeFromWhiteList(whitelistAddress)
       ).to.be.revertedWith("Not governance");
     });
 
     it('Should remove from whitelist', async () => {
-      assert.equal(await storage.whiteList(_whitelist), false);
-      await storage.addToWhiteList(_whitelist);
-      assert.equal(await storage.whiteList(_whitelist), true);
-
-      await storage.removeFromWhiteList(_whitelist);
-      assert.equal(await storage.whiteList(_whitelist), false);
+      await storageInstance.addToWhiteList(whitelistAddress);
+      let isWhiteListed = await storageInstance.whiteList(whitelistAddress);
+      expect(isWhiteListed).to.be.true;
+        
+      await storageInstance.removeFromWhiteList(whitelistAddress);
+      let isWhiteListed_1 = await storageInstance.whiteList(whitelistAddress);
+      expect(isWhiteListed_1).to.be.false;
     });
   });
 
-  describe('deposit from a contract', () => {
-
-    it('Revert to deposit from non-whitelisted contracts', async () => {
-      const depositAmount = BigNumber.from('100').mul(underlyingDecimalsBN);
-
-      assert.equal(await storage.whiteList(depositor.address), false);
-
-      await expect(
-        depositor.connect(signers[1]).depositFor(underlying.address, vault.address, depositAmount)
-      ).to.be.revertedWith('This smart contract is not whitelisted');
-
-      await expect(
-        depositor.connect(signers[1]).deposit(underlying.address, vault.address, depositAmount)
-        ).to.be.revertedWith('This smart contract is not whitelisted');
-    });
-
-    it('Deposit from whitelisted contracts', async () => {
-
-      const depositAmount = BigNumber.from('100').mul(underlyingDecimalsBN);
-      await storage.addToWhiteList(depositor.address);
-      assert.equal(await storage.whiteList(depositor.address), true);
-
-      await depositor.connect(signers[1]).depositFor(underlying.address, vault.address, depositAmount);
-
-      expect(await vault.balanceOf(signers[1].address)).to.equal(depositAmount);
-
-      await depositor.connect(signers[1]).deposit(underlying.address, vault.address, depositAmount);
-
-      expect(await vault.balanceOf(depositor.address)).to.equal(depositAmount);
-
-    });
-
-    it('should fail to deposit and withdraw in the same block', async () => {
-      const depositAmount = BigNumber.from('100').mul(underlyingDecimalsBN);
-
-      await storage.addToWhiteList(depositor.address);
-      assert.equal(await storage.whiteList(depositor.address), true);
-
-      await expect(
-        depositor.connect(signers[1]).depositAndWithdraw(underlying.address, vault.address, depositAmount)
-      ).to.be.revertedWith('withdraw: withdraw in same block not permitted');
-
-      await expect(
-        depositor.connect(signers[1]).depositForAndWithdraw(underlying.address, vault.address, depositAmount)
-      ).to.be.revertedWith('withdraw: withdraw in same block not permitted');
-
-    });
-  });
+  
 });
