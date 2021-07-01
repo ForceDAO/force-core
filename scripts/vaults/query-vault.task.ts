@@ -29,7 +29,7 @@ task("query-vault", "Query a Vault Proxy contract")
 
   log.info(`totalSupplyCap for Vault: ${vaultProxyAddress} - ${underlyingname} is: ${totalSupplyCap} `);
 
-  //Approve Vault for Spending of SLP tokens
+  //get Spending-Allowance of SLP tokens for Vault 
   var erc20Instance = await hre.ethers.getContractAt("ERC20", underlyingAddress); 
   const allowance = await erc20Instance.allowance(deployerAddress, vaultProxyAddress);
   
