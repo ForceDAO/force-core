@@ -34,8 +34,12 @@ task("vault-deposit", "Deposit to a Vault")
   );
 
   //deposit LP Tokens to Vault
-  //await vaultInstance.deposit(depositAmount);
+  const txResponse = await vaultInstance.deposit(depositAmount);
+
+  log.info(`txResponse for deposit is: ${JSON.stringify(txResponse)}`);
 
   //do HardWork
-  //await vaultInstance.doHardWork();
+  const hardWorkTxResponse = await vaultInstance.doHardWork();
+
+  log.info(`hardWorkTxResponse for deposit is: ${JSON.stringify(hardWorkTxResponse)}`);
 });
