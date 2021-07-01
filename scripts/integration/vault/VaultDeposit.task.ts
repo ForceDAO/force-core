@@ -26,7 +26,8 @@ task("vault-deposit", "Deposit to a Vault")
 
   //Approve Vault for Spending of SLP tokens
   var erc20Instance = await hre.ethers.getContractAt("ERC20", underlyingAddress);
-  await erc20Instance.approve(vaultProxyAddress, depositAmount, {from: deployerAddress});
+  const approveTxn = await erc20Instance.approve(vaultProxyAddress, depositAmount, {from: deployerAddress});
+  await approveTxn.wait();
 
   //load Vault Instance
   const vaultInstance = await hre.ethers.getContractAt(
@@ -41,5 +42,6 @@ task("vault-deposit", "Deposit to a Vault")
 
   //do HardWork
   const hardWorkTxResponse = await vaultInstance.doHardWork();
+  await hardWorkTxResponse.wait();
   log.info(`hardWorkTxResponse for deposit is: ${JSON.stringify(hardWorkTxResponse)}`);
 });
