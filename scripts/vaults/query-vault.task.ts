@@ -22,11 +22,9 @@ task("query-vault", "Query a Vault Proxy contract")
   );
 
   const strategyAddress = await vaultInstance.strategy();
-  
   log.info(`strategyAddress for Proxy: ${vaultProxyAddress} is: ${strategyAddress}`);
 
   const totalSupplyCap = await vaultInstance.totalSupplyCap();
-
   log.info(`totalSupplyCap for Vault: ${vaultProxyAddress} - ${underlyingname} is: ${totalSupplyCap} `);
 
   //get Spending-Allowance of SLP tokens for Vault 
