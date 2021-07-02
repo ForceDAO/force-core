@@ -31,7 +31,6 @@ require("./scripts/integration/vault/VaultDeposit.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 const MATICVIGIL_APP_ID = process.env.MATICVIGIL_APP_ID || "";
 const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "";
 const INFURA_POLYGON_MAINNET_KEY = process.env.INFURA_POLYGON_MAINNET_KEY || "";
