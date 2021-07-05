@@ -21,17 +21,6 @@ describe("MasterChefV2 - USDC_USDT mainnet fork Tests", function () {
 
         const signer = await ethers.provider.getSigner("0x364d6D0333432C3Ac016Ca832fb8594A8cE43Ca6");
         expect(signer).to.not.be.null;
-
-        
-
-        //deploy Storage
-
-        //deploy Vault
-
-        //deploy Factory
-
-        // create Strategy
-
         strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
     });
 

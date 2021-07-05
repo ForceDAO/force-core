@@ -47,7 +47,7 @@ const config: HardhatUserConfig = {
       gasPrice: ethers.utils.parseUnits("10", "gwei").toNumber(),
       forking: {
         url: `https://polygon-mainnet.infura.io/v3/${INFURA_POLYGON_MAINNET_KEY}`,
-        blockNumber: 16166077,
+        blockNumber: 16369014,
       },
     },
     polygonmumbai: {
