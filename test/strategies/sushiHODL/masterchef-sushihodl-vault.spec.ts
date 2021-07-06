@@ -145,21 +145,61 @@ describe("MasterChef V2 - SushiHODL Vault mainnet fork Tests", function () {
 
         //deposit To vault sample transaction
         // https://polygonscan.com/tx/0x981cb7912d3dc3d0c7dd5894e1bda738423d237c33768e0a9126e68689ff29fb
-        const VaultDeposittxResponse = await vaultInstance.connect(strategyOwnerSigner).deposit(lpBalance);
-        await VaultDeposittxResponse.wait();
-        console.log(`VaultDeposittxResponse is: ${JSON.stringify(VaultDeposittxResponse)}`);  
 
-        await ethers.provider.send("evm_increaseTime", [3600 * 24]);
-        await ethers.provider.send("evm_mine", []);
+        const lpBalanceOfDepositorBeforeDeposit : number = await underlyingInstance.balanceOf(STRATEGY_OWNER);
+        console.log(`lpBalanceOfDepositorBeforeDeposit: ${lpBalanceOfDepositorBeforeDeposit}`);
+        expect(lpBalanceOfDepositorBeforeDeposit).to.be.equal(lpBalance);
+
+
+        const lpBalanceInVaultBeforeDeposit : number  = await underlyingInstance.balanceOf(VAULT_ADDRESS_USDC_USDT);
+        console.log(`lpBalanceInVaultBeforeDeposit: ${lpBalanceInVaultBeforeDeposit}`);
+
+        const VaultDeposittxResponse : any  = await vaultInstance.connect(strategyOwnerSigner).deposit(lpBalance);
+        await VaultDeposittxResponse.wait();
+
+        const lpBalanceAfterDeposit : number  = await underlyingInstance.balanceOf(STRATEGY_OWNER);
+        console.log(`lp-Balance of Depositor After Deposit: ${lpBalanceAfterDeposit}`);
+        expect(lpBalanceAfterDeposit).to.be.equal(0);
+
+        const lpBalanceInVaultAfterDeposit : number  = await underlyingInstance.balanceOf(VAULT_ADDRESS_USDC_USDT);
+        console.log(`lp-Balance In Vault After Deposit: ${lpBalanceInVaultAfterDeposit}`);
+
+        const expectedVaultBalanceAfterDeposit : number = Number(lpBalanceOfDepositorBeforeDeposit) + Number(lpBalanceInVaultBeforeDeposit);
+        console.log(`expectedVaultBalanceAfterDeposit: ${expectedVaultBalanceAfterDeposit}`);
+
+        expect(lpBalanceInVaultAfterDeposit).to.be.equal(expectedVaultBalanceAfterDeposit);
+
+        const xlpBalanceAfterDeposit = await vaultInstance.balanceOf(STRATEGY_OWNER);
+        console.log(`xlp-Balance After Deposit is: ${xlpBalanceAfterDeposit}`);  
 
          const hardWorkTxResponse = await vaultInstance.connect(strategyOwnerSigner).doHardWork();
          await hardWorkTxResponse.wait();
          console.log(`hardWorkTxResponse is: ${JSON.stringify(hardWorkTxResponse)}`);  
- 
-         const lpBalanceAfterHardwork = await underlyingInstance.balanceOf(STRATEGY_OWNER);
-         console.log(`lpBalance After hardwork: ${lpBalanceAfterHardwork}`);
-         expect(lpBalanceAfterHardwork).to.be.equal(0);
 
+        const lpBalanceInVaultAfterFirstHardWork = await underlyingInstance.balanceOf(VAULT_ADDRESS_USDC_USDT);
+        console.log(`lpBalanceInVaultAfterFirstHardWork: ${lpBalanceInVaultAfterFirstHardWork}`);
+        expect(lpBalanceInVaultAfterFirstHardWork).to.be.equal(0);
+
+         let xlpBalanceAfterHardwork = await vaultInstance.balanceOf(STRATEGY_OWNER);
+         console.log(`xlpBalance_Before_TimeAdvance_Hardwork is: ${xlpBalanceAfterHardwork}`);  
+
+        await ethers.provider.send("evm_increaseTime", [3600 * 24 * 10]);
+        //await ethers.provider.send("evm_mine", []);
+
+        const hardWorkTxResponse2 = await vaultInstance.connect(strategyOwnerSigner).doHardWork();
+        await hardWorkTxResponse2.wait();
+        console.log(`hardWorkTxResponse2 is: ${JSON.stringify(hardWorkTxResponse2)}`);  
+
+        const xlpBalanceAfterHardwork1 = await vaultInstance.balanceOf(STRATEGY_OWNER);
+        console.log(`xlpBalanceAfter_TimeAdvance_Hardwork is: ${xlpBalanceAfterHardwork1}`);
+
+        console.log(`about to withdraw from vault`);
+        const withdrawTxnResponse = await vaultInstance.connect(strategyOwnerSigner).withdraw(Number(xlpBalanceAfterHardwork1)-100);
+        await withdrawTxnResponse.wait();
+        console.log(`withdrawTxnResponse is: ${JSON.stringify(withdrawTxnResponse)}`);  
+
+        const lpBalanceAfterWithdraw = await underlyingInstance.balanceOf(STRATEGY_OWNER);
+        console.log(`lpBalance After Withdraw: ${lpBalanceAfterWithdraw}`);
       });
 
     });
