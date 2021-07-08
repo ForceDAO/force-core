@@ -12,12 +12,12 @@ task("verify-sushihodl-vault", "Verify the sushi-HODL Strategy's Vault contract 
 .setAction(async (args, hre) => {
   const underlyingname : string = args.underlyingname;
   const vault : Vault = vaults[underlyingname];
-  const vaultAddress : string = vault.vaultAddress;
-  assert(ethers.utils.getAddress(vaultAddress) == vaultAddress, "Cannot validate Invalid vaultAddress");
+  const vaultImplementationAddress : string = vault.vaultImplementationAddress;
+  assert(ethers.utils.getAddress(vaultImplementationAddress) == ethers.utils.getAddress(vaultImplementationAddress), "Cannot validate Invalid vaultAddress");
 
   log.info("---------== verify-sushihodl-vault");
 
   await hre.run("verify:verify", {
-    address: vaultAddress
+    address: vaultImplementationAddress
   })
 });

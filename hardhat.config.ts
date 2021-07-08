@@ -29,6 +29,7 @@ require("./scripts/vaults/query-vault.task.ts");
 require("./scripts/vaults/set-totalsupplycap.task.ts");
 require("./scripts/integration/vault/VaultDeposit.task.ts");
 require("./scripts/integration/vault/do-hardwork.task.ts");
+require("./scripts/integration/vault/withdraw.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";

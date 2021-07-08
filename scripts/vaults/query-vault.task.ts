@@ -30,6 +30,10 @@ task("query-vault", "Query a Vault Proxy contract")
   //get Spending-Allowance of SLP tokens for Vault 
   var erc20Instance = await hre.ethers.getContractAt("ERC20", underlyingAddress); 
   const allowance = await erc20Instance.allowance(deployerAddress, vaultProxyAddress);
-  
+
+  const strategyInstance = await hre.ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
+  const claimAllowed = await strategyInstance.claimAllowed();
+  log.info(`Strategy is initialised with claimAllowed: ${claimAllowed}`);
+
   log.info(`spending allowance for Spender: ${vaultProxyAddress} on Underlying: ${underlyingAddress} is: ${allowance} `);
 });

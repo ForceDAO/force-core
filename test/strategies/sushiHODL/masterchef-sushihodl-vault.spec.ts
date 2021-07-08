@@ -1,7 +1,6 @@
 import { ethers, upgrades, network } from "hardhat";
 import { expect, use } from "chai";
 import { SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT,
-         SUSHI_LP_UNDERLYING_USDC_USDT_WHALE,
          VAULT_ADDRESS_USDC_USDT,
          STRATEGY_OWNER,
          MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT,
@@ -12,15 +11,20 @@ import { SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT,
 import { Logger } from "tslog";
 const logger: Logger = new Logger();
 
-describe("MasterChef V2 - SushiHODL Vault mainnet fork Tests", function () {
+const vaultBehaviour = (underlyingAddress : string, ) => {
+    
+    let underlyingInstance : any;
     let user : any;
     let signer : any;
-    let underlyingInstance : any;
     let vaultInstance : any;
     let strategyInstance : any;
     let routerInstance: any;
     let strategyOwnerSigner: any;
     let lpBalance: number;
+
+    
+describe("MasterChef V2 - SushiHODL Vault mainnet fork Tests", function () {
+
     
     before(async function () {
         [user] = await ethers.getSigners();
@@ -96,20 +100,46 @@ describe("MasterChef V2 - SushiHODL Vault mainnet fork Tests", function () {
         const usdtAllowanceForRouter = await usdtInstance.connect(strategyOwnerSigner).allowance(STRATEGY_OWNER, SUSHISWAP_V2_ROUTER02_ADDRESS);
         console.log(`USDT allowance for router is: ${usdtAllowanceForRouter}`);
 
+        underlyingInstance = await ethers.getContractAt("IERC20", SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT);   
+
+        lpBalance = await underlyingInstance.balanceOf(STRATEGY_OWNER);
+        console.log(`lpBalance before AddLiquidity: ${lpBalance}`);
 
         routerInstance = await ethers.getContractAt("IUniswapV2Router02", SUSHISWAP_V2_ROUTER02_ADDRESS);
         console.log(`calling add-liquidity to SUSHISWAP_V2_ROUTER02_ADDRESS: ${SUSHISWAP_V2_ROUTER02_ADDRESS}`);
         await routerInstance.connect(strategyOwnerSigner).addLiquidity(USDC_ADDRESS,USDT_ADDRESS, 10, 10, 0, 0, STRATEGY_OWNER, 1925582791);
         console.log(`added USDC-USDT liquidity to SUSHISWAP_V2_ROUTER02_ADDRESS: ${SUSHISWAP_V2_ROUTER02_ADDRESS}`);
 
-        underlyingInstance = await ethers.getContractAt("IERC20", SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT);    
+        
         lpBalance = await underlyingInstance.balanceOf(STRATEGY_OWNER);
-        console.log(`lpBalance: ${lpBalance}`);
+        console.log(`lpBalance After AddLiquidity: ${lpBalance}`);
 
         strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
         expect(strategyInstance).to.not.be.null;
         vaultInstance = await ethers.getContractAt("Vault", VAULT_ADDRESS_USDC_USDT);
         expect(vaultInstance).to.not.be.null;
+
+        const currentWithdrawFee = await vaultInstance.withdrawFee();
+        console.log(`currentWithdrawFee from Vault: ${currentWithdrawFee}`);
+        
+        const setWithdrawFeeTxn = await vaultInstance.connect(strategyOwnerSigner).setWithdrawFee(10);
+        await setWithdrawFeeTxn.wait();
+
+        const withdrawFee = await vaultInstance.withdrawFee();
+        console.log(`withdrawFee from Vault: ${withdrawFee}`);
+
+        const decimals = await vaultInstance.decimals();
+        console.log(`decimals from Vault: ${decimals}`);
+
+        const underlyingBalanceWithInvestment = await vaultInstance.underlyingBalanceWithInvestment();
+        console.log(`underlyingBalanceWithInvestment from Vault: ${underlyingBalanceWithInvestment}`);
+
+        const totalSupply = await vaultInstance.totalSupply();
+        console.log(`totalSupply from Vault: ${totalSupply}`);
+        
+        const pricePerFullShare = await vaultInstance.getPricePerFullShare();
+        console.log(`pricePerFullShare from Vault: ${pricePerFullShare}`);
+
     });
 
     describe("deposit and doHardWork", async () => {
@@ -191,17 +221,56 @@ describe("MasterChef V2 - SushiHODL Vault mainnet fork Tests", function () {
         console.log(`hardWorkTxResponse2 is: ${JSON.stringify(hardWorkTxResponse2)}`);  
 
         const xlpBalanceAfterHardwork1 = await vaultInstance.balanceOf(STRATEGY_OWNER);
-        console.log(`xlpBalanceAfter_TimeAdvance_Hardwork is: ${xlpBalanceAfterHardwork1}`);
+        console.log(`xlpBalanceAfter_TimeAdvance_Hardwork is: ${xlpBalanceAfterHardwork1} - ${typeof xlpBalanceAfterHardwork1}`);
 
-        console.log(`about to withdraw from vault`);
-        const withdrawTxnResponse = await vaultInstance.connect(strategyOwnerSigner).withdraw(Number(xlpBalanceAfterHardwork1)-100);
+        const lpBalanceBeforeWithdraw = await underlyingInstance.balanceOf(STRATEGY_OWNER);
+        console.log(`lpBalance Before Withdraw: ${lpBalanceBeforeWithdraw}`);
+
+        let xlpForWithdrawal = Number(xlpBalanceAfterHardwork1)-100;
+
+        const totalSupply = await vaultInstance.totalSupply();
+        const withdrawFee = await vaultInstance.withdrawFee();
+
+        console.log(`xlpForWithdrawal: ${xlpForWithdrawal} - totalSupply: ${totalSupply} - withdrawFee: ${withdrawFee}`);
+
+        const withdrawFeeShares = (Number(xlpForWithdrawal)*Number(withdrawFee))/(10 ** 18);
+        console.log(`withdrawFeeShares: ${withdrawFeeShares}`);
+
+        const numberOfSharesPostFee = Number(xlpForWithdrawal) - Number(withdrawFeeShares);
+        console.log(`numberOfSharesPostFee: ${numberOfSharesPostFee}`);
+
+        const calculatedSharePrice  = await vaultInstance.getPricePerFullShare();
+        const underlyingUnit = await vaultInstance.underlyingUnit();
+        console.log(`underlyingUnit: ${underlyingUnit}`);
+        const underlyingAmountToWithdraw = (Number(numberOfSharesPostFee) * Number(calculatedSharePrice))/underlyingUnit;
+        console.log(`underlyingAmountToWithdraw: ${underlyingAmountToWithdraw}`);
+
+        let underlyingBalanceInVault = await vaultInstance.underlyingBalanceInVault();
+        console.log(`underlyingBalanceInVault: ${underlyingBalanceInVault}`);
+
+        const lpBalanceOfStrategyBeforeWithdraw = await underlyingInstance.balanceOf(MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
+        console.log(`lpBalance Of Strategy Before Withdraw: ${lpBalanceOfStrategyBeforeWithdraw}`);
+
+        console.log(`about to withdraw: ${xlpForWithdrawal} from strategy to vault: ${VAULT_ADDRESS_USDC_USDT}`);
+
+        const withdrawAllFromVaultTxn = await vaultInstance.connect(strategyOwnerSigner).withdrawAll();
+        await withdrawAllFromVaultTxn.wait();
+
+        underlyingBalanceInVault = await vaultInstance.underlyingBalanceInVault();
+        console.log(`underlyingBalanceInVault After withdrawAll: ${underlyingBalanceInVault}`);
+
+        //74616502
+        const withdrawTxnResponse = await vaultInstance.connect(strategyOwnerSigner).withdraw(xlpBalanceAfterHardwork1);
         await withdrawTxnResponse.wait();
         console.log(`withdrawTxnResponse is: ${JSON.stringify(withdrawTxnResponse)}`);  
 
         const lpBalanceAfterWithdraw = await underlyingInstance.balanceOf(STRATEGY_OWNER);
         console.log(`lpBalance After Withdraw: ${lpBalanceAfterWithdraw}`);
+        expect(Number(lpBalanceAfterWithdraw)).to.be.gt(Number(lpBalanceBeforeWithdraw));
       });
 
     });
 
   });
+}
+
