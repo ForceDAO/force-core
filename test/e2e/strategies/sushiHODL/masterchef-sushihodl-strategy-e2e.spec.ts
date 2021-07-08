@@ -55,8 +55,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
     let depositor: string;
     let depositorSigner: any;
 
-    let lpBalance: number;
-
     let strategyTestData: StrategyTestData;
 
     describe("deploy contracts", async () => {
@@ -208,14 +206,16 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             };
             const testAccounts: TestAccounts = {
                 governanceAddress,
-                controllerAddress
+                controllerAddress,
+                depositorAddress: depositor
              };
 
-            strategyTestData = {
+            const strategyTestData: StrategyTestData = {
                 testVault,
                 testStrategy,
                 testAccounts
-            }
+            };
+
         });
 
         

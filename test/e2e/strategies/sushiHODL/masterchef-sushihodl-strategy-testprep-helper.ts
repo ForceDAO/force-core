@@ -17,6 +17,7 @@ export interface TestVault {
 export interface TestAccounts {
    governanceAddress: string;
    controllerAddress: string;
+   depositorAddress: string;
 }
 
 export interface StrategyTestData {

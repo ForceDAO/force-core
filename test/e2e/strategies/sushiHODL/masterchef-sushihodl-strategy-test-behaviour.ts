@@ -1,6 +1,10 @@
+import { expect } from "chai";
+import { ethers } from "hardhat";
 import { Logger } from "tslog";
 import { StrategyTestData } from "./masterchef-sushihodl-strategy-testprep-helper";
 const logger: Logger = new Logger();
+const underlyingDepositAmount: number = 100;
+const underlyingWithdrawalAmount: number = 100;
 
 export function executeTestBehavior(strategyTestData : StrategyTestData) {
 
@@ -32,76 +36,96 @@ export function executeTestBehavior(strategyTestData : StrategyTestData) {
                 - able to check the fee percentage
      */
 
-    describe("behaviour test", () => {
+    describe("behaviour test", async () => {
 
         let vaultAddress = strategyTestData.testVault.vaultAddress;
-    
-        describe("deposit and doHardWork", async () => {
+        let vaultInstance: any;
+
+        let underlyingAddress = strategyTestData.testVault.underlying;
+        let underlyingInstance: any;
+
+        let strategyAddress = strategyTestData.testStrategy.strategyAddress;
+
+        let governanceAddress = strategyTestData.testAccounts.governanceAddress;
+        let governanceSigner: any;
+
+        let depositorAddress = strategyTestData.testAccounts.depositorAddress;
+        let depositorSigner: any;
+
+
+        before( async () => {
+            underlyingInstance = await ethers.getContractAt("IERC20", underlyingAddress);
+            governanceSigner = ethers.getSigner(governanceAddress);
+            depositorSigner = ethers.getSigner(depositorAddress);
+            vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
+        });
+
+        describe("Deposit", async () => {
+
+            let lpBalanceOfDepositorBeforeDeposit: number;
+            let lpBalanceInVaultBeforeDeposit: number;
+
+            before( async () => {
+                //approve for Deposit to Vault
+                await underlyingInstance.connect(depositorSigner).approve(vaultAddress, underlyingDepositAmount);
+                lpBalanceOfDepositorBeforeDeposit = await underlyingInstance.balanceOf(depositorAddress);
+            });
+
+            it( "should deposit to Vault by Depositor", async () => {
+                const VaultDeposittxResponse : any  = await vaultInstance.connect(depositorSigner).deposit(underlyingDepositAmount);
+                await VaultDeposittxResponse.wait();
+
+                const lpBalanceAfterDeposit : number  = await underlyingInstance.balanceOf(depositorAddress);
+                console.log(`SLP-Balance of Depositor After Deposit: ${lpBalanceAfterDeposit}`);
+                expect(lpBalanceAfterDeposit).to.be.equal(0);
+        
+                const lpBalanceInVaultAfterDeposit : number  = await underlyingInstance.balanceOf(vaultAddress);
+                console.log(`SLP-Balance In Vault After Deposit: ${lpBalanceInVaultAfterDeposit}`);
+        
+                const expectedVaultBalanceAfterDeposit : number = Number(lpBalanceOfDepositorBeforeDeposit) + Number(lpBalanceInVaultBeforeDeposit);
+                expect(lpBalanceInVaultAfterDeposit).to.be.equal(expectedVaultBalanceAfterDeposit);
+        
+                const xlpBalanceAfterDeposit = await vaultInstance.balanceOf(depositorAddress);
+                console.log(`XLP-Balance of Depositor After Deposit is: ${xlpBalanceAfterDeposit}\n`);  
+            });
+
+        });
+
+        describe("hardwork", async () => {
+
+            it("should do hardwork", async () => {
+
+                const hardWorkTxResponse = await vaultInstance.connect(governanceSigner).doHardWork();
+                await hardWorkTxResponse.wait();
+                
+                const lpBalanceInVaultAfterFirstHardWork = await underlyingInstance.balanceOf(vaultAddress);
+                console.log(`\nSLP-Balance In Vault After 1st HardWork: ${lpBalanceInVaultAfterFirstHardWork}`);
+                expect(lpBalanceInVaultAfterFirstHardWork).to.be.equal(0);
+        
+                let xlpBalanceAfterHardwork = await vaultInstance.balanceOf(depositorAddress);
+        
+                await ethers.provider.send("evm_increaseTime", [3600 * 24]);
+                //await ethers.provider.send("evm_mine", []);
+        
+                const hardWorkTxResponse2 = await vaultInstance.connect(governanceSigner).doHardWork();
+                await hardWorkTxResponse2.wait();
+        
+                const xlpBalanceAfterHardwork1 = await vaultInstance.balanceOf(depositorAddress);
+                console.log(`XLP-Balance Of Depositor After TimeAdvanced_Hardwork is: ${xlpBalanceAfterHardwork1} - ${typeof xlpBalanceAfterHardwork1}\n`);
+        
+                console.log(`\n--------------- HARD-WORK ENDS --------------\n`)
+            });
+
+        });
+
+        describe("withdraw from Vault to Depositor", async () => {
         
             // then fast forward 1 week
             // then: 
             it("should compound rewards after 1 week", async () => {
     
-                // approve LP Spending for Vault, 
-                // deposit into vault,
-                // vault deposits into strategy
-                // strategy deposits into MiniChef
-    
-            //approve for Vault
-            
-            await underlyingInstance.connect(depositorSigner).approve(vaultAddress, lpBalance);
-            const lpAllowanceForVault = await underlyingInstance.connect(depositorSigner).allowance(depositor, vaultAddress);
-    
-            console.log(`\n--------------- BEFORE DEPOSIT --------------\n`)
-    
-            const lpBalanceOfDepositorBeforeDeposit : number = await underlyingInstance.balanceOf(depositor);
-            console.log(`\nSLP-Balance of Depositor Before Deposit: ${lpBalanceOfDepositorBeforeDeposit}`);
-            expect(lpBalanceOfDepositorBeforeDeposit).to.be.equal(lpBalance);
-    
-            const lpBalanceInVaultBeforeDeposit : number  = await underlyingInstance.balanceOf(vaultAddress);
-            console.log(`SLP-Balance In Vault Before Deposit: ${lpBalanceInVaultBeforeDeposit}`);
-    
-            const VaultDeposittxResponse : any  = await vaultInstance.connect(depositorSigner).deposit(lpBalance);
-            await VaultDeposittxResponse.wait();
-            
-            console.log(`\n--------------- AFTER DEPOSIT --------------\n`)
-    
-            const lpBalanceAfterDeposit : number  = await underlyingInstance.balanceOf(depositor);
-            console.log(`SLP-Balance of Depositor After Deposit: ${lpBalanceAfterDeposit}`);
-            expect(lpBalanceAfterDeposit).to.be.equal(0);
-    
-            const lpBalanceInVaultAfterDeposit : number  = await underlyingInstance.balanceOf(vaultAddress);
-            console.log(`SLP-Balance In Vault After Deposit: ${lpBalanceInVaultAfterDeposit}`);
-    
-            const expectedVaultBalanceAfterDeposit : number = Number(lpBalanceOfDepositorBeforeDeposit) + Number(lpBalanceInVaultBeforeDeposit);
-            expect(lpBalanceInVaultAfterDeposit).to.be.equal(expectedVaultBalanceAfterDeposit);
-    
-            const xlpBalanceAfterDeposit = await vaultInstance.balanceOf(depositor);
-            console.log(`XLP-Balance of Depositor After Deposit is: ${xlpBalanceAfterDeposit}\n`);  
-    
-                const hardWorkTxResponse = await vaultInstance.connect(governanceSigner).doHardWork();
-                await hardWorkTxResponse.wait();
-    
-            console.log(`\n--------------- HARD-WORK STARTS --------------\n`)
-    
-            const lpBalanceInVaultAfterFirstHardWork = await underlyingInstance.balanceOf(vaultAddress);
-            console.log(`\nSLP-Balance In Vault After 1st HardWork: ${lpBalanceInVaultAfterFirstHardWork}`);
-            expect(lpBalanceInVaultAfterFirstHardWork).to.be.equal(0);
-    
-                let xlpBalanceAfterHardwork = await vaultInstance.balanceOf(depositor);
-    
-            await ethers.provider.send("evm_increaseTime", [3600 * 24]);
-            //await ethers.provider.send("evm_mine", []);
-    
-            const hardWorkTxResponse2 = await vaultInstance.connect(governanceSigner).doHardWork();
-            await hardWorkTxResponse2.wait();
-    
-            const xlpBalanceAfterHardwork1 = await vaultInstance.balanceOf(depositor);
-            console.log(`XLP-Balance Of Depositor After TimeAdvanced_Hardwork is: ${xlpBalanceAfterHardwork1} - ${typeof xlpBalanceAfterHardwork1}\n`);
-    
-            console.log(`\n--------------- HARD-WORK ENDS --------------\n`)
-    
-            const lpBalanceBeforeWithdraw = await underlyingInstance.balanceOf(depositor);
+        
+            const lpBalanceBeforeWithdraw = await underlyingInstance.balanceOf(depositorAddress);
             console.log(`\nSLP-Balance of Depositor Before Withdraw: ${lpBalanceBeforeWithdraw}`);
     
             let xlpForWithdrawal = Number(xlpBalanceAfterHardwork1);
@@ -142,7 +166,7 @@ export function executeTestBehavior(strategyTestData : StrategyTestData) {
             const withdrawTxnResponse = await vaultInstance.connect(depositorSigner).withdraw(xlpBalanceAfterHardwork1);
             await withdrawTxnResponse.wait();
     
-            const lpBalanceAfterWithdraw = await underlyingInstance.balanceOf(depositor);
+            const lpBalanceAfterWithdraw = await underlyingInstance.balanceOf(depositorAddress);
             console.log(`SLP-Balance of Depositor After Withdraw: ${lpBalanceAfterWithdraw} \n`);
             expect(Number(lpBalanceAfterWithdraw)).to.be.gt(Number(lpBalanceBeforeWithdraw));
     
