@@ -1,3 +1,4 @@
+import { Signer } from "ethers";
 import { Logger } from "tslog";
 const logger: Logger = new Logger();
 
@@ -15,9 +16,9 @@ export interface TestVault {
 }
 
 export interface TestAccounts {
-   governanceAddress: string;
-   controllerAddress: string;
-   depositorAddress: string;
+   governanceSigner: Signer;
+   controllerSigner: Signer;
+   depositorSigner: Signer;
 }
 
 export interface StrategyTestData {

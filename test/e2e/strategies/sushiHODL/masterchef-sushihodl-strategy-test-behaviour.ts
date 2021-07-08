@@ -6,8 +6,8 @@ const { utils, BigNumber } = ethers;
 
 
 
-const DEPOSIT_AMOUNT = BigNumber.from(100);
-const WITHDRAW_AMOUNT = BigNumber.from(100);
+const DEPOSIT_AMOUNT = BigNumber.from(50);
+const WITHDRAW_AMOUNT = BigNumber.from(50);
 
 export async function sushiHodlBehavior(strategyTestData: () => Promise<StrategyTestData>) {
 
@@ -48,10 +48,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         
         let strategyAddress: any;
         
-        let governanceAddress: any;
         let governanceSigner: any;
-        
-        let depositorAddress: any;
         let depositorSigner: any;
         
         
@@ -61,63 +58,67 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             vaultAddress = _strategyTestData.testVault.vaultAddress;
             underlyingAddress = _strategyTestData.testVault.underlying;
             strategyAddress = _strategyTestData.testStrategy.strategyAddress;
-            governanceAddress = _strategyTestData.testAccounts.governanceAddress;
-            depositorAddress = _strategyTestData.testAccounts.depositorAddress;
-
-
+            governanceSigner = _strategyTestData.testAccounts.governanceSigner;
+            depositorSigner = _strategyTestData.testAccounts.depositorSigner;
+            
             underlyingInstance = await ethers.getContractAt("IERC20", underlyingAddress);
             vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
-            
-            governanceSigner = ethers.getSigner(governanceAddress);
-            depositorSigner = ethers.getSigner(depositorAddress);
 
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
-            expect(governanceSigner.address).to.be.equal(governanceAddress);
-            expect(depositorSigner.address).to.be.equal(depositorAddress);
+
         });
 
         describe("Deposit", async () => {
             
             it("should deposit underlying into vault", async () => {
                 await underlyingInstance.connect(depositorSigner).approve(vaultAddress, DEPOSIT_AMOUNT);
-                const balancePre = await underlyingInstance.balanceOf(depositorAddress);
-                
+                const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
+
                 await vaultInstance.connect(depositorSigner).deposit(DEPOSIT_AMOUNT);
 
-                expect((await underlyingInstance.balanceOf(depositorAddress)).sub(balancePre)).to.be.equal(DEPOSIT_AMOUNT);
-                expect(await vaultInstance.balanceOf(depositorAddress)).to.be.equal(DEPOSIT_AMOUNT);
+                expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(DEPOSIT_AMOUNT);
+                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(DEPOSIT_AMOUNT);
                 
             });
 
         });
 
-        // describe("hardwork", async () => {
+        describe("hardwork", async () => {
 
-        //     it("should do hardwork", async () => {
+            let vaultBalancePre: typeof BigNumber;
+            let vaultBalancePost: typeof BigNumber;
 
-        //         const hardWorkTxResponse = await vaultInstance.connect(governanceSigner).doHardWork();
-        //         await hardWorkTxResponse.wait();
-                
-        //         const lpBalanceInVaultAfterFirstHardWork = await underlyingInstance.balanceOf(vaultAddress);
-        //         console.log(`\nSLP-Balance In Vault After 1st HardWork: ${lpBalanceInVaultAfterFirstHardWork}`);
-        //         expect(lpBalanceInVaultAfterFirstHardWork).to.be.equal(0);
-        
-        //         let xlpBalanceAfterHardwork = await vaultInstance.balanceOf(depositorAddress);
-        
-        //         await ethers.provider.send("evm_increaseTime", [3600 * 24]);
-        //         //await ethers.provider.send("evm_mine", []);
-        
-        //         const hardWorkTxResponse2 = await vaultInstance.connect(governanceSigner).doHardWork();
-        //         await hardWorkTxResponse2.wait();
-        
-        //         const xlpBalanceAfterHardwork1 = await vaultInstance.balanceOf(depositorAddress);
-        //         console.log(`XLP-Balance Of Depositor After TimeAdvanced_Hardwork is: ${xlpBalanceAfterHardwork1} - ${typeof xlpBalanceAfterHardwork1}\n`);
-        
-        //         console.log(`\n--------------- HARD-WORK ENDS --------------\n`)
-        //     });
+            before(async () => {
+                vaultBalancePre = await underlyingInstance.balanceOf(vaultAddress);
+                expect(vaultBalancePre).to.be.equal(BigNumber.from(DEPOSIT_AMOUNT));
+                await vaultInstance.connect(governanceSigner).doHardWork();
+                vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
+            });
 
-        // });
+            it("should move underlying from vault into strategy", async () => {
+                expect(await underlyingInstance.balanceOf(vaultAddress)).to.be.equal(BigNumber.from(0));
+                expect(await underlyingInstance.balanceOf(strategyAddress)).to.be.equal(DEPOSIT_AMOUNT);
+
+            });
+
+            // it("should do hardwork", async () => {
+
+            //     const lpBalanceInVaultAfterFirstHardWork = await underlyingInstance.balanceOf(vaultAddress);
+            //     expect(lpBalanceInVaultAfterFirstHardWork).to.be.equal(0);
+        
+            //     let xlpBalanceAfterHardwork = await vaultInstance.balanceOf(depositorSigner.address);
+        
+            //     await ethers.provider.send("evm_increaseTime", [3600 * 24]);
+        
+            //     const hardWorkTxResponse2 = await vaultInstance.connect(governanceSigner).doHardWork();
+            //     await hardWorkTxResponse2.wait();
+        
+            //     const xlpBalanceAfterHardwork1 = await vaultInstance.balanceOf(depositorSigner.address);
+
+            // });
+
+        });
 
         // describe("withdraw from Vault to Depositor", async () => {
         

@@ -18,16 +18,8 @@ import {
 import { sushiHodlBehavior } from "./masterchef-sushihodl-strategy-test-behaviour";
 import { StrategyTestData, TestAccounts, TestStrategy, TestVault } from "./masterchef-sushihodl-strategy-testprep-helper";
 
-const testFunction = () => {
-    describe("testing something", () => {
-        it("should be true", () => {
-            expect(true).to.be.true;
-        })
-    });
-}
 
-
-describe("MasterChefV2 E2E - mainnet fork Tests", async function () {
+describe("MasterChefV2 E2E - mainnet fork Tests", function () {
 
     const SUPPLY_CAP: number = 100089694;
     const TO_INVEST_NUM: number = 1000;
@@ -212,12 +204,11 @@ describe("MasterChefV2 E2E - mainnet fork Tests", async function () {
         };
 
         const testAccounts: TestAccounts = {
-            governanceAddress,
-            controllerAddress,
-            depositorAddress: depositor
-            };
+            governanceSigner,
+            controllerSigner,
+            depositorSigner
+        };
 
-        console.log("setup");
         return strategyTestData = {
             testVault,
             testStrategy,
@@ -225,7 +216,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", async function () {
         };
 
     };
-    testFunction();
+
     sushiHodlBehavior(prepareEnv);
 
 });
