@@ -4,12 +4,10 @@ const logger: Logger = new Logger();
 export interface TestStrategy {
     strategyAddress: string;
     underlying: string;
-    strategyName: string;
 }
 
 export interface TestVault {
     vaultAddress: string;
-    vaultImplementationAddress: string;
     underlying: string;
     toInvestNumerator: number;
     toInvestDenominator: number;
