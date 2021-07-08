@@ -76,17 +76,14 @@ export function executeTestBehavior(strategyTestData : StrategyTestData) {
                 await VaultDeposittxResponse.wait();
 
                 const lpBalanceAfterDeposit : number  = await underlyingInstance.balanceOf(depositorAddress);
-                console.log(`SLP-Balance of Depositor After Deposit: ${lpBalanceAfterDeposit}`);
                 expect(lpBalanceAfterDeposit).to.be.equal(0);
         
                 const lpBalanceInVaultAfterDeposit : number  = await underlyingInstance.balanceOf(vaultAddress);
-                console.log(`SLP-Balance In Vault After Deposit: ${lpBalanceInVaultAfterDeposit}`);
         
                 const expectedVaultBalanceAfterDeposit : number = Number(lpBalanceOfDepositorBeforeDeposit) + Number(lpBalanceInVaultBeforeDeposit);
                 expect(lpBalanceInVaultAfterDeposit).to.be.equal(expectedVaultBalanceAfterDeposit);
         
                 const xlpBalanceAfterDeposit = await vaultInstance.balanceOf(depositorAddress);
-                console.log(`XLP-Balance of Depositor After Deposit is: ${xlpBalanceAfterDeposit}\n`);  
             });
 
         });
