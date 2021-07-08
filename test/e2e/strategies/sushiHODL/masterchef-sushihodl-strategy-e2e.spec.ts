@@ -69,7 +69,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
 
       logger.info(`governanceAddress is: ${governanceAddress} - depositor is: ${depositor}`);
 
-
       logger.info(`\n--------------- CONTRACT DEPLOYMENT STARTED --------------\n`)
 
       // deploy storage
@@ -271,7 +270,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
 
          let xlpBalanceAfterHardwork = await vaultInstance.balanceOf(depositor);
 
-        await ethers.provider.send("evm_increaseTime", [3600 * 24 * 10]);
+        await ethers.provider.send("evm_increaseTime", [3600 * 24]);
         //await ethers.provider.send("evm_mine", []);
 
         const hardWorkTxResponse2 = await vaultInstance.connect(governanceSigner).doHardWork();
