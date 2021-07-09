@@ -28,9 +28,9 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
     const UNDERLYING_ADDRESS: string = SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT;
     const WITHDRAW_FEE: number = 10;
 
-    const USDC_DEPOSIT_AMOUNT = BigNumber.from(100)
+    const USDC_DEPOSIT_AMOUNT = BigNumber.from(100000)
         .mul(BigNumber.from(10).pow(6));
-    const USDT_DEPOSIT_AMOUNT = BigNumber.from(100)
+    const USDT_DEPOSIT_AMOUNT = BigNumber.from(100000)
         .mul(BigNumber.from(10).pow(6))
 
     let underlyingInstance: any;  

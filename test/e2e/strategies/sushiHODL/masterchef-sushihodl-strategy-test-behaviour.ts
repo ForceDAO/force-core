@@ -118,10 +118,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
     
                 
-                describe("Advance 1 month", () => {
+                describe("Advance 1 day", () => {
 
                     before(async () => {
-                        await ethers.provider.send("evm_increaseTime", [ONE_YEAR]);
+                        await ethers.provider.send("evm_increaseTime", [ONE_DAY]);
                         await ethers.provider.send("evm_mine", []);
                         await vaultInstance.connect(governanceSigner).doHardWork(); 
                     });
@@ -135,7 +135,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     describe("Advance 1 month & Sell Rewards", async () => {
                         before(async () => {
                             await strategyInstance.setLiquidation(true, true, true);
-                            await ethers.provider.send("evm_increaseTime", [ONE_MONTH]);
+                            await ethers.provider.send("evm_increaseTime", [ONE_DAY]);
                             await ethers.provider.send("evm_mine", []);
                             await vaultInstance.connect(governanceSigner).doHardWork();
                         });

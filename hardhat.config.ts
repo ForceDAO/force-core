@@ -1,12 +1,10 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-ethers";
 import 'hardhat-deploy';
 import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-web3";
 import "solidity-coverage"
 import '@openzeppelin/hardhat-upgrades';
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-truffle5";
 
 import { ethers } from "ethers";
 
