@@ -9,6 +9,7 @@ const WITHDRAW_AMOUNT: BigNumber = BigNumber.from(50);
 const ZERO = BigNumber.from(0);
 const ONE_DAY = 86400;
 const ONE_MONTH = ONE_DAY * 30;
+const ONE_YEAR = ONE_DAY * 365;
 export async function sushiHodlBehavior(strategyTestData: () => Promise<StrategyTestData>) {
 
     // compose the steps for Test Preparation
@@ -120,7 +121,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 describe("Advance 1 month", () => {
 
                     before(async () => {
-                        await ethers.provider.send("evm_increaseTime", [ONE_MONTH]);
+                        await ethers.provider.send("evm_increaseTime", [ONE_YEAR]);
                         await ethers.provider.send("evm_mine", []);
                         await vaultInstance.connect(governanceSigner).doHardWork(); 
                     });
@@ -131,7 +132,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         expect((await underlyingInstance.balanceOf(miniChefV2)).gt(miniChefBalancePost)).to.be.false;
                     });
 
-                    describe("Advance 12 month & Sell Rewards", async () => {
+                    describe("Advance 1 month & Sell Rewards", async () => {
                         before(async () => {
                             await strategyInstance.setLiquidation(true, true, true);
                             await ethers.provider.send("evm_increaseTime", [ONE_MONTH]);

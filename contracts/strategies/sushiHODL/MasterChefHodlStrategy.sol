@@ -12,6 +12,7 @@ import "../../hardworkInterface/IStrategy.sol";
 import "../../hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMiniChefV2.sol";
+import "hardhat/console.sol";
 
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
@@ -251,7 +252,8 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   function _hodlAndNotify() internal {
 
     uint256 liquidityAdded;
-
+    console.log("sushi: %s", IERC20Upgradeable(sushiTokenAddress()).balanceOf(address(this)));
+    console.log("wmatic: %s", IERC20Upgradeable(wmaticTokenAddress()).balanceOf(address(this)));
     //liquidate the Sushi Rewards
     if (sellSushi()) {
       (address[] memory sushiPath0, address[] memory sushiPath1) = getSushiRoutes();
@@ -289,6 +291,10 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       uint256 token0Amount;
 
       if(_uniswapPath0[0] != _uniswapPath0[1]){
+
+        console.log("amount %s path0 %s path1 %s", half, _uniswapPath0[0], _uniswapPath0[1]);
+
+
         // we can accept 1 as the minimum because this will be called only by a trusted worker
         uint256[] memory amounts0 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
           half,
