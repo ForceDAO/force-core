@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
+import { advanceTime } from "../../../helpers/util";
 import { SUSHI_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
 import { StrategyTestData } from "./masterchef-sushihodl-strategy-testprep-helper";
 
@@ -123,34 +124,28 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     miniChefBalancePost = await underlyingInstance.balanceOf(miniChefV2);
                     expect(miniChefBalancePost).to.be.equal(miniChefBalancePre.add(DEPOSIT_AMOUNT));
                 });
-    
-                
-                describe("Advance 1 Year", () => {
+
+                describe("Advance 1 Day", () => {
 
                     before(async () => {
-                        await strategyInstance.setLiquidation(true, true, true);
-                        console.log(`before 1st hardhwork: `);
-                        const miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F");
-                        await miniChefV2Instance.harvest(8, strategyAddress);
-                        await vaultInstance.connect(governanceSigner).doHardWork(); 
-                        const sushiBalanceOfStrategyBeforeHardwork = await sushiTokenInstance.balanceOf(strategyAddress);
-                        await ethers.provider.send("evm_setNextBlockTimestamp", [228829691517]);
-                        await ethers.provider.send("evm_mine", []) ;
+                        await strategyInstance.setLiquidation(false, false, true);                        
+                        await advanceTime(ONE_DAY);
                         await vaultInstance.connect(governanceSigner).doHardWork();
-                        const sushiBalanceOfStrategyAfterHardwork = await sushiTokenInstance.balanceOf(strategyAddress);
                     });
 
-                    // it("should not auto-compound when sell flags are false", async () => {
-                    //     expect(await strategyInstance.sellSushi()).to.be.false;
-                    //     expect(await strategyInstance.sellWMatic()).to.be.false;
-                    //     expect((await underlyingInstance.balanceOf(miniChefV2)).gt(miniChefBalancePost)).to.be.false;
-                    // });
+                    it("should leave sell flags as false", async () => {
+                        expect(await strategyInstance.sellSushi()).to.be.false;
+                        expect(await strategyInstance.sellWMatic()).to.be.false;
+                    });
+                    
+                    it("should set claim rewards", async () => {
+                        expect((await underlyingInstance.balanceOf(miniChefV2)).gt(miniChefBalancePost)).to.be.true;
+                    });
 
-                    describe("Advance 1 month & Sell Rewards", async () => {
+                    describe("Advance 1 Day & Sell Rewards", async () => {
                         before(async () => {
                             await strategyInstance.setLiquidation(true, true, true);
-                            await ethers.provider.send("evm_increaseTime", [ONE_DAY]);
-                            await ethers.provider.send("evm_mine", []);
+                            await advanceTime(ONE_DAY);
                             await vaultInstance.connect(governanceSigner).doHardWork();
                         });
 
