@@ -125,13 +125,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
     
                 
-<<<<<<< HEAD
-                describe("Advance 1 day", () => {
-
-                    before(async () => {
-                        await ethers.provider.send("evm_increaseTime", [ONE_DAY]);
-                        await ethers.provider.send("evm_mine", []);
-=======
                 describe("Advance 1 Year", () => {
 
                     before(async () => {
@@ -139,7 +132,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         console.log(`before 1st hardhwork: `);
                         const miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F");
                         await miniChefV2Instance.harvest(8, strategyAddress);
->>>>>>> 5c3b7304275f5715555b0f418dfda1cccf9c1095
                         await vaultInstance.connect(governanceSigner).doHardWork(); 
                         const sushiBalanceOfStrategyBeforeHardwork = await sushiTokenInstance.balanceOf(strategyAddress);
                         await ethers.provider.send("evm_setNextBlockTimestamp", [228829691517]);
