@@ -4,8 +4,6 @@ import { StrategyTestData } from "./masterchef-sushihodl-strategy-testprep-helpe
 
 const { utils, BigNumber } = ethers;
 
-
-
 const DEPOSIT_AMOUNT = BigNumber.from(50);
 const WITHDRAW_AMOUNT = BigNumber.from(50);
 
@@ -50,7 +48,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         
         let governanceSigner: any;
         let depositorSigner: any;
-        
+
+        let miniChefV2: string;
         
         before(async () => {
             const _strategyTestData = await strategyTestData();
@@ -60,6 +59,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             strategyAddress = _strategyTestData.testStrategy.strategyAddress;
             governanceSigner = _strategyTestData.testAccounts.governanceSigner;
             depositorSigner = _strategyTestData.testAccounts.depositorSigner;
+            miniChefV2 = _strategyTestData.testStrategy.miniChefV2;
             
             underlyingInstance = await ethers.getContractAt("IERC20", underlyingAddress);
             vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
@@ -88,18 +88,21 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             let vaultBalancePre: typeof BigNumber;
             let vaultBalancePost: typeof BigNumber;
+            let miniChefBalancePre: typeof BigNumber;
+            let miniChefBalancePost: typeof BigNumber;
 
             before(async () => {
                 vaultBalancePre = await underlyingInstance.balanceOf(vaultAddress);
                 expect(vaultBalancePre).to.be.equal(BigNumber.from(DEPOSIT_AMOUNT));
+                miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2);
                 await vaultInstance.connect(governanceSigner).doHardWork();
                 vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
             });
 
             it("should move underlying from vault into strategy", async () => {
                 expect(await underlyingInstance.balanceOf(vaultAddress)).to.be.equal(BigNumber.from(0));
-                expect(await underlyingInstance.balanceOf(strategyAddress)).to.be.equal(DEPOSIT_AMOUNT);
-
+                miniChefBalancePost = await underlyingInstance.balanceOf(miniChefV2);
+                expect(miniChefBalancePost).to.be.equal(BigNumber.from(miniChefBalancePre).add(DEPOSIT_AMOUNT));
             });
 
             // it("should do hardwork", async () => {

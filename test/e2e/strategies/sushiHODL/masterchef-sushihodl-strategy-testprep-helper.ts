@@ -5,6 +5,7 @@ const logger: Logger = new Logger();
 export interface TestStrategy {
     strategyAddress: string;
     underlying: string;
+    miniChefV2: string;
 }
 
 export interface TestVault {

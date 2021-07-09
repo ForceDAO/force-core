@@ -178,8 +178,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             depositor,
             NOW_PLUS_DAY
         );
-
-
         
         strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
         expect(strategyInstance).to.not.be.null;
@@ -201,6 +199,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         const testStrategy: TestStrategy = {
             strategyAddress,
             underlying: underlyingInstance.address,
+            miniChefV2: MINICHEFV2
         };
 
         const testAccounts: TestAccounts = {
