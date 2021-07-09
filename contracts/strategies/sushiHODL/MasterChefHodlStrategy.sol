@@ -436,6 +436,8 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   *   when the investing is being paused by governance.
   */
   function doHardWork() external override onlyNotPausedInvesting restricted {
+    uint256 currentTimeInHardwork = block.timestamp;
+    console.log("currentTimeInHardwork is: %s", currentTimeInHardwork);
     exitRewardPool();
     _hodlAndNotify();
     investAllUnderlying();
