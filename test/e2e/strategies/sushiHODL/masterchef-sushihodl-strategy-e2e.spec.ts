@@ -17,6 +17,7 @@ import {
 
 import { sushiHodlBehavior } from "./masterchef-sushihodl-strategy-test-behaviour";
 import { StrategyTestData, TestAccounts, TestStrategy, TestVault } from "./masterchef-sushihodl-strategy-testprep-helper";
+import { BigNumber } from "ethers";
 
 
 describe("MasterChefV2 E2E - mainnet fork Tests", function () {
@@ -27,8 +28,10 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
     const UNDERLYING_ADDRESS: string = SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT;
     const WITHDRAW_FEE: number = 10;
 
-    const USDC_DEPOSIT_AMOUNT = 100;
-    const USDT_DEPOSIT_AMOUNT = 100;
+    const USDC_DEPOSIT_AMOUNT = BigNumber.from(100)
+        .mul(BigNumber.from(10).pow(6));
+    const USDT_DEPOSIT_AMOUNT = BigNumber.from(100)
+        .mul(BigNumber.from(10).pow(6))
 
     let underlyingInstance: any;  
 
@@ -134,29 +137,27 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         // Impersonate accounts.
         await network.provider.request({
             method: "hardhat_impersonateAccount",
-            params: [SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT]}
-        );
+            params: [SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT]
+        });
 
         await network.provider.request({
             method: "hardhat_impersonateAccount",
-            params: [USDC_WHALE_ADDRESS]}
-        );
-
+            params: [USDC_WHALE_ADDRESS]
+        });
+        
+        await network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [USDT_WHALE_ADDRESS]
+        });
+            
         const usdcWhaleSigner = await ethers.provider.getSigner(USDC_WHALE_ADDRESS);
         expect(usdcWhaleSigner).to.not.be.null; 
-
-        await network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: [USDT_WHALE_ADDRESS]}
-        );
-
         const usdtWhaleSigner = await ethers.provider.getSigner(USDT_WHALE_ADDRESS);
         expect(usdtWhaleSigner).to.not.be.null;
-        
+
         // Add liquidity.
         const usdcInstance = await ethers.getContractAt("IERC20", USDC_ADDRESS);
         await usdcInstance.connect(usdcWhaleSigner).transfer(depositor, USDC_DEPOSIT_AMOUNT);
-
         const usdtInstance = await ethers.getContractAt("IERC20", USDT_ADDRESS);
         await usdtInstance.connect(usdtWhaleSigner).transfer(depositor, USDT_DEPOSIT_AMOUNT);
 
@@ -166,7 +167,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         underlyingInstance = await ethers.getContractAt("IERC20", SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT);   
         
         routerInstance = await ethers.getContractAt("IUniswapV2Router02", SUSHISWAP_V2_ROUTER02_ADDRESS);
-
         const NOW_PLUS_DAY = Math.floor(new Date().getTime() / 1000) + 86400;
         await routerInstance.connect(depositorSigner).addLiquidity(
             USDC_ADDRESS,
@@ -178,7 +178,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             depositor,
             NOW_PLUS_DAY
         );
-        
+
         strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
         expect(strategyInstance).to.not.be.null;
         vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
