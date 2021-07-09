@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
+import { SUSHI_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
 import { StrategyTestData } from "./masterchef-sushihodl-strategy-testprep-helper";
 
 const DEPOSIT_AMOUNT: BigNumber = BigNumber.from(50);
@@ -52,6 +53,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         
         let governanceSigner: any;
         let depositorSigner: any;
+        let depositorAddress: string;
+
+        let sushiAddress: any;
+        let sushiTokenInstance: any;
 
         let miniChefV2: string;
         
@@ -63,7 +68,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             strategyAddress = _strategyTestData.testStrategy.strategyAddress;
             governanceSigner = _strategyTestData.testAccounts.governanceSigner;
             depositorSigner = _strategyTestData.testAccounts.depositorSigner;
+            depositorAddress = depositorSigner.address;
             miniChefV2 = _strategyTestData.testStrategy.miniChefV2;
+            sushiAddress = SUSHI_ADDRESS;
+            sushiTokenInstance = await ethers.getContractAt("IERC20", sushiAddress);
             
             underlyingInstance = await ethers.getContractAt("IERC20", underlyingAddress);
             vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
@@ -103,7 +111,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     expect(vaultBalancePre).to.be.equal(DEPOSIT_AMOUNT);
 
                     miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2);
-                    
                     await vaultInstance.connect(governanceSigner).doHardWork();
                     vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
                 });
@@ -118,19 +125,26 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
     
                 
-                describe("Advance 1 month", () => {
+                describe("Advance 1 Year", () => {
 
                     before(async () => {
-                        await ethers.provider.send("evm_increaseTime", [ONE_YEAR]);
-                        await ethers.provider.send("evm_mine", []);
+                        await strategyInstance.setLiquidation(true, true, true);
+                        console.log(`before 1st hardhwork: `);
+                        const miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F");
+                        await miniChefV2Instance.harvest(8, strategyAddress);
                         await vaultInstance.connect(governanceSigner).doHardWork(); 
+                        const sushiBalanceOfStrategyBeforeHardwork = await sushiTokenInstance.balanceOf(strategyAddress);
+                        await ethers.provider.send("evm_setNextBlockTimestamp", [228829691517]);
+                        await ethers.provider.send("evm_mine", []) ;
+                        await vaultInstance.connect(governanceSigner).doHardWork();
+                        const sushiBalanceOfStrategyAfterHardwork = await sushiTokenInstance.balanceOf(strategyAddress);
                     });
 
-                    it("should not auto-compound when sell flags are false", async () => {
-                        expect(await strategyInstance.sellSushi()).to.be.false;
-                        expect(await strategyInstance.sellWMatic()).to.be.false;
-                        expect((await underlyingInstance.balanceOf(miniChefV2)).gt(miniChefBalancePost)).to.be.false;
-                    });
+                    // it("should not auto-compound when sell flags are false", async () => {
+                    //     expect(await strategyInstance.sellSushi()).to.be.false;
+                    //     expect(await strategyInstance.sellWMatic()).to.be.false;
+                    //     expect((await underlyingInstance.balanceOf(miniChefV2)).gt(miniChefBalancePost)).to.be.false;
+                    // });
 
                     describe("Advance 1 month & Sell Rewards", async () => {
                         before(async () => {
@@ -146,6 +160,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         });
 
                         it("should auto-compound rewards", async () => {
+                            const underlyingBalanceAfterAutoC = await underlyingInstance.balanceOf(miniChefV2);
+                            console.log(`underlyingBalanceAfterAutoC is: ${underlyingBalanceAfterAutoC}`);
                             expect((await underlyingInstance.balanceOf(miniChefV2)).gt(miniChefBalancePost)).to.be.true;
                         });
                     });
