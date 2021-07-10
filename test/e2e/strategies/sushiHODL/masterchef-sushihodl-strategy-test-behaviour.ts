@@ -5,8 +5,6 @@ import { advanceTime } from "../../../helpers/util";
 import { SUSHI_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
 import { StrategyTestData } from "./masterchef-sushihodl-strategy-testprep-helper";
 
-const DEPOSIT_AMOUNT: BigNumber = BigNumber.from(50);
-const WITHDRAW_AMOUNT: BigNumber = BigNumber.from(50);
 
 const ZERO = BigNumber.from(0);
 const ONE_DAY = 86400;
@@ -43,6 +41,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
      */
 
     describe("SushiHodl Behavior", () => {
+
+        let depositAmount: BigNumber;
+
         let vaultAddress: any;
         let vaultInstance: any;
         
@@ -78,6 +79,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
             strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
 
+            depositAmount = await underlyingInstance.balanceOf(depositorSigner.address);
+            await vaultInstance.setTotalSupplyCap(depositAmount);
+            
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
 
@@ -88,83 +92,102 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             expect(await strategyInstance.sellWMatic()).to.be.false;
         });
 
-        describe("Deposit", async () => {
+        describe("Deposit", () => {
             
             it("should deposit underlying into vault", async () => {
-                await underlyingInstance.connect(depositorSigner).approve(vaultAddress, DEPOSIT_AMOUNT);
+                await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmount);
                 const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
 
-                await vaultInstance.connect(depositorSigner).deposit(DEPOSIT_AMOUNT);
+                await vaultInstance.connect(depositorSigner).deposit(depositAmount);
 
-                expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(DEPOSIT_AMOUNT);
-                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(DEPOSIT_AMOUNT);
+                expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmount);
+                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmount);
             });
 
-            describe("hardwork", async () => {
+        });
 
-                let vaultBalancePre: BigNumber;
-                let vaultBalancePost: BigNumber;
-                let miniChefBalancePre: BigNumber;
-                let miniChefBalancePost: BigNumber;
-    
+
+        describe("Hardwork", () => {
+
+            let vaultBalancePre: BigNumber;
+            let vaultBalancePost: BigNumber;
+            let miniChefBalancePre: BigNumber;
+            let miniChefBalancePost: BigNumber;
+
+            before(async () => {
+                vaultBalancePre = await underlyingInstance.balanceOf(vaultAddress);
+                expect(vaultBalancePre).to.be.equal(depositAmount);
+
+                miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2);
+                await vaultInstance.connect(governanceSigner).doHardWork();
+                vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
+            });
+
+            it("should move underlying from vault into strategy", async () => {
+                expect(await underlyingInstance.balanceOf(vaultAddress)).to.be.equal(ZERO);
+            });
+
+            it("should move underlying to MiniChef", async () => {
+                miniChefBalancePost = await underlyingInstance.balanceOf(miniChefV2);
+                expect(miniChefBalancePost).to.be.equal(miniChefBalancePre.add(depositAmount));
+            });
+
+            describe("Advance 1 Day", () => {
+
                 before(async () => {
-                    vaultBalancePre = await underlyingInstance.balanceOf(vaultAddress);
-                    expect(vaultBalancePre).to.be.equal(DEPOSIT_AMOUNT);
-
-                    miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2);
+                    await strategyInstance.setLiquidation(false, false, true);                        
+                    await advanceTime(ONE_DAY);
                     await vaultInstance.connect(governanceSigner).doHardWork();
-                    vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
-                });
-    
-                it("should move underlying from vault into strategy", async () => {
-                    expect(await underlyingInstance.balanceOf(vaultAddress)).to.be.equal(ZERO);
-                });
-    
-                it("should move underlying to MiniChef", async () => {
-                    miniChefBalancePost = await underlyingInstance.balanceOf(miniChefV2);
-                    expect(miniChefBalancePost).to.be.equal(miniChefBalancePre.add(DEPOSIT_AMOUNT));
                 });
 
-                describe("Advance 1 Day", () => {
-
-                    before(async () => {
-                        await strategyInstance.setLiquidation(false, false, true);                        
-                        await advanceTime(ONE_DAY);
-                        await vaultInstance.connect(governanceSigner).doHardWork();
-                    });
-
-                    it("should leave sell flags as false", async () => {
-                        expect(await strategyInstance.sellSushi()).to.be.false;
-                        expect(await strategyInstance.sellWMatic()).to.be.false;
-                    });
-                    
-                    it("should set claim rewards", async () => {
-                        expect(await strategyInstance.claimAllowed()).to.be.true;
-                    });
-
-                    describe("Advance 1 Day & Sell Rewards", async () => {
-                        before(async () => {
-                            await strategyInstance.setLiquidation(true, true, true);
-                            await advanceTime(ONE_DAY);
-                            await vaultInstance.connect(governanceSigner).doHardWork();
-                        });
-
-                        it("should set sell sushi and sell matic to true", async () => {
-                            expect(await strategyInstance.sellSushi()).to.be.true;
-                            expect(await strategyInstance.sellWMatic()).to.be.true;
-                        });
-
-                        it("should auto-compound rewards");
-                        // it("should auto-compound rewards", async () => {
-                        //     const underlyingBalanceAfterAutoC = await underlyingInstance.balanceOf(miniChefV2);
-                        //     console.log(`underlyingBalanceAfterAutoC is: ${underlyingBalanceAfterAutoC}`);
-                        //     expect((await underlyingInstance.balanceOf(miniChefV2)).gt(miniChefBalancePost)).to.be.true;
-                        // });
-                    });
+                it("should leave sell flags as false", async () => {
+                    expect(await strategyInstance.sellSushi()).to.be.false;
+                    expect(await strategyInstance.sellWMatic()).to.be.false;
                 });
-    
+                
+                it("should set claim rewards", async () => {
+                    expect(await strategyInstance.claimAllowed()).to.be.true;
+                });
+
             });
-    
+
+            
+            describe("Advance 1 Day & Sell Rewards", async () => {
+                before(async () => {
+                    await strategyInstance.setLiquidation(true, true, true);
+                    await advanceTime(ONE_DAY);
+                    await vaultInstance.connect(governanceSigner).doHardWork();
+                });
+
+                it("should set sell sushi and sell matic to true", async () => {
+                    expect(await strategyInstance.sellSushi()).to.be.true;
+                    expect(await strategyInstance.sellWMatic()).to.be.true;
+                });
+
+                it("should auto-compound rewards");
+                // it("should auto-compound rewards", async () => {
+                //     const underlyingBalanceAfterAutoC = await underlyingInstance.balanceOf(miniChefV2);
+                //     console.log(`underlyingBalanceAfterAutoC is: ${underlyingBalanceAfterAutoC}`);
+                //     expect((await underlyingInstance.balanceOf(miniChefV2)).gt(miniChefBalancePost)).to.be.true;
+                // });
+            });
+        });
+
+
+        describe("Withdraw", () => {
+            before(async () => {                     
+                await advanceTime(ONE_DAY);
+                await vaultInstance.connect(governanceSigner).doHardWork();
+            });
+
+            it("should permit withdrawal of all underlying", async () => {
+                const vaultShares = await vaultInstance.balanceOf(depositorSigner.address);
+                console.log(vaultShares.toString());
+                await vaultInstance.connect(depositorSigner).withdraw(vaultShares);
+
+                expect(depositAmount).to.be.equal(await underlyingInstance.balanceOf(depositorSigner.address));
+                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(0);
+            });
         });
 
 
@@ -172,11 +195,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         //     it("should withdraw from Vault", async () => {
 
-        //     });
-
-        //     it("should fast forward 1 week", async () => {
-        //         await ethers.provider.send("evm_increaseTime", [3600 * 24 * 10]);
-        //         await ethers.provider.send("evm_mine", []);
         //     });
         
         //     it("should compound rewards after 1 week", async () => {
