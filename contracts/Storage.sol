@@ -37,20 +37,20 @@ contract Storage {
     return account == governance;
   }
 
-  function isController(address account) public view returns (bool) {
+  function isController(address account) external view returns (bool) {
     return account == controller;
   }
 
   // Only smart contracts will be affected by the whiteList.
-  function addToWhiteList(address _target) public onlyGovernance {
+  function addToWhiteList(address _target) external onlyGovernance {
     whiteList[_target] = true;
   }
 
-  function removeFromWhiteList(address _target) public onlyGovernance {
+  function removeFromWhiteList(address _target) external onlyGovernance {
     whiteList[_target] = false;
   }
 
-  function checkWhitelist(address _target) public view returns (bool) {
+  function checkWhitelist(address _target) external view returns (bool) {
     return whiteList[_target];
   }
 }

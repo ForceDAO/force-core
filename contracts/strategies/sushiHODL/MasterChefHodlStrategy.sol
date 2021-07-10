@@ -194,7 +194,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     return (sushiToken0Route, sushiToken1Route);
   }
 
-  function depositArbCheck() public pure override returns(bool) {
+  function depositArbCheck() external pure override returns(bool) {
     return true;
   }
 
@@ -507,11 +507,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     return getUint256(_MIN_LIQUIDATE_TOKENS_SLOT);
   }
 
-  function getVault() public view override returns (address) {
+  function getVault() external view override returns (address) {
     return vault();
   }
 
-  function getUnderlying() public view override returns (address) {
+  function getUnderlying() external view override returns (address) {
     return underlying();
   }
 

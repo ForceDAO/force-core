@@ -22,7 +22,6 @@ contract BaseUpgradeableStrategyStorage {
   bytes32 internal constant _REWARD_CLAIMABLE_SLOT = 0xbc7c0d42a71b75c3129b337a259c346200f901408f273707402da4b51db3b8e7;
   bytes32 internal constant _MULTISIG_SLOT = 0x3e9de78b54c338efbc04e3a091b87dc7efb5d7024738302c548fc59fba1c34e6;
   
-
   constructor() {
     assert(_UNDERLYING_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.underlying")) - 1));
     assert(_VAULT_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.vault")) - 1));
@@ -72,7 +71,7 @@ contract BaseUpgradeableStrategyStorage {
     setBoolean(_SELL_SLOT, _value);
   }
 
-  function sell() public view returns (bool) {
+  function sell() external view returns (bool) {
     return getBoolean(_SELL_SLOT);
   }
 
@@ -88,7 +87,7 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_SELL_FLOOR_SLOT, _value);
   }
 
-  function sellFloor() public view returns (uint256) {
+  function sellFloor() external view returns (uint256) {
     return getUint256(_SELL_FLOOR_SLOT);
   }
 
@@ -96,7 +95,7 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_PROFIT_SHARING_NUMERATOR_SLOT, _value);
   }
 
-  function profitSharingNumerator() public view returns (uint256) {
+  function profitSharingNumerator() external view returns (uint256) {
     return getUint256(_PROFIT_SHARING_NUMERATOR_SLOT);
   }
 
@@ -104,11 +103,11 @@ contract BaseUpgradeableStrategyStorage {
     setUint256(_PROFIT_SHARING_DENOMINATOR_SLOT, _value);
   }
 
-  function profitSharingDenominator() public view returns (uint256) {
+  function profitSharingDenominator() external view returns (uint256) {
     return getUint256(_PROFIT_SHARING_DENOMINATOR_SLOT);
   }
 
-  function allowedRewardClaimable() public view returns (bool) {
+  function allowedRewardClaimable() external view returns (bool) {
     return getBoolean(_REWARD_CLAIMABLE_SLOT);
   }
 
@@ -116,7 +115,7 @@ contract BaseUpgradeableStrategyStorage {
     setBoolean(_REWARD_CLAIMABLE_SLOT, _value);
   }
 
-  function multiSig() public view returns(address) {
+  function multiSig() external view returns(address) {
     return getAddress(_MULTISIG_SLOT);
   }
 
