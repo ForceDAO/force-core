@@ -326,19 +326,15 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
 
     uint256 withdrawFeeShares = numberOfShares
       .mul(withdrawFee())
-      .div(10 ** decimals());
+      .div(underlyingUnit());
+
+    uint256 numberOfSharesPostFee = numberOfShares.sub(withdrawFeeShares);
+    uint256 underlyingAmountToWithdraw = getEstimatedWithdrawalAmount(numberOfSharesPostFee);
 
     _burn(msg.sender, numberOfShares);
     // Hand fees to controller.
     _mint(controller(), withdrawFeeShares);
 
-    uint256 numberOfSharesPostFee = numberOfShares.sub(withdrawFeeShares);
-
-    uint256 calculatedSharePrice = getPricePerFullShare();
-
-    uint256 underlyingAmountToWithdraw = numberOfSharesPostFee
-      .mul(calculatedSharePrice)
-      .div(underlyingUnit());
 
     if (underlyingAmountToWithdraw > underlyingBalanceInVault()) {
       // withdraw everything from the strategy to accurately check the share value
@@ -347,13 +343,12 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
         underlyingAmountToWithdraw = underlyingBalanceInVault();
       } else {
         uint256 missingUnderlying = underlyingAmountToWithdraw.sub(underlyingBalanceInVault());
-        IStrategy(strategy()).withdrawToVault(missingUnderlying);
-        // recalculate to improve accuracy
-        calculatedSharePrice = getPricePerFullShare();
 
-        uint256 updatedUnderlyingAmountToWithdraw = numberOfSharesPostFee
-          .mul(calculatedSharePrice)
-          .div(underlyingUnit());
+        IStrategy(strategy()).withdrawToVault(missingUnderlying);
+
+        uint256 updatedUnderlyingAmountToWithdraw = underlyingBalanceWithInvestment()
+          .mul(numberOfSharesPostFee)
+          .div(totalShareSupply);
 
         underlyingAmountToWithdraw = MathUpgradeable.min(
           updatedUnderlyingAmountToWithdraw,

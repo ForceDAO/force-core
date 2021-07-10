@@ -1,12 +1,10 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-ethers";
 import 'hardhat-deploy';
 import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-web3";
 import "solidity-coverage"
 import '@openzeppelin/hardhat-upgrades';
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-truffle5";
 
 import { ethers } from "ethers";
 
@@ -28,11 +26,12 @@ require("./scripts/vaults/set-strategy.task.ts");
 require("./scripts/vaults/query-vault.task.ts");
 require("./scripts/vaults/set-totalsupplycap.task.ts");
 require("./scripts/integration/vault/VaultDeposit.task.ts");
+require("./scripts/integration/vault/do-hardwork.task.ts");
+require("./scripts/integration/vault/withdraw.task.ts");
 require("./scripts/storage/set-controller.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || "";
 const MATICVIGIL_APP_ID = process.env.MATICVIGIL_APP_ID || "";
 const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "";
 const INFURA_POLYGON_MAINNET_KEY = process.env.INFURA_POLYGON_MAINNET_KEY || "";
@@ -49,7 +48,7 @@ const config: HardhatUserConfig = {
       gasPrice: ethers.utils.parseUnits("10", "gwei").toNumber(),
       forking: {
         url: `https://polygon-mainnet.infura.io/v3/${INFURA_POLYGON_MAINNET_KEY}`,
-        blockNumber: 16166077,
+        blockNumber: 16676878
       },
     },
     polygonmumbai: {

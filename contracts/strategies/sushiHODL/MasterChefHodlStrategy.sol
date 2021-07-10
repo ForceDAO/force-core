@@ -29,6 +29,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   bytes32 internal constant _SELL_WMATIC_BOOL_SLOT = 0x73f61035ecc9fe9b9df7f01bc4f1011784dd694ac3cac759bcd208fbf3da6e4a;
   bytes32 internal constant _CLAIM_ALLOWED_BOOL_SLOT = 0x643da254e9d7470053896c065c0a957d88a3eb48e03c87bfdfe16b3b5282046a;
   bytes32 internal constant _FEE_BASE_UNIT256_SLOT = 0xb03ba70f2714416bbb89d5653110256725bbfd3c1a0a6334c283e953a6ea7993;
+  bytes32 internal constant _MIN_LIQUIDATE_TOKENS_SLOT = 0x9a17f7f8724c1a2f0558868646dcdc38b7bebed9cec1eb59d4529eaa55f4cfad;
  
   //Wmatic -> WETH paths[0]
   bytes32 internal constant _ROUTE_WMATIC_TOKEN0_LHS = 0x6565901a24447709405ab3697f2ea640ce7791edb0ea046095d626972d683601;
@@ -69,6 +70,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     assert(_SELL_WMATIC_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.sellMatic")) - 1));
     assert(_CLAIM_ALLOWED_BOOL_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.claimAllowed")) - 1));
     assert(_FEE_BASE_UNIT256_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.feeBase")) - 1));
+    assert(_MIN_LIQUIDATE_TOKENS_SLOT == bytes32(uint256(keccak256("eip1967.strategyStorage.minLiquidateTokens")) - 1));
 
     assert(_ROUTE_WMATIC_TOKEN0_LHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token0.lhs")) - 1));
     assert(_ROUTE_WMATIC_TOKEN0_RHS == bytes32(uint256(keccak256("eip1967.strategyStorage.route.wmatic.token0.rhs")) - 1));
@@ -138,6 +140,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     address _lpt = IMiniChefV2(rewardPool()).lpToken(_poolId);
     require(_lpt == underlying(), "Pool Info does not match underlying");
 
+    setUint256(_MIN_LIQUIDATE_TOKENS_SLOT, 10 ether);
     setUint256(_POOLID_SLOT, _poolId);
     setAddress(_ROUTER_ADDRESS_V2_SLOT, _routerAddressV2);
     setAddress(_SUSHI_TOKEN_ADDRESS_SLOT, _sushiTokenAddress);
@@ -276,7 +279,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   function liquidateRewardToken(address _rewardTokenAddress, address[] memory _uniswapPath0, address[] memory _uniswapPath1) internal returns (uint256) {
     uint256 rewardTokenBalance = IERC20Upgradeable(_rewardTokenAddress).balanceOf(address(this));
 
-    if (rewardTokenBalance > 0) {
+    if (rewardTokenBalance > minLiquidateTokens()) {
       //halve the tokenBalance
       //first half of tokenBalance will be used to buy token0
       //second half of tokenBalance will be used to buy token1
@@ -500,6 +503,9 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   function feeBase() public view returns (uint256) {
     return getUint256(_FEE_BASE_UNIT256_SLOT);
   }
+  function minLiquidateTokens() public view returns (uint256) {
+    return getUint256(_MIN_LIQUIDATE_TOKENS_SLOT);
+  }
 
   function getVault() public view override returns (address) {
     return vault();
@@ -517,5 +523,12 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       setSellSushi(_sellSushi);
       setSellWMatic(_sellWMatic);
       setClaimAllowed(_claimAllowed);
+  }
+
+  function setMinLiquidateTokens(uint256 minLiquidate)
+    public
+    onlyGovernance
+  {
+      setUint256(_MIN_LIQUIDATE_TOKENS_SLOT, minLiquidate);
   }
 }
