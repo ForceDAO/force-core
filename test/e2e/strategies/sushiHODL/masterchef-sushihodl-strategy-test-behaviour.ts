@@ -81,6 +81,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             depositAmount = await underlyingInstance.balanceOf(depositorSigner.address);
             await vaultInstance.setTotalSupplyCap(depositAmount);
+            await vaultInstance.setWithdrawFee(0);
             
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
@@ -99,9 +100,11 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
 
                 await vaultInstance.connect(depositorSigner).deposit(depositAmount);
+                const totalShares = await await vaultInstance.balanceOf(depositorSigner.address);
 
                 expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmount);
-                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmount);
+                expect(totalShares).to.be.equal(depositAmount);
+                expect(await vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(depositAmount);
             });
 
         });
@@ -182,10 +185,15 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             it("should permit withdrawal of all underlying", async () => {
                 const vaultShares = await vaultInstance.balanceOf(depositorSigner.address);
-                console.log(vaultShares.toString());
+
+                console.log(`ts depositAmount: ${depositAmount.toString()}`);
+                console.log(`ts vaultShares: ${vaultShares.toString()}`);
+                console.log(`ts getEstimatedWithdrawalAmount: ${(await vaultInstance.getEstimatedWithdrawalAmount(vaultShares)).toString()}`);
+                console.log(`ts getPricePerFullShare: ${(await vaultInstance.getPricePerFullShare()).toString()}`);
                 await vaultInstance.connect(depositorSigner).withdraw(vaultShares);
 
-                expect(depositAmount).to.be.equal(await underlyingInstance.balanceOf(depositorSigner.address));
+                console.log(`ts balance after ${await underlyingInstance.balanceOf(depositorSigner.address)}`);
+                expect(depositAmount.lt(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.true;
                 expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(0);
             });
         });
