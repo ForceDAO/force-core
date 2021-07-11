@@ -35,5 +35,8 @@ task("query-vault", "Query a Vault Proxy contract")
   const claimAllowed = await strategyInstance.claimAllowed();
   log.info(`Strategy is initialised with claimAllowed: ${claimAllowed}`);
 
+  const vaultImplementationAddress = await vaultInstance.implementation();
+  log.info(`Vault has ImplementationAddress: ${vaultImplementationAddress}`);
+  
   log.info(`spending allowance for Spender: ${vaultProxyAddress} on Underlying: ${underlyingAddress} is: ${allowance} `);
 });
