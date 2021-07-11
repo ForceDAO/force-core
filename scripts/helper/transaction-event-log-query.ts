@@ -1,7 +1,13 @@
 import "@nomiclabs/hardhat-ethers";
+import { getImplementationAddress } from '@openzeppelin/upgrades-core';
+import { EthereumProvider } from '@openzeppelin/upgrades-core';
+
+export const getImplementationAddressOfProxy = async (provider: EthereumProvider, proxyAddress: string) : Promise<string> => {
+  return await getImplementationAddress(provider, proxyAddress);
+};
 
 export const getVaultImplementationFromTransactionHash = async (transactionHash : string, hre: any) : Promise<string> => { 
-  const implementationAddressTopicHash =  hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(["string"], ["Upgraded(address)"]));
+  const implementationAddressTopicHash = hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(["string"], ["Upgraded(address)"]));
 
   //lookup for implementationAddress in EventLog which has topic-0 matching implementationAddressTopicHash
   const transactionReceipt = await hre.ethers.provider.getTransactionReceipt(transactionHash);

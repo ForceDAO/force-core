@@ -4,7 +4,7 @@ import "@nomiclabs/hardhat-ethers";
 const log: Logger = new Logger();
 import { strict as assert } from 'assert';
 import { vaults, Vault }  from "../deploy/config/deploy-config-vaults";
-import { getImplementationAddress } from '@openzeppelin/upgrades-core';
+import { getImplementationAddressOfProxy } from "../helper/transaction-event-log-query";
 
 task("upgrade-vault", "set the totalSupplyCap to the Vault")
 .addParam("underlyingname","name of the underlying, for Example: USDC-USDT")
@@ -17,10 +17,8 @@ task("upgrade-vault", "set the totalSupplyCap to the Vault")
     assert(hre.ethers.utils.getAddress(vaultAddress) == hre.ethers.utils.getAddress(vaultAddress), "Invalid vaultAddress");
     assert(hre.ethers.utils.getAddress(vaultImplementationAddress) == hre.ethers.utils.getAddress(vaultImplementationAddress), "Invalid vaultAddress");
     log.info(`vaultAddress : ${vaultAddress} with implementation: ${vaultImplementationAddress} for underlying: ${underlyingname}`);
-
-    log.info(`upgrading VaultProxy At : ${vaultAddress} with new implementation of Vault`);
-
     const vaultContract = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);
+    log.info(`upgrading VaultProxy At : ${vaultAddress} with new implementation of Vault`);
     const vaultUpgradeTxnResponse = await hre.upgrades.upgradeProxy(
         vaultAddress, 
         vaultContract,  
@@ -36,7 +34,7 @@ task("upgrade-vault", "set the totalSupplyCap to the Vault")
 
     assert(vaultUpgradeTxnResponse.status == 0, "vaultUpgradeFailed");
 
-    const vaultUpgradedImplementationAddress = await getImplementationAddress(hre.ethers.provider, vaultAddress);
+    const vaultUpgradedImplementationAddress = await getImplementationAddressOfProxy(hre.ethers.provider, vaultAddress);
 
     if(vaultImplementationAddress == vaultUpgradedImplementationAddress){
         log.error(`Vault Upgrade has Errors as the newImplementationAddress is same as existing ImplementationAddress`);
