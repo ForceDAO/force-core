@@ -26,7 +26,6 @@ require("./scripts/vaults/set-strategy.task.ts");
 require("./scripts/vaults/query-vault.task.ts");
 require("./scripts/vaults/set-totalsupplycap.task.ts");
 require("./scripts/vaults/upgrade-vault.task.ts");
-require("./scripts/vaults/query-vault-implementation.task.ts");
 require("./scripts/integration/vault/VaultDeposit.task.ts");
 require("./scripts/integration/vault/do-hardwork.task.ts");
 require("./scripts/integration/vault/withdraw.task.ts");
