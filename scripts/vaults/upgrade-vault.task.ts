@@ -4,7 +4,7 @@ import "@nomiclabs/hardhat-ethers";
 const log: Logger = new Logger();
 import { strict as assert } from 'assert';
 import { vaults, Vault }  from "../deploy/config/deploy-config-vaults";
-import { getVaultImplementationFromTransactionHash } from "../helper/transaction-event-log-query";
+import { getImplementationAddress } from '@openzeppelin/upgrades-core';
 
 task("upgrade-vault", "set the totalSupplyCap to the Vault")
 .addParam("underlyingname","name of the underlying, for Example: USDC-USDT")
@@ -21,23 +21,26 @@ task("upgrade-vault", "set the totalSupplyCap to the Vault")
     log.info(`upgrading VaultProxy At : ${vaultAddress} with new implementation of Vault`);
 
     const vaultContract = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);
-    const vaultUpgradeTxnResponse = await hre.upgrades.upgradeProxy(vaultAddress, vaultContract);
+    const vaultUpgradeTxnResponse = await hre.upgrades.upgradeProxy(
+        vaultAddress, 
+        vaultContract,  
+        {
+            unsafeAllow: ['constructor'],
+            unsafeAllowCustomTypes: true
+        }
+    );
 
     await vaultUpgradeTxnResponse.wait();
 
     log.info(`transactionResponse for  VaultProxy: ${vaultAddress} is: ${JSON.stringify(vaultUpgradeTxnResponse)}`);
+
     assert(vaultUpgradeTxnResponse.status == 0, "vaultUpgradeFailed");
 
-    const vaultInstance = await hre.ethers.getContractAt(
-        "Vault",
-        vaultAddress
-    );
+    const vaultUpgradedImplementationAddress = await getImplementationAddress(hre.ethers.provider, vaultAddress);
 
-    const newVaultImplementationAddress = await getVaultImplementationFromTransactionHash(vaultUpgradeTxnResponse.hash, hre);
-
-    if(vaultImplementationAddress == newVaultImplementationAddress){
+    if(vaultImplementationAddress == vaultUpgradedImplementationAddress){
         log.error(`Vault Upgrade has Errors as the newImplementationAddress is same as existing ImplementationAddress`);
     }else{
-        log.info(`Vault is upgraded to new implementationAddress: ${newVaultImplementationAddress}`);
+        log.info(`Vault is upgraded to new implementationAddress: ${vaultUpgradedImplementationAddress}`);
     }
 });
