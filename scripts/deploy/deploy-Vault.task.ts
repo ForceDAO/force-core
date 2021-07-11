@@ -5,7 +5,6 @@ const log: Logger = new Logger();
 import { strict as assert } from 'assert';
 import { network as globalConfigNetwork, storageAddress }  from "./config/deploy-config-global";
 import { network as vaultConfigNetwork, vaults, VaultData, Vault, VaultInit }  from "./config/deploy-config-vaults";
-import { getVaultImplementationFromTransactionHash } from "../helper/transaction-event-log-query";
 
 task("deploy-vault", "Deploys a new Vault contract")
   .addParam("underlyingname","name of the underlying, for Example: USDC-USDT")
