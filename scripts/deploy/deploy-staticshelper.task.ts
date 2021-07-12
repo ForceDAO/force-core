@@ -12,5 +12,4 @@ task("deploy-staticshelper", "Deploys a new Statics-Helper contract")
   const staticsHelperContractInstance = await staticsHelperContract.deploy();
   await staticsHelperContractInstance.deployed();
   log.info(`copy ${staticsHelperContractInstance.address} to constant staticsHelperAddress of scripts/deploy/config/deploy-config-global.ts`);
-
 });
