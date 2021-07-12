@@ -17,11 +17,12 @@ task("upgrade-vault", "set the totalSupplyCap to the Vault")
     assert(hre.ethers.utils.getAddress(vaultAddress) == hre.ethers.utils.getAddress(vaultAddress), "Invalid vaultAddress");
     assert(hre.ethers.utils.getAddress(vaultImplementationAddress) == hre.ethers.utils.getAddress(vaultImplementationAddress), "Invalid vaultAddress");
     log.info(`vaultAddress : ${vaultAddress} with implementation: ${vaultImplementationAddress} for underlying: ${underlyingname}`);
+    
     const vaultContract = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);
     log.info(`upgrading VaultProxy At : ${vaultAddress} with new implementation of Vault`);
     const vaultUpgradeTxnResponse = await hre.upgrades.upgradeProxy(
         vaultAddress, 
-        vaultContract,  
+        vaultContract,
         {
             unsafeAllow: ['constructor'],
             unsafeAllowCustomTypes: true
