@@ -29,13 +29,10 @@ task("upgrade-vault", "set the totalSupplyCap to the Vault")
         }
     );
 
-    await vaultUpgradeTxnResponse.wait();
-
-    log.info(`transactionResponse for  VaultProxy: ${vaultAddress} is: ${JSON.stringify(vaultUpgradeTxnResponse)}`);
-
-    assert(vaultUpgradeTxnResponse.status == 0, "vaultUpgradeFailed");
+    await vaultUpgradeTxnResponse.deployed();
 
     const vaultUpgradedImplementationAddress = await getImplementationAddressOfProxy(hre.ethers.provider, vaultAddress);
+    log.info(`vaultUpgradedImplementationAddress is: ${vaultUpgradedImplementationAddress}`);
 
     if(vaultImplementationAddress == vaultUpgradedImplementationAddress){
         log.error(`Vault Upgrade has Errors as the newImplementationAddress is same as existing ImplementationAddress`);
