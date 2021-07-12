@@ -71,6 +71,8 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
     routeWmaticToken1
   );
 
+  await sushiHodlStrategyCreationTransactionResponse.wait();
+
   log.info(`Created and Initialised SushiHodlStrategy: ${JSON.stringify(sushiHodlStrategyCreationTransactionResponse)} on network: ${hre.network.name} with arguments: \n`);
   log.info(`sushiHodlStrategyFactoryAddress: ${sushiHodlStrategyFactoryAddress}`);
   log.info(`underlying: ${underlying}`); 

@@ -2,8 +2,11 @@
 
 ## Deploy StaticHelper
 
+```sh
+npx hardhat deploy-staticshelper --network polygonmainnet
 ```
-```
+
+
 
 ## Deploy Storage
 

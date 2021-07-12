@@ -8,6 +8,7 @@ task("deploy-sushihodl-factory", "Deploys a new SushiHodl-Factory contract")
     log.info(`deploying deploy-sushiHodl-factory`);
     const sushiHodlStrategyFactory = await hre.ethers.getContractFactory(`contracts/strategies/sushiHODL/SushiHodlStrategyFactory.sol:SushiHodlStrategyFactory`);
     const instSushiHodlStrategyFactory = await sushiHodlStrategyFactory.deploy();
+    await instSushiHodlStrategyFactory.deployed();
     const addrSushiHodlStrategyFactory = instSushiHodlStrategyFactory.address;
     log.info(`SushiHodlStrategyFactory: ${addrSushiHodlStrategyFactory} is deployed on network: ${hre.network.name}`);
   });

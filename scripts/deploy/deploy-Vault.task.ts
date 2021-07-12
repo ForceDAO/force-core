@@ -39,6 +39,8 @@ task("deploy-vault", "Deploys a new Vault contract")
          unsafeAllowCustomTypes: true
       });
 
+  await vaultProxyContractInstance.deployed();    
+
   log.info(`Must Do Activity: ${vaultProxyContractInstance.address} deploy-config-vaults.ts as: vaultAddress`);
   
   log.info(`Initialised Vault: ${vaultProxyContractInstance.address} on network: ${hre.network.name} with arguments: \n`);
