@@ -94,46 +94,215 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         });
 
         describe("Deposit", () => {
+            describe("depositFor", () => {
+                it("should deposit underlying into vault");
+                it("should fail if beneficiary is address 0");
+                it("should fail if amount is 0");
+                it("should fail if not approved token");
+                it("should emit mint event for receipt token");
+                it("should emit deposit event");
+                it("should emit transfer event for underlying");
+                it("should mint expected amount of receipt token");
+
+            }); 
             
-            it("should deposit underlying into vault", async () => {
-                await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmount);
-                const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
+            describe("deposit (for self)", () => {
+                it("should deposit underlying into vault", async () => {
+                    await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmount);
+                    const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
+    
+                    await vaultInstance.connect(depositorSigner).deposit(depositAmount);
+                    const totalShares = await await vaultInstance.balanceOf(depositorSigner.address);
+    
+                    expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmount);
+                    expect(totalShares).to.be.equal(depositAmount);
+                    expect(await vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(depositAmount);
+                });
 
-                await vaultInstance.connect(depositorSigner).deposit(depositAmount);
-                const totalShares = await await vaultInstance.balanceOf(depositorSigner.address);
-
-                expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmount);
-                expect(totalShares).to.be.equal(depositAmount);
-                expect(await vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(depositAmount);
-            });
+                it("should fail if amount is 0");
+                it("should fail if not approved token");
+                it("should emit mint event for receipt token");
+                it("should emit deposit event");
+                it("should emit transfer event for underlying");
+                it("should mint expected amount of receipt token");
+            }); 
 
         });
 
 
-        describe("Hardwork", () => {
+        describe("Hardwork: Vault", () => {
+
+
 
             let vaultBalancePre: BigNumber;
             let vaultBalancePost: BigNumber;
             let miniChefBalancePre: BigNumber;
             let miniChefBalancePost: BigNumber;
+            let hardworkTxn;
 
-            before(async () => {
-                vaultBalancePre = await underlyingInstance.balanceOf(vaultAddress);
-                expect(vaultBalancePre).to.be.equal(depositAmount);
+            describe("When _withdrawBeforeReinvesting is false", () => {
 
-                miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2);
-                await vaultInstance.connect(governanceSigner).doHardWork();
-                vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
+                before(async () => {
+                    vaultBalancePre = await underlyingInstance.balanceOf(vaultAddress);
+                    expect(vaultBalancePre).to.be.equal(depositAmount);
+    
+                    miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2);
+                    hardworkTxn = await vaultInstance.connect(governanceSigner).doHardWork();
+                    vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
+                });
+
+                it("should move underlying from vault into strategy", async () => {
+                    expect(await underlyingInstance.balanceOf(vaultAddress)).to.be.equal(ZERO);
+                });
+    
+                it("should move underlying to MiniChef", async () => {
+                    miniChefBalancePost = await underlyingInstance.balanceOf(miniChefV2);
+                    expect(miniChefBalancePost).to.be.equal(miniChefBalancePre.add(depositAmount));
+                });
+
+                describe("When availableToInvestOut > 0", () => {
+                    it("should emit Invest event");
+                    it("should transfer amount availableToInvestOut to the strategy");
+                });
+
+                describe("When availableToInvestOut == 0", () => {
+                    it("should not Invest event");
+                    it("should not transfer amount availableToInvestOut to the strategy");
+                });
+
+            });
+            
+            describe("When _withdrawBeforeReinvesting is true", () => {
+                it("should emit transfer event to the vault from strategy");
             });
 
-            it("should move underlying from vault into strategy", async () => {
-                expect(await underlyingInstance.balanceOf(vaultAddress)).to.be.equal(ZERO);
+
+            describe("Hardwork: Strategy", () => {
+
+                describe("When balance != 0", () => {
+
+                    describe("When claimAllowed", () => {
+                        it("should emit transfer event to strategy for sushi tokens");
+                        it("should emit transfer event to strategy for wmatic tokens");
+                        it("should emit transfer event to strategy for underlying tokens");
+                        it("should emit Withdraw event");
+                        it("should emit Harvest event");
+                        it("should update the correct user.amount and user.reward debt on the minichef contract");
+                    });
+
+                    describe("When not claimAllowed", () => {
+                        it("should emit transfer event to strategy for wmatic tokens");
+                        it("should emit transfer event to strategy for underlying tokens");
+                        it("should emit Withdraw event");
+                        it("should emit Harvest event");
+                        it("should update the correct user.amount and user.reward debt on the minichef contract");
+                    });
+                    
+                });
+
+                describe("When balance == 0", () => {
+                    
+                });
+                
+                describe("_hodlAndNotify", () => {
+                    describe("sellSushi", () => {
+                        describe("rewardTokenBalance > minLiquidateTokens", () => {
+                            it("should emit approve amount for route of 0");
+                            it("should emit approve amount for route of rewardTokenBalance");
+                        
+                            describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
+                                it("should swap tokens for _uniswapPath0[1]");
+                                it("should emit transfer event to strategy");
+                                it("should emit transfer event from strategy");
+                                it("should emit swap event");
+                            });
+                            describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
+                                it("should swap tokens for _uniswapPath1[1]");
+                                it("should emit transfer event to strategy");
+                                it("should emit transfer event from strategy");
+                                it("should emit swap event");
+                            });
+
+                            describe("Add Liquidity", () => {
+                                
+                                describe("token0Address", () => {
+                                    it("should emit approve amount for router of 0");
+                                    it("should emit approve amount for router of token0Amount");
+                                });
+
+                                describe("token1Address", () => {
+                                    it("should emit approve amount for router of 0");
+                                    it("should emit approve amount for router of token0Amount");
+                                });
+                                
+                                it("should log Mint event for correct underlying amount from the UniswapV2Pair");
+                                it("should log LogLiquidityAdded event");
+                            });
+                        });
+                    });
+
+                    describe("sellWMatic", () => {
+                        describe("rewardTokenBalance > minLiquidateTokens", () => {
+                            it("should emit approve amount for route of 0");
+                            it("should emit approve amount for route of rewardTokenBalance");
+                        
+                            describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
+                                it("should swap tokens for _uniswapPath0[1]");
+                                it("should emit transfer event to strategy");
+                                it("should emit transfer event from strategy");
+                                it("should emit swap event");
+                            });
+                            describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
+                                it("should swap tokens for _uniswapPath1[1]");
+                                it("should emit transfer event to strategy");
+                                it("should emit transfer event from strategy");
+                                it("should emit swap event");
+                            });
+
+                            describe("Add Liquidity", () => {
+                                
+                                describe("token0Address", () => {
+                                    it("should emit approve amount for router of 0");
+                                    it("should emit approve amount for router of token0Amount");
+                                });
+
+                                describe("token1Address", () => {
+                                    it("should emit approve amount for router of 0");
+                                    it("should emit approve amount for router of token0Amount");
+                                });
+                                
+                                it("should log Mint event for correct underlying amount from the UniswapV2Pair");
+                                it("should log LogLiquidityAdded event");
+                            });
+                        });
+                    });
+
+                    describe("controller address set", () => {
+                        
+                        describe("fee > 0", () => {
+                            it("should emit transfer event of underlying to controller address");
+                            it("should transfer correct fee amount to controller address");
+                        });
+
+                        describe("fee == 0", () => {
+                            it("should not emit transfer event of underlying to controller address");
+                        });
+                        
+                    });
+                    
+                    
+                });
+                
+                describe("investAllUnderlying", () => {
+                    it("should emit approve event for reward pool of 0");
+                    it("should emit approve event for reward pool of entireBalance");
+                    it("should emit transfer event for tokens from strategy to reward pool");
+                    it("should emit Deposit event from reward pool");
+                    it("should have the correct underlying balance in the strategy");
+                    it("should have the correct user.amount and user.rewardDebt in the reward pool");
+                });
             });
 
-            it("should move underlying to MiniChef", async () => {
-                miniChefBalancePost = await underlyingInstance.balanceOf(miniChefV2);
-                expect(miniChefBalancePost).to.be.equal(miniChefBalancePre.add(depositAmount));
-            });
 
             describe("Advance 1 Day", () => {
 
@@ -178,33 +347,42 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
 
         describe("Withdraw", () => {
+
             before(async () => {                     
                 await advanceTime(ONE_DAY);
                 await vaultInstance.connect(governanceSigner).doHardWork();
             });
 
-            it("should permit withdrawal of all underlying", async () => {
-                const vaultShares = await vaultInstance.balanceOf(depositorSigner.address);
+            describe("Without Fee", () => {
+                it("should permit withdrawal of all underlying", async () => {
+                    const vaultShares = await vaultInstance.balanceOf(depositorSigner.address);
+    
+                    console.log(`ts depositAmount: ${depositAmount.toString()}`);
+                    console.log(`ts vaultShares: ${vaultShares.toString()}`);
+                    console.log(`ts getEstimatedWithdrawalAmount: ${(await vaultInstance.getEstimatedWithdrawalAmount(vaultShares)).toString()}`);
+                    console.log(`ts getPricePerFullShare: ${(await vaultInstance.getPricePerFullShare()).toString()}`);
+                    await vaultInstance.connect(depositorSigner).withdraw(vaultShares);
+    
+                    console.log(`ts balance after ${await underlyingInstance.balanceOf(depositorSigner.address)}`);
+                    expect(depositAmount.lt(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.true;
+                    expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(0);
+                });
 
-                console.log(`ts depositAmount: ${depositAmount.toString()}`);
-                console.log(`ts vaultShares: ${vaultShares.toString()}`);
-                console.log(`ts getEstimatedWithdrawalAmount: ${(await vaultInstance.getEstimatedWithdrawalAmount(vaultShares)).toString()}`);
-                console.log(`ts getPricePerFullShare: ${(await vaultInstance.getPricePerFullShare()).toString()}`);
-                await vaultInstance.connect(depositorSigner).withdraw(vaultShares);
-
-                console.log(`ts balance after ${await underlyingInstance.balanceOf(depositorSigner.address)}`);
-                expect(depositAmount.lt(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.true;
-                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(0);
+                it("should withdraw exact amount expected");
             });
+            
+            describe("With Fee", () => {
+                it("should permit withdrawal of all underlying");
+                it("should withdraw exact amount expected");
+            });
+
+
         });
+
 
 
         // describe("withdraw from Vault to Depositor", async () => {
 
-        //     it("should withdraw from Vault", async () => {
-
-        //     });
-        
         //     it("should compound rewards after 1 week", async () => {
     
         //     const lpBalanceBeforeWithdraw = await underlyingInstance.balanceOf(depositorAddress);
