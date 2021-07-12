@@ -67,7 +67,7 @@ const config: HardhatUserConfig = {
       url: `https://polygon-mainnet.infura.io/v3/349b22fd70af49f3b18af16601393a47`,
       chainId: 137,
       accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
-      gasPrice: ethers.utils.parseUnits("200", "gwei").toNumber(),
+      gasPrice: ethers.utils.parseUnits("150", "gwei").toNumber(),
       gasMultiplier: 10,
       timeout: 12000000,
     },

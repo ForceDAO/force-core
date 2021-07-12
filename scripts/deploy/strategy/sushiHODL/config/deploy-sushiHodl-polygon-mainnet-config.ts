@@ -22,7 +22,7 @@ export interface Strategy {
 export const strategies: StrategyData = {  
     "SUSHIHODL-WMATIC-WETH-V1": {
         pairName: "WMATIC-WETH",
-        sushiHodlStrategyFactoryAddress: "0x156Bf6C58C54237423Ffd7803Cc9303AeaF45ada",
+        sushiHodlStrategyFactoryAddress: "0x8289E89e234A753A962a2C495382A28b5cB975D1",
         miniChefV2: "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F",
         poolId: 0,
         routerAddressV2: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
@@ -36,7 +36,7 @@ export const strategies: StrategyData = {
     },
     "SUSHIHODL-USDC-WETH-V1": {
         pairName: "USDC-WETH",
-        sushiHodlStrategyFactoryAddress: "0x156Bf6C58C54237423Ffd7803Cc9303AeaF45ada",
+        sushiHodlStrategyFactoryAddress: "0x8289E89e234A753A962a2C495382A28b5cB975D1",
         miniChefV2: "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F",
         poolId: 1,
         routerAddressV2: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
@@ -50,7 +50,7 @@ export const strategies: StrategyData = {
     },
     "SUSHIHODL-WETH-USDT-V1": {
         pairName: "WETH-USDT",
-        sushiHodlStrategyFactoryAddress: "0x156Bf6C58C54237423Ffd7803Cc9303AeaF45ada",
+        sushiHodlStrategyFactoryAddress: "0x8289E89e234A753A962a2C495382A28b5cB975D1",
         miniChefV2: "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F",
         poolId: 2,
         routerAddressV2: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
@@ -64,7 +64,7 @@ export const strategies: StrategyData = {
     },
     "SUSHIHODL-WETH-DAI-V1": {
         pairName: "WETH-DAI",
-        sushiHodlStrategyFactoryAddress: "0x156Bf6C58C54237423Ffd7803Cc9303AeaF45ada",
+        sushiHodlStrategyFactoryAddress: "0x8289E89e234A753A962a2C495382A28b5cB975D1",
         miniChefV2: "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F",
         poolId: 5,
         routerAddressV2: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
@@ -78,7 +78,7 @@ export const strategies: StrategyData = {
     },
     "SUSHIHODL-USDC-USDT-V1": {
         pairName: "USDC-USDT",
-        sushiHodlStrategyFactoryAddress: "0x156Bf6C58C54237423Ffd7803Cc9303AeaF45ada",
+        sushiHodlStrategyFactoryAddress: "0x8289E89e234A753A962a2C495382A28b5cB975D1",
         miniChefV2: "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F",
         poolId: 8,
         routerAddressV2: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
