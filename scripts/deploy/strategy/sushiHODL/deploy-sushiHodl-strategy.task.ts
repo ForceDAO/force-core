@@ -7,6 +7,7 @@ import { network as vaultConfigNetwork, vaults, VaultData, Vault, VaultInit }  f
 
 import { Logger } from "tslog";
 import { strict as assert } from 'assert';
+import { getStrategyImplementationFromTransactionHash } from "../../../helper/transaction-event-log-query";
 const log: Logger = new Logger();
 
 task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushiHODLFactory Contract")
@@ -48,6 +49,7 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
   assert(routeWmaticToken0.length === 2 && routeWmaticToken0[0] != "" && routeWmaticToken0[1] != "" , "routeWmaticToken0 is invalid");
   assert(routeWmaticToken1.length === 2 && routeWmaticToken1[0] != "" && routeWmaticToken1[1] != "" , "routeWmaticToken1 is invalid");
 
+  log.info(`sushiHodlStrategyFactoryAddress: ${sushiHodlStrategyFactoryAddress}`);
   log.info(`creating sushiHODLStrategy for : ${args.strategyname} and underlying: ${underlyingname}`);
 
   //create sushiHODLStrategyFactory Contract Instance using sushiHodlStrategyFactory Contract Address & ABI
@@ -73,16 +75,25 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
 
   await sushiHodlStrategyCreationTransactionResponse.wait();
 
-  log.info(`Created and Initialised SushiHodlStrategy for underlying: ${underlyingname} and Vault: ${vaultAddress} on network: ${hre.network.name} with arguments: \n`);
-  log.info(`sushiHodlStrategyFactoryAddress: ${sushiHodlStrategyFactoryAddress}`);
-  log.info(`underlying: ${underlying}`); 
-  log.info(`miniChefV2: ${miniChefV2}`);
-  log.info(`poolId: ${poolId}`);
-  log.info(`routerAddressV2: ${routerAddressV2}`);
-  log.info(`sushiTokenAddress: ${sushiTokenAddress}`);
-  log.info(`wmaticTokenAddress: ${wmaticTokenAddress}`);
-  log.info(`routeSushiToken0: ${routeSushiToken0}`);
-  log.info(`routeSushiToken1: ${routeSushiToken1}`);
-  log.info(`routeWmaticToken0: ${routeWmaticToken0}`);
-  log.info(`routeWmaticToken1: ${routeWmaticToken1}`);
+  const transactionHash = sushiHodlStrategyCreationTransactionResponse.hash;
+  
+  const polygonexplorer = `https://polygonscan.com/tx/${transactionHash}`;
+  log.info(`Strategy Instance for underlying: ${underlyingname} is deployed with transaction: ${polygonexplorer}`);
+
+  const strategyAddress = await getStrategyImplementationFromTransactionHash(sushiHodlStrategyCreationTransactionResponse.hash, hre.ethers.provider);
+  const strategyAddressExplorer = `https://polygonscan.com/address/${strategyAddress}`;
+
+  log.info(`Created and Initialised SushiHodlStrategy: ${strategyAddressExplorer} for underlying: ${underlyingname} and Vault: ${vaultAddress} on network: ${hre.network.name} with arguments: \n`);
+  log.info(`underlying: ${underlying}\n`); 
+  log.info(`miniChefV2: ${miniChefV2}\n`);
+  log.info(`poolId: ${poolId}\n`);
+  log.info(`routerAddressV2: ${routerAddressV2}\n`);
+  log.info(`sushiTokenAddress: ${sushiTokenAddress}\n`);
+  log.info(`wmaticTokenAddress: ${wmaticTokenAddress}\n`);
+  log.info(`routeSushiToken0: ${routeSushiToken0}\n`);
+  log.info(`routeSushiToken1: ${routeSushiToken1}\n`);
+  log.info(`routeWmaticToken0: ${routeWmaticToken0}\n`);
+  log.info(`routeWmaticToken1: ${routeWmaticToken1}\n`);
+
+  log.info(`copy ${strategyAddress} to constant: masterChefHodlStrategyAddress of JSONObject with underlying: ${underlyingname} in deploy-sushiHodl-polygon-mainnet-config.ts`);
 });

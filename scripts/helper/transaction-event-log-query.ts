@@ -6,13 +6,13 @@ export const getImplementationAddressOfProxy = async (provider: EthereumProvider
   return await getImplementationAddress(provider, proxyAddress);
 };
 
-export const getVaultImplementationFromTransactionHash = async (transactionHash : string, hre: any) : Promise<string> => { 
-  const implementationAddressTopicHash = hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(["string"], ["Upgraded(address)"]));
+export const getStrategyImplementationFromTransactionHash = async (transactionHash : string, hre: any) : Promise<string> => { 
+  const implementationAddressTopicHash = hre.ethers.utils.keccak256(hre.ethers.utils.solidityPack(["string"], ["LogSushiHodlStrategyCreated(address)"]));
 
   //lookup for implementationAddress in EventLog which has topic-0 matching implementationAddressTopicHash
   const transactionReceipt = await hre.ethers.provider.getTransactionReceipt(transactionHash);
 
-  // refer: https://polygonscan.com/tx/0x254f4579f70c751752f8d6ebd0b5a0420388c3e75fe94272ed5757608bf0263c#eventlog
+  // refer: https://polygonscan.com/tx/0xa26c75511da1987801bb2a7b78dd076707ba1ad0b85ad1e3cc2da122ab108b64#eventlog
 
   const logs = transactionReceipt.logs;
   const logIndex = logs.length;
@@ -27,5 +27,5 @@ export const getVaultImplementationFromTransactionHash = async (transactionHash 
       }
   }
   
-  throw new Error("Failed to query implementation-Address");
+  throw new Error("Failed to extract Strategy-Implementation-Address");
 };
