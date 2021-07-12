@@ -30,7 +30,7 @@ npx hardhat verify-storage --network polygonmainnet
 
 ## Deploy/Initialize/Verify Vaults
 
-### WMATIC-USDT
+### WMATIC-WETH
 
 - Deploy & Initialize Vault:
 
@@ -189,12 +189,40 @@ npx hardhat verify-sushihodl-strategy --strategyname SUSHIHODL-USDC-USDT-V1 --ne
 
 ## Post-Deployment Activities on Vaults
 
-- set Strategy
+### set Strategy
+
+- WMATIC-WETH
+
+```sh
+ npx hardhat set-strategy --underlyingname WMATIC-WETH --strategyname SUSHIHODL-WMATIC-WETH-V1 --network polygonmainnet
+```
+
+- USDC-WETH
+
+```sh
+ npx hardhat set-strategy --underlyingname USDC-WETH --strategyname SUSHIHODL-USDC-WETH-V1 --network polygonmainnet
+```
+
+- WETH-USDT
+
+```sh
+ npx hardhat set-strategy --underlyingname WETH-USDT --strategyname SUSHIHODL-WETH-USDT-V1 --network polygonmainnet
+```
+
+- WETH-DAI
+
+```sh
+ npx hardhat set-strategy --underlyingname WETH-DAI --strategyname SUSHIHODL-WETH-DAI-V1 --network polygonmainnet
+```
+
+- USDC-USDT
+
+```sh
+ npx hardhat set-strategy --underlyingname USDC-USDT --strategyname SUSHIHODL-USDC-USDT-V1 --network polygonmainnet
+```
 
 
-
-
-- update TotalSupplyCap
+### update TotalSupplyCap
 
 
 
