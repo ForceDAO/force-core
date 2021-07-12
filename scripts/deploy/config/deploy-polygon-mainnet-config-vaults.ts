@@ -30,7 +30,7 @@ export const vaults: VaultData = {
     },
     "USDC-WETH": {
         vaultAddress: "0xfc80b0f2a74fC4bBf7aFbFC85306535b9732BD9e",
-        vaultImplementationAddress: "0xEc82c1077CFA5AFe921791CEE",
+        vaultImplementationAddress: "0xEc82c1077CFA5AFe921791CEEbA286b6085152df",
         vaultInit: {
             underlying: "0x34965ba0ac2451A34a0471F04CCa3F990b8dea27",
             toInvestNumerator: 1000,
