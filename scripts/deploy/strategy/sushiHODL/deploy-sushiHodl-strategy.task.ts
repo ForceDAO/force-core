@@ -80,7 +80,7 @@ task("deploy-sushihodl-strategy", "Creates a new sushi-HODL Strategy using sushi
   const polygonexplorer = `https://polygonscan.com/tx/${transactionHash}`;
   log.info(`Strategy Instance for underlying: ${underlyingname} is deployed with transaction: ${polygonexplorer}`);
 
-  const strategyAddress = await getStrategyImplementationFromTransactionHash(sushiHodlStrategyCreationTransactionResponse.hash, hre.ethers.provider);
+  const strategyAddress = await getStrategyImplementationFromTransactionHash(sushiHodlStrategyCreationTransactionResponse.hash, hre);
   const strategyAddressExplorer = `https://polygonscan.com/address/${strategyAddress}`;
 
   log.info(`Created and Initialised SushiHodlStrategy: ${strategyAddressExplorer} for underlying: ${underlyingname} and Vault: ${vaultAddress} on network: ${hre.network.name} with arguments: \n`);
