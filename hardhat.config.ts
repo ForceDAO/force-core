@@ -50,7 +50,7 @@ const config: HardhatUserConfig = {
       gasPrice: ethers.utils.parseUnits("10", "gwei").toNumber(),
       forking: {
         url: `https://polygon-mainnet.infura.io/v3/${INFURA_POLYGON_MAINNET_KEY}`,
-        blockNumber: 16676878
+        blockNumber: 16780151
       },
     },
     polygonmumbai: {
@@ -67,11 +67,9 @@ const config: HardhatUserConfig = {
       url: `https://rpc-mainnet.maticvigil.com/v1/${MATICVIGIL_APP_ID}`,
       chainId: 137,
       accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
-      gasPrice: ethers.utils.parseUnits("10", "gwei").toNumber(),
-      gas: 15e6,
+      gasPrice: ethers.utils.parseUnits("150", "gwei").toNumber(),
       gasMultiplier: 10,
-      allowUnlimitedContractSize: true,
-      blockGasLimit: 0x1fffffffffffff,
+      timeout: 12000000,
     },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
