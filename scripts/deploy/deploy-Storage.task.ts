@@ -11,8 +11,6 @@ task("deploy-storage", "Deploys a new Storage contract")
     const factoryStorage = await hre.ethers.getContractFactory(`contracts/Storage.sol:Storage`);
     const instStorage = await factoryStorage.deploy();
     await instStorage.deployed();
-    
-    logger.info("Deployment log for network: ", hre.network.name);
-    logger.info("Deployed address:", instStorage.address);
+    logger.info(`copy ${instStorage.address} to deploy-config-global.ts as: storageAddress`);
   }
 );
