@@ -1,7 +1,7 @@
 import { ethers, upgrades, network } from "hardhat";
 import { expect, use } from "chai";
 import {
-    MATIC_WHALE_ADDRESS,
+  MATIC_WHALE_ADDRESS,
   SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH,
   SUSHISWAP_V2_ROUTER02_ADDRESS,
   WMATIC_ADDRESS, WMATIC_WHALE_ADDRESS,
@@ -155,8 +155,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             method: "hardhat_impersonateAccount",
             params: [WETH_WHALE_ADDRESS]
         });
-            
-        
+                    
         const maticWhaleSigner = await ethers.provider.getSigner(MATIC_WHALE_ADDRESS);
         expect(maticWhaleSigner).to.not.be.null; 
         const wmaticWhaleSigner = await ethers.provider.getSigner(WMATIC_WHALE_ADDRESS);
@@ -192,20 +191,17 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         routerInstance = await ethers.getContractAt("IUniswapV2Router02", SUSHISWAP_V2_ROUTER02_ADDRESS);
         const NOW_PLUS_DAY = Math.floor(new Date().getTime() / 1000) + 86400;
 
-        console.log(`adding liquidity`);
-
-        await routerInstance.connect(depositorSigner).addLiquidity(
+          await routerInstance.connect(depositorSigner).addLiquidity(
             WMATIC_ADDRESS,
             WETH_ADDRESS,
             WMATIC_DEPOSIT_AMOUNT,
             WETH_DEPOSIT_AMOUNT,
+
             0,
             0,
             depositor,
             NOW_PLUS_DAY
         );
-
-        console.log(`added liquidity`);
 
         strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
         expect(strategyInstance).to.not.be.null;
