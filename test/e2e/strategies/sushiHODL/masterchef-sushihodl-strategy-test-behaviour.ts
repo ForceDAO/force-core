@@ -12,34 +12,6 @@ const ONE_MONTH = ONE_DAY * 30;
 const ONE_YEAR = ONE_DAY * 365;
 export async function sushiHodlBehavior(strategyTestData: () => Promise<StrategyTestData>) {
 
-    // compose the steps for Test Preparation
-
-    /**
-     * - Behavior to Test:
-
-            - AddLiquidity to Pool and receive the LP Tokens
-                - Assert for LP token Balance 
-            - Approve Spending
-            - Do deposit to vault
-            - Do hardwork
-            - advance time (1 week)
-            - Do hardwork
-      
-        - Assertion of Test Output:
-
-            - Assertion for hardwork:
-
-                - events assertion
-                - fees sent to controller
-                - balance of the investor
-
-            - Withdraw Assertion:
-                - Withdrawn Amount should be more than Deposited Amount
-
-            - events assertion
-                - able to check the fee percentage
-     */
-
     describe("SushiHodl Behavior", () => {
 
         let depositAmount: BigNumber;
