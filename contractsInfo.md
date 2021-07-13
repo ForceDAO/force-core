@@ -35,7 +35,7 @@
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | PolygonScan |
 |---|---|---|---|---|---|
-|1| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x156Bf6C58C54237423Ffd7803Cc9303AeaF45ada | https://polygonscan.com/address/0x156Bf6C58C54237423Ffd7803Cc9303AeaF45ada#code |
+|1| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x8289E89e234A753A962a2C495382A28b5cB975D1 | https://polygonscan.com/address/0x8289E89e234A753A962a2C495382A28b5cB975D1#code |
 
 ---
 
@@ -47,17 +47,18 @@
 
 | PoolId | Underlying Address | Token-0 Address | Token-1 Address | VaultInfo | 
 |---|---|---|---|---|
-| 0 | [WMATIC-WETH](https://polygonscan.com/address/0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E#readContract) 0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E | [Token-0: WMATIC](https://polygonscan.com/address/0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270) 0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270 | [Token-1: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619 | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/vaultProxyUpgradeTask/scripts/deploy/config/deploy-config-vaults.ts#L21-L30) |
+| 0 | [WMATIC-WETH](https://polygonscan.com/address/0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E#readContract) 0xc4e595acDD7d12feC385E5dA5D43160e8A0bAC0E | [Token-0: WMATIC](https://polygonscan.com/address/0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270) 0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270 | [Token-1: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619 | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/config/deploy-config-vaults.ts#L21-L30) |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
-|---|---|---|---|---|---|---|
-|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0xD8491D3C6746F58d94aE09D45AD3e12639637aA4 | https://polygonscan.com/address/0xD8491D3C6746F58d94aE09D45AD3e12639637aA4#code | https://polygonscan.com/address/0xb9786644ebe59749341da925bbec40e4c20c432f#code |
+| Contract Name |  VaultProxy Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
+|---|---|---|---|
+| Vault | 0x971b7D3AaC688340Abd3CeB740ea3F745A120df4 | https://polygonscan.com/address/0x971b7D3AaC688340Abd3CeB740ea3F745A120df4#code | https://polygonscan.com/address/0xEc82c1077CFA5AFe921791CEEbA286b6085152df#code |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Strategy Address | Strategy On PolygonScan |
-|---|---|---|---|---|---|
-|1| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x963DF23c43f3624C7C700e5aA3b049D227019413 | https://polygonscan.com/address/0x963DF23c43f3624C7C700e5aA3b049D227019413#code |
+| Contract Name | Deployed Strategy Address | Strategy On PolygonScan | StrategyInfo |
+|---|---|---|---|
+| MasterChefHodlStrategy | 0x0d6b9eeff96e9d0e6f50350e985b9cac3c2e3e55 | https://polygonscan.com/address/0x0d6b9eeff96e9d0e6f50350e985b9cac3c2e3e55#code |  [Strategy Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L23-L36)|
+
 
 ------
 
@@ -65,17 +66,18 @@
 
 | PoolId | Underlying Address | Token-0 Address | Token-1 Address | VaultInfo | 
 |---|---|---|---|---|
-| 1 | [USDC-WETH](https://polygonscan.com/address/0x34965ba0ac2451A34a0471F04CCa3F990b8dea27#readContract) 0x34965ba0ac2451A34a0471F04CCa3F990b8dea27 | [Token-0: USDC](https://polygonscan.com/address/0x2791bca1f2de4661ed88a30c99a7a9449aa84174) 0x2791bca1f2de4661ed88a30c99a7a9449aa84174 | [Token-1: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619 | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/vaultProxyUpgradeTask/scripts/deploy/config/deploy-config-vaults.ts#L21-L30) |
+| 1 | [USDC-WETH](https://polygonscan.com/address/0x34965ba0ac2451A34a0471F04CCa3F990b8dea27#readContract) 0x34965ba0ac2451A34a0471F04CCa3F990b8dea27 | [Token-0: USDC](https://polygonscan.com/address/0x2791bca1f2de4661ed88a30c99a7a9449aa84174) 0x2791bca1f2de4661ed88a30c99a7a9449aa84174 | [Token-1: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619 | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/config/deploy-config-vaults.ts#L31-L40) |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
-|---|---|---|---|---|---|---|
-|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0x4E506c75D25996D3dbEFEd6d6764e3672fC2e59B | https://polygonscan.com/address/0x4E506c75D25996D3dbEFEd6d6764e3672fC2e59B#code | https://polygonscan.com/address/0xB9786644eBE59749341Da925bBEC40E4C20c432F#code |
+| Contract Name |  VaultProxy Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
+|---|---|---|---|
+| Vault | 0xfc80b0f2a74fC4bBf7aFbFC85306535b9732BD9e | https://polygonscan.com/address/0xfc80b0f2a74fC4bBf7aFbFC85306535b9732BD9e#code | https://polygonscan.com/address/0xEc82c1077CFA5AFe921791CEEbA286b6085152df#code |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Strategy Address | Strategy On PolygonScan |
-|---|---|---|---|---|---|
-|1| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x898C47068CF61d96Ec6B7461F6656e9bc9779969 | https://polygonscan.com/address/0x898C47068CF61d96Ec6B7461F6656e9bc9779969#code |
+| Contract Name | Deployed Strategy Address | Strategy On PolygonScan | StrategyInfo |
+|---|---|---|---|
+| MasterChefHodlStrategy | 0xa2037e339864cacae6c1f7024ceee14a94594939 | https://polygonscan.com/address/0xa2037e339864cacae6c1f7024ceee14a94594939#code | [Strategy Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L37-L50) |
+
 
 ------
 
@@ -83,17 +85,17 @@
 
 | PoolId | Underlying Address | Token-0 Address | Token-1 Address | VaultInfo | 
 |---|---|---|---|---|
-| 2 | [WETH-USDT](https://polygonscan.com/address/0xc2755915a85C6f6c1C0F3a86ac8C058F11Caa9C9#readContract) 0xc2755915a85C6f6c1C0F3a86ac8C058F11Caa9C9 | [Token-0: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619  | [Token-1: USDT](https://polygonscan.com/address/0xc2132d05d31c914a87c6611c10748aeb04b58e8f) 0xc2132d05d31c914a87c6611c10748aeb04b58e8f | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/vaultProxyUpgradeTask/scripts/deploy/config/deploy-config-vaults.ts#L21-L30) |
+| 2 | [WETH-USDT](https://polygonscan.com/address/0xc2755915a85C6f6c1C0F3a86ac8C058F11Caa9C9#readContract) 0xc2755915a85C6f6c1C0F3a86ac8C058F11Caa9C9 | [Token-0: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619  | [Token-1: USDT](https://polygonscan.com/address/0xc2132d05d31c914a87c6611c10748aeb04b58e8f) 0xc2132d05d31c914a87c6611c10748aeb04b58e8f | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/config/deploy-config-vaults.ts#L41-L50) |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
-|---|---|---|---|---|---|---|
-|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0x53F06D447467546Cd0490BAd720A811f2A3b4634 | https://polygonscan.com/address/0x53F06D447467546Cd0490BAd720A811f2A3b4634#code | https://polygonscan.com/address/0xb9786644ebe59749341da925bbec40e4c20c432f#code |
+| Contract Name |  VaultProxy Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
+|---|---|---|---|
+| Vault | 0x40bDFCA8d26d428E09ee5F5BBd1386c1A740F04d | https://polygonscan.com/address/0x40bDFCA8d26d428E09ee5F5BBd1386c1A740F04d#code | https://polygonscan.com/address/0xEc82c1077CFA5AFe921791CEEbA286b6085152df#code |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Strategy Address | Strategy On PolygonScan |
-|---|---|---|---|---|---|
-|1| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x471EEcf098bd5f2Ad1A7ca5F57F25dD2639Dce2c | https://polygonscan.com/address/0x471EEcf098bd5f2Ad1A7ca5F57F25dD2639Dce2c#code |
+| Contract Name | Deployed Strategy Address | Strategy On PolygonScan | StrategyInfo |
+|---|---|---|---|
+| MasterChefHodlStrategy | 0x74b20c553102770157e6d2fd392bcee18bb5aaa8 | https://polygonscan.com/address/0x74b20c553102770157e6d2fd392bcee18bb5aaa8#code |[Strategy Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L51-L64) |
 
 ------
 
@@ -101,31 +103,31 @@
 
 | PoolId | Underlying Address | Token-0 Address | Token-1 Address | VaultInfo | 
 |---|---|---|---|---|
-| 5 | [WETH-DAI](https://polygonscan.com/address/0x6FF62bfb8c12109E8000935A6De54daD83a4f39f#readContract) 0x6FF62bfb8c12109E8000935A6De54daD83a4f39f | [Token-0: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619  | [Token-1: DAI](https://polygonscan.com/address/0x8f3cf7ad23cd3cadbd9735aff958023239c6a063) 0x8f3cf7ad23cd3cadbd9735aff958023239c6a063 | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/vaultProxyUpgradeTask/scripts/deploy/config/deploy-config-vaults.ts#L21-L30) |
+| 5 | [WETH-DAI](https://polygonscan.com/address/0x6FF62bfb8c12109E8000935A6De54daD83a4f39f#readContract) 0x6FF62bfb8c12109E8000935A6De54daD83a4f39f | [Token-0: WETH](https://polygonscan.com/address/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619) 0x7ceb23fd6bc0add59e62ac25578270cff1b9f619  | [Token-1: DAI](https://polygonscan.com/address/0x8f3cf7ad23cd3cadbd9735aff958023239c6a063) 0x8f3cf7ad23cd3cadbd9735aff958023239c6a063 | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/config/deploy-config-vaults.ts#L51-L60) |
 
 
+| Contract Name |  VaultProxy Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
+|---|---|---|---|
+| Vault | 0x43D91F76081339bf76CeA90A3743E30E7Dc9AEF7 | https://polygonscan.com/address/0x43D91F76081339bf76CeA90A3743E30E7Dc9AEF7#code | https://polygonscan.com/address/0xEc82c1077CFA5AFe921791CEEbA286b6085152df#code |
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
-|---|---|---|---|---|---|---|
-|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0xe16F92e6c8274b6BC7e6aDd5270ccC2E8B8dd950 | https://polygonscan.com/address/0xe16F92e6c8274b6BC7e6aDd5270ccC2E8B8dd950#code | https://polygonscan.com/address/0xb9786644ebe59749341da925bbec40e4c20c432f#code |
 
+| Contract Name | Deployed Strategy Address | Strategy On PolygonScan | StrategyInfo |
+|---|---|---|---|
+| MasterChefHodlStrategy | 0x45d1570d7252975465dcd4b1e6c8041470105681 | https://polygonscan.com/address/0x45d1570d7252975465dcd4b1e6c8041470105681#code |[Strategy Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L65-L78) |
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Strategy Address | Strategy On PolygonScan |
-|---|---|---|---|---|---|
-|1| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0xaA6704E14802b55363ec9B44411ECC69832e3089 | https://polygonscan.com/address/0xaA6704E14802b55363ec9B44411ECC69832e3089#code |
 ------
 
 ### Strategy: SUSHIHODL-USDC-USDT-V1 <-> Underlying: USDC-USDT
 
 | PoolId | Underlying Address | Token-0 Address | Token-1 Address | VaultInfo | 
 |---|---|---|---|---|
-| 8 | [USDC-USDT](https://polygonscan.com/address/0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001#readContract) 0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001 | [Token-0: USDC](https://polygonscan.com/token/0x2791bca1f2de4661ed88a30c99a7a9449aa84174) 0x2791bca1f2de4661ed88a30c99a7a9449aa84174 | [Token-1: USDT](https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f) 0xc2132d05d31c914a87c6611c10748aeb04b58e8f | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/vaultProxyUpgradeTask/scripts/deploy/config/deploy-config-vaults.ts#L21-L30) |
+| 8 | [USDC-USDT](https://polygonscan.com/address/0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001#readContract) 0x4B1F1e2435A9C96f7330FAea190Ef6A7C8D70001 | [Token-0: USDC](https://polygonscan.com/token/0x2791bca1f2de4661ed88a30c99a7a9449aa84174) 0x2791bca1f2de4661ed88a30c99a7a9449aa84174 | [Token-1: USDT](https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f) 0xc2132d05d31c914a87c6611c10748aeb04b58e8f | [Vault Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/config/deploy-config-vaults.ts#L61-L70) |
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
-|---|---|---|---|---|---|---|
-|1| Vault | deploy-Vault.task.ts | For initialise arguments refer to: scripts/config/deploy-config.ts | 0xc71a794B1532dDfe57B81C97283201f4c4378274 | https://polygonscan.com/address/0xc71a794B1532dDfe57B81C97283201f4c4378274#code | https://polygonscan.com/address/0xb9786644ebe59749341da925bbec40e4c20c432f#code |
+| Contract Name |  VaultProxy Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
+|---|---|---|---|
+| Vault | 0x8B5Ee8CA6b9a690f1dc0bfeA14a355A244307CDa | https://polygonscan.com/address/0x8B5Ee8CA6b9a690f1dc0bfeA14a355A244307CDa#code | https://polygonscan.com/address/0xEc82c1077CFA5AFe921791CEEbA286b6085152df#code |
 
 
-|Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Strategy Address | Strategy On PolygonScan |
-|---|---|---|---|---|---|
-|1| MasterChefHodlStrategy | deploy-sushihodl-strategy.task.ts | For initialise arguments refer to: scripts/strategy/sushiHODL/deploy-sushiHodl-config.ts & scripts/config/deploy-config.ts  | 0x552f3af01ea30d271e1dcc1149cb27bc368f7aa3 | https://polygonscan.com/address/0x552f3af01ea30d271e1dcc1149cb27bc368f7aa3#code |
+| Contract Name | Deployed Strategy Address | Strategy On PolygonScan |StrategyInfo |
+|---|---|---|---|
+| MasterChefHodlStrategy | 0xe42e4a8ca302921c9f6cf3b5ce0aba5e639e661e | https://polygonscan.com/address/0xe42e4a8ca302921c9f6cf3b5ce0aba5e639e661e#code | [Strategy Config](https://github.com/ForceDAO/force-core/blob/feat/UpgradeVault/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L79-L92) |

@@ -5,7 +5,7 @@ const log: Logger = new Logger();
 import { strict as assert } from 'assert';
 import { network as globalConfigNetwork, storageAddress }  from "./config/deploy-config-global";
 import { network as vaultConfigNetwork, vaults, VaultData, Vault, VaultInit }  from "./config/deploy-config-vaults";
-import { getImplementationAddress } from '@openzeppelin/upgrades-core';
+import { getImplementationAddressOfProxy } from "../helper/transaction-event-log-query";
 
 task("deploy-vault", "Deploys a new Vault contract")
   .addParam("underlyingname","name of the underlying, for Example: USDC-USDT")
@@ -40,8 +40,17 @@ task("deploy-vault", "Deploys a new Vault contract")
          unsafeAllowCustomTypes: true
       });
 
-  log.info(`Must Do Activity: ${vaultProxyContractInstance.address} deploy-config-vaults.ts as: vaultAddress`);
-  
+  await vaultProxyContractInstance.deployed();
+
+  const vaultProxyAddress = vaultProxyContractInstance.address;
+
+  log.info(`copy ${vaultProxyAddress} to deploy-config-vaults.ts as: vaultAddress`);
+
+  const vaultImplementationAddress = 
+  await getImplementationAddressOfProxy(hre.ethers.provider, vaultProxyAddress);
+
+  log.info(`copy ${vaultImplementationAddress} to deploy-config-vaults.ts as: vaultImplementationAddress`);
+
   log.info(`Initialised Vault: ${vaultProxyContractInstance.address} on network: ${hre.network.name} with arguments: \n`);
   log.info(`storageAddress: ${storageAddress}`);
   log.info(`underlying: ${vaultInit.underlying}`);
