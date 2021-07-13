@@ -222,7 +222,11 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
                 
                 it("should fail if amount is 0");
-                it("should fail if not approved token");
+
+                it("should fail if not approved token", async () => {
+                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmount)).to.be.revertedWith("ds-math-sub-underflow");
+                });
+
                 it("should emit mint event for receipt token");
                 it("should emit deposit event");
                 it("should emit transfer event for underlying");
