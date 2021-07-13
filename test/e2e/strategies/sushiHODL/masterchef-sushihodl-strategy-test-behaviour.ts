@@ -146,9 +146,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         let governanceSigner: any;
         let depositorSigner: any;
         let depositorAddress: string;
-        let depositTransaction: any;
-        let depositEvent: any;
-
+        
         let sushiAddress: any;
         let sushiTokenInstance: any;
 
@@ -199,7 +197,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             }); 
             
             describe("deposit (for self)", () => {
-               
+
+                let depositEvent: any;
+                let transferEvent: any;
+
                 it("should fail if amount is 0", async () => {
                     await expect(vaultInstance.connect(depositorSigner).deposit(0)).to.be.revertedWith("Cannot deposit 0");
                 });
@@ -212,7 +213,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmount);
                     const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
     
-                    depositTransaction = await vaultInstance.connect(depositorSigner).deposit(depositAmount);
+                    await vaultInstance.connect(depositorSigner).deposit(depositAmount);
                     const totalShares = await vaultInstance.balanceOf(depositorSigner.address);
     
                     expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmount);
