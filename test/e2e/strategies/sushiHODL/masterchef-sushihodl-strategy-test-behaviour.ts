@@ -328,7 +328,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     expect(vaultBalancePre).to.be.equal(depositAmount);
     
                     miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2Address);
-                    hardworkTxn = await vaultInstance.connect(governanceSigner).doHardWork();
+                    expectTxn = await vaultInstance.connect(governanceSigner).doHardWork();
                     vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
                 });
 
@@ -452,6 +452,17 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         describe("withdrawAll: Vault", async () => {
 
             before(async () => {
+                // Deposit back into vault.
+                await underlyingInstance.approve(vaultInstance.address, depositAmount);
+                expect((await underlyingInstance.balanceOf(depositorSigner.address)).gt(depositAmount));
+                await vaultInstance.connect(depositorSigner).deposit(depositAmount);
+                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmount);
+
+                // dohardwork to deposit back into strategy.
+                await vaultInstance.connect(governanceSigner).doHardWork();
+                
+                console.log("three");
+                // back intro vault.
                 expectTxn = await expect(vaultInstance.connect(governanceSigner).withdrawAll());
             });
 
