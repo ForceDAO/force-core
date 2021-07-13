@@ -64,7 +64,7 @@ const config: HardhatUserConfig = {
       blockGasLimit: 0x1fffffffffffff,
     },
     polygonmainnet: {
-      url: `https://polygon-mainnet.infura.io/v3/349b22fd70af49f3b18af16601393a47`,
+      url: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
       chainId: 137,
       accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
       gasPrice: ethers.utils.parseUnits("150", "gwei").toNumber(),
