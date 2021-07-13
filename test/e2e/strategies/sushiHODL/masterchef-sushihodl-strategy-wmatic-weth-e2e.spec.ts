@@ -67,6 +67,53 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         depositor = depositorSigner.address;
         controllerAddress = controllerSigner.address;
 
+        // Impersonate accounts.
+
+        await network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [MATIC_WHALE_ADDRESS]
+        });
+        
+        await network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH]
+        });
+
+        await network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [WMATIC_WHALE_ADDRESS]
+        });
+        
+        await network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [WETH_WHALE_ADDRESS]
+        });
+                    
+        const maticWhaleSigner = await ethers.provider.getSigner(MATIC_WHALE_ADDRESS);
+        expect(maticWhaleSigner).to.not.be.null; 
+        const wmaticWhaleSigner = await ethers.provider.getSigner(WMATIC_WHALE_ADDRESS);
+        expect(wmaticWhaleSigner).to.not.be.null; 
+        const wethWhaleSigner = await ethers.provider.getSigner(WETH_WHALE_ADDRESS);
+        expect(wethWhaleSigner).to.not.be.null;
+
+        console.log(`impersonation completed`);
+
+        // Send 100 Matic to WMATIC_WHALE_ADDRESS
+        const tx = await maticWhaleSigner.sendTransaction({
+            to: WMATIC_WHALE_ADDRESS,
+            value: ethers.utils.parseEther("100.0")
+        });
+
+        await tx.wait();
+
+        // Send 100 Matic to WETH_WHALE_ADDRESS
+        const tx1 = await maticWhaleSigner.sendTransaction({
+            to: WETH_WHALE_ADDRESS,
+            value: ethers.utils.parseEther("100.0")
+        });
+
+        await tx1.wait();
+    
         // Deploy Storage.
         const Storage = await ethers.getContractFactory("Storage");
         storageInstance = await Storage.deploy();
@@ -133,49 +180,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         // Set Controller on Vault.
         const setControllerTransaction = await storageInstance.setController(controllerAddress);
         await setControllerTransaction.wait();
-
-        // Impersonate accounts.
-
-        await network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: [MATIC_WHALE_ADDRESS]
-        });
-        
-        await network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: [SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH]
-        });
-
-        await network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: [WMATIC_WHALE_ADDRESS]
-        });
-        
-        await network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: [WETH_WHALE_ADDRESS]
-        });
-                    
-        const maticWhaleSigner = await ethers.provider.getSigner(MATIC_WHALE_ADDRESS);
-        expect(maticWhaleSigner).to.not.be.null; 
-        const wmaticWhaleSigner = await ethers.provider.getSigner(WMATIC_WHALE_ADDRESS);
-        expect(wmaticWhaleSigner).to.not.be.null; 
-        const wethWhaleSigner = await ethers.provider.getSigner(WETH_WHALE_ADDRESS);
-        expect(wethWhaleSigner).to.not.be.null;
-
-        console.log(`impersonation completed`);
-
-        // Send 100 Matic to WMATIC_WHALE_ADDRESS
-        await maticWhaleSigner.sendTransaction({
-            to: WMATIC_WHALE_ADDRESS,
-            value: ethers.utils.parseEther("100.0")
-        });
-
-         // Send 100 Matic to WETH_WHALE_ADDRESS
-         await maticWhaleSigner.sendTransaction({
-            to: WETH_WHALE_ADDRESS,
-            value: ethers.utils.parseEther("100.0")
-        });
 
         // Add liquidity.
         const wmaticInstance = await ethers.getContractAt("IERC20", WMATIC_ADDRESS);

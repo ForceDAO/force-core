@@ -176,7 +176,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
-
         });
 
         it("should have sell sushi and sell matic set to false as default", async () => {
