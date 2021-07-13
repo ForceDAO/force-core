@@ -1,6 +1,7 @@
 import { ethers, upgrades, network } from "hardhat";
 import { expect, use } from "chai";
 import {
+  MATIC_WHALE_ADDRESS,
   SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH,
   SUSHISWAP_V2_ROUTER02_ADDRESS,
   WMATIC_ADDRESS, WMATIC_WHALE_ADDRESS,
@@ -27,10 +28,10 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
     const UNDERLYING_ADDRESS: string = SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH;
     const WITHDRAW_FEE: number = 10;
 
-    const USDC_DEPOSIT_AMOUNT = BigNumber.from(100000)
-        .mul(BigNumber.from(10).pow(6));
-    const USDT_DEPOSIT_AMOUNT = BigNumber.from(100000)
-        .mul(BigNumber.from(10).pow(6))
+    const WMATIC_DEPOSIT_AMOUNT = BigNumber.from(1000)
+        .mul(BigNumber.from(10).pow(18));
+    const WETH_DEPOSIT_AMOUNT = BigNumber.from(1000)
+        .mul(BigNumber.from(10).pow(18))
 
     let underlyingInstance: any;  
 
@@ -65,6 +66,37 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         governanceAddress = governanceSigner.address;
         depositor = depositorSigner.address;
         controllerAddress = controllerSigner.address;
+
+        // Impersonate accounts.
+
+        await network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [MATIC_WHALE_ADDRESS]
+        });
+        
+        await network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH]
+        });
+
+        await network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [WMATIC_WHALE_ADDRESS]
+        });
+        
+        await network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: [WETH_WHALE_ADDRESS]
+        });
+                    
+        const maticWhaleSigner = await ethers.provider.getSigner(MATIC_WHALE_ADDRESS);
+        expect(maticWhaleSigner).to.not.be.null; 
+        const wmaticWhaleSigner = await ethers.provider.getSigner(WMATIC_WHALE_ADDRESS);
+        expect(wmaticWhaleSigner).to.not.be.null; 
+        const wethWhaleSigner = await ethers.provider.getSigner(WETH_WHALE_ADDRESS);
+        expect(wethWhaleSigner).to.not.be.null;
+
+        console.log(`impersonation completed`);
 
         // Deploy Storage.
         const Storage = await ethers.getContractFactory("Storage");
@@ -121,6 +153,8 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             strategyAddress
         );
 
+        console.log(`about to set Strat & Vault init`);
+
         // Set Strategy on Vault.
         const setStrategyTx = await vaultInstance.setStrategy(strategyAddress);
         await setStrategyTx.wait();
@@ -133,45 +167,28 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         const setControllerTransaction = await storageInstance.setController(controllerAddress);
         await setControllerTransaction.wait();
 
-        // Impersonate accounts.
-        await network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: [SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH]
-        });
+        console.log(`completed set Strat & Vault init`);
 
-        await network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: [WMATIC_WHALE_ADDRESS]
-        });
-        
-        await network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: [WETH_WHALE_ADDRESS]
-        });
-            
-        const usdcWhaleSigner = await ethers.provider.getSigner(WMATIC_WHALE_ADDRESS);
-        expect(usdcWhaleSigner).to.not.be.null; 
-        const usdtWhaleSigner = await ethers.provider.getSigner(WETH_WHALE_ADDRESS);
-        expect(usdtWhaleSigner).to.not.be.null;
 
         // Add liquidity.
-        const usdcInstance = await ethers.getContractAt("IERC20", WMATIC_ADDRESS);
-        await usdcInstance.connect(usdcWhaleSigner).transfer(depositor, USDC_DEPOSIT_AMOUNT);
-        const usdtInstance = await ethers.getContractAt("IERC20", WETH_ADDRESS);
-        await usdtInstance.connect(usdtWhaleSigner).transfer(depositor, USDT_DEPOSIT_AMOUNT);
+        const wmaticInstance = await ethers.getContractAt("IERC20", WMATIC_ADDRESS);
+        await wmaticInstance.connect(wmaticWhaleSigner).transfer(depositor, WMATIC_DEPOSIT_AMOUNT);
+        const wethInstance = await ethers.getContractAt("IERC20", WETH_ADDRESS);
+        await wethInstance.connect(wethWhaleSigner).transfer(depositor, WETH_DEPOSIT_AMOUNT);
 
-        await usdcInstance.connect(depositorSigner).approve(SUSHISWAP_V2_ROUTER02_ADDRESS, USDC_DEPOSIT_AMOUNT);
-        await usdtInstance.connect(depositorSigner).approve(SUSHISWAP_V2_ROUTER02_ADDRESS, USDT_DEPOSIT_AMOUNT);
+        await wmaticInstance.connect(depositorSigner).approve(SUSHISWAP_V2_ROUTER02_ADDRESS, WMATIC_DEPOSIT_AMOUNT);
+        await wethInstance.connect(depositorSigner).approve(SUSHISWAP_V2_ROUTER02_ADDRESS, WETH_DEPOSIT_AMOUNT);
 
         underlyingInstance = await ethers.getContractAt("IERC20", SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH);   
         
         routerInstance = await ethers.getContractAt("IUniswapV2Router02", SUSHISWAP_V2_ROUTER02_ADDRESS);
         const NOW_PLUS_DAY = Math.floor(new Date().getTime() / 1000) + 86400;
-        await routerInstance.connect(depositorSigner).addLiquidity(
+
+          await routerInstance.connect(depositorSigner).addLiquidity(
             WMATIC_ADDRESS,
             WETH_ADDRESS,
-            USDC_DEPOSIT_AMOUNT,
-            USDT_DEPOSIT_AMOUNT,
+            WMATIC_DEPOSIT_AMOUNT,
+            WETH_DEPOSIT_AMOUNT,
             0,
             0,
             depositor,
