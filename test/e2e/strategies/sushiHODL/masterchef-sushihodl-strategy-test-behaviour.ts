@@ -1,7 +1,7 @@
 import { expect } from "chai";
-import { BigNumber } from "ethers";
+import { BigNumber, Contract } from "ethers";
 import { ethers } from "hardhat";
-import { any } from "hardhat/internal/core/params/argumentTypes";
+
 import { advanceTime } from "../../../helpers/util";
 import { SUSHI_ADDRESS, USDC_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
 import { StrategyTestData } from "./masterchef-sushihodl-strategy-testprep-helper";
@@ -11,147 +11,167 @@ const ONE_DAY = 86400;
 const ONE_MONTH = ONE_DAY * 30;
 const ONE_YEAR = ONE_DAY * 365;
 
-export async function hodlAndNotifyBehavior() {
-    describe("_hodlAndNotify", () => {
-        describe("sellSushi", () => {
-            describe("rewardTokenBalance > minLiquidateTokens", () => {
-                it("should emit approve amount for route of 0");
-                it("should emit approve amount for route of rewardTokenBalance");
-            
-                describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
-                    it("should swap tokens for _uniswapPath0[1]");
-                    it("should emit transfer event to strategy");
-                    it("should emit transfer event from strategy");
-                    it("should emit swap event");
-                });
-                describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
-                    it("should swap tokens for _uniswapPath1[1]");
-                    it("should emit transfer event to strategy");
-                    it("should emit transfer event from strategy");
-                    it("should emit swap event");
-                });
 
-                describe("Add Liquidity", () => {
-                    
-                    describe("token0Address", () => {
-                        it("should emit approve amount for router of 0");
-                        it("should emit approve amount for router of token0Amount");
-                    });
 
-                    describe("token1Address", () => {
-                        it("should emit approve amount for router of 0");
-                        it("should emit approve amount for router of token0Amount");
-                    });
-                    
-                    it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                    it("should log LogLiquidityAdded event");
-                });
-            });
-        });
-
-        describe("sellWMatic", () => {
-            describe("rewardTokenBalance > minLiquidateTokens", () => {
-                it("should emit approve amount for route of 0");
-                it("should emit approve amount for route of rewardTokenBalance");
-            
-                describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
-                    it("should swap tokens for _uniswapPath0[1]");
-                    it("should emit transfer event to strategy");
-                    it("should emit transfer event from strategy");
-                    it("should emit swap event");
-                });
-                describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
-                    it("should swap tokens for _uniswapPath1[1]");
-                    it("should emit transfer event to strategy");
-                    it("should emit transfer event from strategy");
-                    it("should emit swap event");
-                });
-
-                describe("Add Liquidity", () => {
-                    
-                    describe("token0Address", () => {
-                        it("should emit approve amount for router of 0");
-                        it("should emit approve amount for router of token0Amount");
-                    });
-
-                    describe("token1Address", () => {
-                        it("should emit approve amount for router of 0");
-                        it("should emit approve amount for router of token0Amount");
-                    });
-                    
-                    it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                    it("should log LogLiquidityAdded event");
-                });
-            });
-        });
-
-        describe("controller address set", () => {
-            
-            describe("fee > 0", () => {
-                it("should emit transfer event of underlying to controller address");
-                it("should transfer correct fee amount to controller address");
-            });
-
-            describe("fee == 0", () => {
-                it("should not emit transfer event of underlying to controller address");
-            });
-            
-        });
-        
-        
-    });
-}
-
-export async function exitRewardPoolBehavior() {
-    describe("When balance != 0", () => {
-
-        describe("When claimAllowed", () => {
-            it("should emit transfer event to strategy for sushi tokens");
-            it("should emit transfer event to strategy for wmatic tokens");
-            it("should emit transfer event to strategy for underlying tokens");
-            it("should emit Withdraw event");
-            it("should emit Harvest event");
-            it("should update the correct user.amount and user.reward debt on the minichef contract");
-        });
-
-        describe("When not claimAllowed", () => {
-            it("should emit transfer event to strategy for wmatic tokens");
-            it("should emit transfer event to strategy for underlying tokens");
-            it("should emit Withdraw event");
-            it("should emit Harvest event");
-            it("should update the correct user.amount and user.reward debt on the minichef contract");
-        });
-        
-    });
-
-    describe("When balance == 0", () => {
-        
-    });
-}
 
 export async function sushiHodlBehavior(strategyTestData: () => Promise<StrategyTestData>) {
 
-    describe("SushiHodl Behavior", () => {
+    describe("SushiHodl Behavior", async () => {
 
         let depositAmount: BigNumber;
 
-        let vaultAddress: any;
-        let vaultInstance: any;
+        let vaultAddress: string;
+        let vaultInstance: Contract;
         
-        let underlyingAddress: any;
-        let underlyingInstance: any;
+        let underlyingAddress: string;
+        let underlyingInstance: Contract;
         
-        let strategyAddress: any;
-        let strategyInstance: any;
+        let strategyAddress: string;
+        let strategyInstance: Contract;
         
         let governanceSigner: any;
         let depositorSigner: any;
         let depositorAddress: string;
         
-        let sushiAddress: any;
-        let sushiTokenInstance: any;
+        let sushiAddress: string;
+        let sushiTokenInstance: Contract;
 
-        let miniChefV2: string;
+        let miniChefV2Address: string;
+        let miniChefV2Instance: Contract;
+
+        let expectTxn: any;
+
+        const hodlAndNotifyBehavior = async () => {
+            describe("_hodlAndNotify", () => {
+                describe("sellSushi", () => {
+                    describe("rewardTokenBalance > minLiquidateTokens", () => {
+                        it("should emit approve amount for route of 0");
+                        it("should emit approve amount for route of rewardTokenBalance");
+                    
+                        describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
+                            it("should swap tokens for _uniswapPath0[1]");
+                            it("should emit transfer event to strategy");
+                            it("should emit transfer event from strategy");
+                            it("should emit swap event");
+                        });
+                        describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
+                            it("should swap tokens for _uniswapPath1[1]");
+                            it("should emit transfer event to strategy");
+                            it("should emit transfer event from strategy");
+                            it("should emit swap event");
+                        });
+        
+                        describe("Add Liquidity", () => {
+                            
+                            describe("token0Address", () => {
+                                it("should emit approve amount for router of 0");
+                                it("should emit approve amount for router of token0Amount");
+                            });
+        
+                            describe("token1Address", () => {
+                                it("should emit approve amount for router of 0");
+                                it("should emit approve amount for router of token0Amount");
+                            });
+                            
+                            it("should log Mint event for correct underlying amount from the UniswapV2Pair");
+                            it("should log LogLiquidityAdded event");
+                        });
+                    });
+                });
+        
+                describe("sellWMatic", () => {
+                    describe("rewardTokenBalance > minLiquidateTokens", () => {
+                        it("should emit approve amount for route of 0");
+                        it("should emit approve amount for route of rewardTokenBalance");
+                    
+                        describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
+                            it("should swap tokens for _uniswapPath0[1]");
+                            it("should emit transfer event to strategy");
+                            it("should emit transfer event from strategy");
+                            it("should emit swap event");
+                        });
+                        describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
+                            it("should swap tokens for _uniswapPath1[1]");
+                            it("should emit transfer event to strategy");
+                            it("should emit transfer event from strategy");
+                            it("should emit swap event");
+                        });
+        
+                        describe("Add Liquidity", () => {
+                            
+                            describe("token0Address", () => {
+                                it("should emit approve amount for router of 0");
+                                it("should emit approve amount for router of token0Amount");
+                            });
+        
+                            describe("token1Address", () => {
+                                it("should emit approve amount for router of 0");
+                                it("should emit approve amount for router of token0Amount");
+                            });
+                            
+                            it("should log Mint event for correct underlying amount from the UniswapV2Pair");
+                            it("should log LogLiquidityAdded event");
+                        });
+                    });
+                });
+        
+                describe("controller address set", () => {
+                    
+                    describe("fee > 0", () => {
+                        it("should emit transfer event of underlying to controller address");
+                        it("should transfer correct fee amount to controller address");
+                    });
+        
+                    describe("fee == 0", () => {
+                        it("should not emit transfer event of underlying to controller address");
+                    });
+                    
+                });
+                
+                
+            });
+        }
+        
+        const exitRewardPoolBehavior = async () => {
+        
+            describe("exitRewardPool", () => {
+                describe("When balance != 0", () => {
+                    let sushiInstance: Contract;
+                    let wmaticInstance: Contract;
+                    
+                    before(async () => {
+                        sushiInstance = await ethers.getContractAt("IERC20", await strategyInstance.sushiTokenAddress());
+                        wmaticInstance = await ethers.getContractAt("IERC20", await strategyInstance.wmaticTokenAddress());
+                    });
+
+                    describe("When claimAllowed", () => {
+                        it("should emit transfer event to strategy for sushi tokens", async () => {
+                            await expectTxn.to.emit(sushiInstance, "Transfer").withArgs(strategyAddress, 7);
+                        });
+                        it("should emit transfer event to strategy for wmatic tokens");
+                        it("should emit transfer event to strategy for underlying tokens");
+                        it("should emit Withdraw event");
+                        it("should emit Harvest event");
+                        it("should update the correct user.amount and user.reward debt on the minichef contract");
+                    });
+            
+                    describe("When not claimAllowed", () => {
+                        it("should emit transfer event to strategy for wmatic tokens");
+                        it("should emit transfer event to strategy for underlying tokens");
+                        it("should emit Withdraw event");
+                        it("should emit Harvest event");
+                        it("should update the correct user.amount and user.reward debt on the minichef contract");
+                    });
+                    
+                });
+            
+                describe("When balance == 0", () => {
+                    
+                });    
+        
+            });
+        
+        }
         
         before(async () => {
             const _strategyTestData = await strategyTestData();
@@ -162,13 +182,15 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             governanceSigner = _strategyTestData.testAccounts.governanceSigner;
             depositorSigner = _strategyTestData.testAccounts.depositorSigner;
             depositorAddress = depositorSigner.address;
-            miniChefV2 = _strategyTestData.testStrategy.miniChefV2;
+            miniChefV2Address = _strategyTestData.testStrategy.miniChefV2;
             sushiAddress = SUSHI_ADDRESS;
-            sushiTokenInstance = await ethers.getContractAt("IERC20", sushiAddress);
             
+            sushiTokenInstance = await ethers.getContractAt("IERC20", sushiAddress);
             underlyingInstance = await ethers.getContractAt("IERC20", underlyingAddress);
             vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
             strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
+            miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", miniChefV2Address);
+
 
             depositAmount = await underlyingInstance.balanceOf(depositorSigner.address);
             await vaultInstance.setTotalSupplyCap(depositAmount);
@@ -281,7 +303,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     const amount = event.amount;
                     expect(amount).to.be.equal(depositAmount);
                 });    
-                    
 
                 it("should emit transfer event for underlying", async () => {
                     let event = await transferEvent;
@@ -316,7 +337,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     vaultBalancePre = await underlyingInstance.balanceOf(vaultAddress);
                     expect(vaultBalancePre).to.be.equal(depositAmount);
     
-                    miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2);
+                    miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2Address);
                     hardworkTxn = await vaultInstance.connect(governanceSigner).doHardWork();
                     vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
                 });
@@ -326,7 +347,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
     
                 it("should move underlying to MiniChef", async () => {
-                    miniChefBalancePost = await underlyingInstance.balanceOf(miniChefV2);
+                    miniChefBalancePost = await underlyingInstance.balanceOf(miniChefV2Address);
                     expect(miniChefBalancePost).to.be.equal(miniChefBalancePre.add(depositAmount));
                 });
 
@@ -349,11 +370,15 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             describe("Hardwork: Strategy", async () => {
 
-                await exitRewardPoolBehavior();
-                
-                await hodlAndNotifyBehavior();
+                before(async () => {
+                    expectTxn = await expect(vaultInstance.connect(governanceSigner).doHardWork());
+                });
+
+                describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
+                describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
                 
                 describe("investAllUnderlying", () => {
+                    it("should call investAllUnderlying function");
                     it("should emit approve event for reward pool of 0");
                     it("should emit approve event for reward pool of entireBalance");
                     it("should emit transfer event for tokens from strategy to reward pool");
@@ -439,7 +464,11 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         });
 
-        describe("withdrawAll: Vault", () => {
+        describe("withdrawAll: Vault", async () => {
+
+            before(async () => {
+                expectTxn = await expect(vaultInstance.connect(governanceSigner).withdrawAll());
+            });
 
             it("should fail if called by non governance");
             it("should fail when strategy not defined");
@@ -447,9 +476,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             it("should succeed if called by governance");
 
             describe("withdrawAllToVault: Strategy", async () => {
-                await exitRewardPoolBehavior();
 
-                await hodlAndNotifyBehavior();
+                describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
+                describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
 
                 it("should transfer underlying from strategy to vault");
                 it("should emit transfer event to vault from strategy");
