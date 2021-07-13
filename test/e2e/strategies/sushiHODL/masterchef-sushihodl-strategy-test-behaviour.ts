@@ -320,7 +320,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             let vaultBalancePost: BigNumber;
             let miniChefBalancePre: BigNumber;
             let miniChefBalancePost: BigNumber;
-            let hardworkTxn;
 
             describe("When _withdrawBeforeReinvesting is false", () => {
 
@@ -433,13 +432,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 it("should permit withdrawal of all underlying", async () => {
                     const vaultShares = await vaultInstance.balanceOf(depositorSigner.address);
     
-                    console.log(`ts depositAmount: ${depositAmount.toString()}`);
-                    console.log(`ts vaultShares: ${vaultShares.toString()}`);
-                    console.log(`ts getEstimatedWithdrawalAmount: ${(await vaultInstance.getEstimatedWithdrawalAmount(vaultShares)).toString()}`);
-                    console.log(`ts getPricePerFullShare: ${(await vaultInstance.getPricePerFullShare()).toString()}`);
                     await vaultInstance.connect(depositorSigner).withdraw(vaultShares);
     
-                    console.log(`ts balance after ${await underlyingInstance.balanceOf(depositorSigner.address)}`);
                     expect(depositAmount.lt(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.true;
                     expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(0);
                 });
