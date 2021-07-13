@@ -5,9 +5,10 @@ const log: Logger = new Logger();
 
 task("deploy-sushihodl-factory", "Deploys a new SushiHodl-Factory contract")
   .setAction(async (args, hre) => {
-    log.info(`deploying deploy-sushiHodl-factory`);
+    log.info(`deploying deploy-sushiHodl-factory on network: ${hre.network.name}`);
     const sushiHodlStrategyFactory = await hre.ethers.getContractFactory(`contracts/strategies/sushiHODL/SushiHodlStrategyFactory.sol:SushiHodlStrategyFactory`);
     const instSushiHodlStrategyFactory = await sushiHodlStrategyFactory.deploy();
-    const addrSushiHodlStrategyFactory = instSushiHodlStrategyFactory.address;
-    log.info(`SushiHodlStrategyFactory: ${addrSushiHodlStrategyFactory} is deployed on network: ${hre.network.name}`);
+    await instSushiHodlStrategyFactory.deployed();
+    const addrSushiHodlStrategyFactoryAddress = instSushiHodlStrategyFactory.address;
+    log.info(`copy SushiHodlStrategyFactory: ${addrSushiHodlStrategyFactoryAddress} to constant: sushiHodlStrategyFactoryAddress in deploy-config-global.ts`);
   });
