@@ -12,6 +12,7 @@ import "../../hardworkInterface/IStrategy.sol";
 import "../../hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMiniChefV2.sol";
+import "hardhat/console.sol";
 
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
@@ -207,8 +208,10 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       uint256 bal = rewardPoolBalance();
       if (bal != 0) {
           if (claimAllowed()) {
+            console.log("bal %s" , bal);
             IMiniChefV2(rewardPool()).withdrawAndHarvest(poolId(), bal, address(this));
           } else {
+            console.log("bal %s" , bal);
             IMiniChefV2(rewardPool()).withdraw(poolId(), bal, address(this));
           }
       }

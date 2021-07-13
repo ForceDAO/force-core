@@ -139,11 +139,15 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 describe("When claimAllowed", () => {
-                    it("should emit transfer event to strategy for sushi tokens", async () => {
-                        await expectTxn.to.emit(sushiInstance, "Transfer").withArgs(strategyAddress, 7);
-                    });
+                    // it("should emit transfer event to strategy for sushi tokens", async () => {
+                    //     await expectTxn.to.emit(sushiInstance, "Transfer").withArgs(miniChefV2Address, strategyAddress, depositAmount);
+                    // });
                     it("should emit transfer event to strategy for wmatic tokens");
-                    it("should emit transfer event to strategy for underlying tokens");
+                    it("should emit transfer event to strategy for underlying tokens", async () => {
+                        console.log(expectTxn);
+                        await expectTxn.to.emit(underlyingInstance, "Transfer").withArgs(miniChefV2Address, strategyAddress, depositAmount);
+                        await expectTxn.to.emit(underlyingInstance, "Transfer").withArgs(strategyAddress, vaultAddress, depositAmount);
+                    });
                     it("should emit Withdraw event");
                     it("should emit Harvest event");
                     it("should update the correct user.amount and user.reward debt on the minichef contract");
@@ -453,23 +457,37 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             before(async () => {
                 // Deposit back into vault.
-                await underlyingInstance.approve(vaultInstance.address, depositAmount);
+                await underlyingInstance.connect(depositorSigner).approve(vaultInstance.address, depositAmount);
                 expect((await underlyingInstance.balanceOf(depositorSigner.address)).gt(depositAmount));
+                
                 await vaultInstance.connect(depositorSigner).deposit(depositAmount);
                 expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmount);
-
+                
+                // Allow time for rewards.
+                await advanceTime(ONE_DAY);
+                
+                // Confirm claim allowed.
+                expect(await strategyInstance.claimAllowed());
+                
                 // dohardwork to deposit back into strategy.
                 await vaultInstance.connect(governanceSigner).doHardWork();
-                
-                console.log("three");
-                // back intro vault.
-                expectTxn = await expect(vaultInstance.connect(governanceSigner).withdrawAll());
+                expect(await underlyingInstance.balanceOf(vaultInstance.address)).to.be.equal(0);
+
+                // Withdraw all back into vault.
+                expectTxn = expect(vaultInstance.connect(governanceSigner).withdrawAll());
             });
 
-            it("should fail if called by non governance");
+            it("should fail if called by non governance", async () => {
+                await expect(vaultInstance.connect(depositorSigner).withdrawAll())
+                    .to.be.revertedWith("The caller must be controller or governance");
+            });
+
             it("should fail when strategy not defined");
+
             it("should succeed if called by controller");
-            it("should succeed if called by governance");
+            // it("should succeed if called by controller", async () => {
+            //     await expect(vaultInstance.connect(controllerSigner).withdrawAll());
+            // });
 
             describe("withdrawAllToVault: Strategy", async () => {
 
