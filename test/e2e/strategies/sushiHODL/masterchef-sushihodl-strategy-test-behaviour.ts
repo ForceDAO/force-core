@@ -185,10 +185,22 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         describe("Deposit", () => {
             describe("depositFor", () => {
+
+                let depositEvent: any;
+                let transferEvent: any;
+                
                 it("should deposit underlying into vault");
-                it("should fail if beneficiary is address 0");
+                it("should fail if beneficiary is address 0", async () => {
+                    await expect(vaultInstance.connect(depositorSigner).depositFor(depositAmount, ethers.constants.AddressZero))
+                                .to.be.revertedWith("holder must be defined");
+                });
+                
                 it("should fail if amount is 0");
-                it("should fail if not approved token");
+
+                it("should fail if not approved token", async () => {
+                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmount)).to.be.revertedWith("ds-math-sub-underflow");
+                });
+
                 it("should emit mint event for receipt token");
                 it("should emit deposit event");
                 it("should emit transfer event for underlying");
@@ -286,13 +298,13 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     let event = await transferEvent;
 
                     const sender = event.sender;
-                    expect(sender).to.be.equal("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+                    expect(sender).to.be.equal(depositorAddress);
 
                     const amount = event.amount;
-                    expect(sender).to.be.equal(0);
+                    expect(amount).to.be.gt(0);
 
                     const account = event.account;
-                    expect(sender).to.be.equal(depositorAddress);
+                    expect(account).to.be.equal(vaultAddress);
                 });
 
                 it("should mint expected amount of receipt token");
