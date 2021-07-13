@@ -42,135 +42,126 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         let expectTxn: any;
 
         const hodlAndNotifyBehavior = async () => {
-            describe("_hodlAndNotify", () => {
-                describe("sellSushi", () => {
-                    describe("rewardTokenBalance > minLiquidateTokens", () => {
-                        it("should emit approve amount for route of 0");
-                        it("should emit approve amount for route of rewardTokenBalance");
-                    
-                        describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
-                            it("should swap tokens for _uniswapPath0[1]");
-                            it("should emit transfer event to strategy");
-                            it("should emit transfer event from strategy");
-                            it("should emit swap event");
-                        });
-                        describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
-                            it("should swap tokens for _uniswapPath1[1]");
-                            it("should emit transfer event to strategy");
-                            it("should emit transfer event from strategy");
-                            it("should emit swap event");
-                        });
-        
-                        describe("Add Liquidity", () => {
-                            
-                            describe("token0Address", () => {
-                                it("should emit approve amount for router of 0");
-                                it("should emit approve amount for router of token0Amount");
-                            });
-        
-                            describe("token1Address", () => {
-                                it("should emit approve amount for router of 0");
-                                it("should emit approve amount for router of token0Amount");
-                            });
-                            
-                            it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                            it("should log LogLiquidityAdded event");
-                        });
-                    });
-                });
-        
-                describe("sellWMatic", () => {
-                    describe("rewardTokenBalance > minLiquidateTokens", () => {
-                        it("should emit approve amount for route of 0");
-                        it("should emit approve amount for route of rewardTokenBalance");
-                    
-                        describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
-                            it("should swap tokens for _uniswapPath0[1]");
-                            it("should emit transfer event to strategy");
-                            it("should emit transfer event from strategy");
-                            it("should emit swap event");
-                        });
-                        describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
-                            it("should swap tokens for _uniswapPath1[1]");
-                            it("should emit transfer event to strategy");
-                            it("should emit transfer event from strategy");
-                            it("should emit swap event");
-                        });
-        
-                        describe("Add Liquidity", () => {
-                            
-                            describe("token0Address", () => {
-                                it("should emit approve amount for router of 0");
-                                it("should emit approve amount for router of token0Amount");
-                            });
-        
-                            describe("token1Address", () => {
-                                it("should emit approve amount for router of 0");
-                                it("should emit approve amount for router of token0Amount");
-                            });
-                            
-                            it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                            it("should log LogLiquidityAdded event");
-                        });
-                    });
-                });
-        
-                describe("controller address set", () => {
-                    
-                    describe("fee > 0", () => {
-                        it("should emit transfer event of underlying to controller address");
-                        it("should transfer correct fee amount to controller address");
-                    });
-        
-                    describe("fee == 0", () => {
-                        it("should not emit transfer event of underlying to controller address");
-                    });
-                    
-                });
+            describe("sellSushi", () => {
+                describe("rewardTokenBalance > minLiquidateTokens", () => {
+                    it("should emit approve amount for route of 0");
+                    it("should emit approve amount for route of rewardTokenBalance");
                 
+                    describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
+                        it("should swap tokens for _uniswapPath0[1]");
+                        it("should emit transfer event to strategy");
+                        it("should emit transfer event from strategy");
+                        it("should emit swap event");
+                    });
+                    describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
+                        it("should swap tokens for _uniswapPath1[1]");
+                        it("should emit transfer event to strategy");
+                        it("should emit transfer event from strategy");
+                        it("should emit swap event");
+                    });
+    
+                    describe("Add Liquidity", () => {
+                        
+                        describe("token0Address", () => {
+                            it("should emit approve amount for router of 0");
+                            it("should emit approve amount for router of token0Amount");
+                        });
+    
+                        describe("token1Address", () => {
+                            it("should emit approve amount for router of 0");
+                            it("should emit approve amount for router of token0Amount");
+                        });
+                        
+                        it("should log Mint event for correct underlying amount from the UniswapV2Pair");
+                        it("should log LogLiquidityAdded event");
+                    });
+                });
+            });
+    
+            describe("sellWMatic", () => {
+                describe("rewardTokenBalance > minLiquidateTokens", () => {
+                    it("should emit approve amount for route of 0");
+                    it("should emit approve amount for route of rewardTokenBalance");
+                
+                    describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
+                        it("should swap tokens for _uniswapPath0[1]");
+                        it("should emit transfer event to strategy");
+                        it("should emit transfer event from strategy");
+                        it("should emit swap event");
+                    });
+                    describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
+                        it("should swap tokens for _uniswapPath1[1]");
+                        it("should emit transfer event to strategy");
+                        it("should emit transfer event from strategy");
+                        it("should emit swap event");
+                    });
+    
+                    describe("Add Liquidity", () => {
+                        
+                        describe("token0Address", () => {
+                            it("should emit approve amount for router of 0");
+                            it("should emit approve amount for router of token0Amount");
+                        });
+    
+                        describe("token1Address", () => {
+                            it("should emit approve amount for router of 0");
+                            it("should emit approve amount for router of token0Amount");
+                        });
+                        
+                        it("should log Mint event for correct underlying amount from the UniswapV2Pair");
+                        it("should log LogLiquidityAdded event");
+                    });
+                });
+            });
+    
+            describe("controller address set", () => {
+                
+                describe("fee > 0", () => {
+                    it("should emit transfer event of underlying to controller address");
+                    it("should transfer correct fee amount to controller address");
+                });
+    
+                describe("fee == 0", () => {
+                    it("should not emit transfer event of underlying to controller address");
+                });
                 
             });
         }
         
         const exitRewardPoolBehavior = async () => {
-        
-            describe("exitRewardPool", () => {
-                describe("When balance != 0", () => {
-                    let sushiInstance: Contract;
-                    let wmaticInstance: Contract;
-                    
-                    before(async () => {
-                        sushiInstance = await ethers.getContractAt("IERC20", await strategyInstance.sushiTokenAddress());
-                        wmaticInstance = await ethers.getContractAt("IERC20", await strategyInstance.wmaticTokenAddress());
-                    });
-
-                    describe("When claimAllowed", () => {
-                        it("should emit transfer event to strategy for sushi tokens", async () => {
-                            await expectTxn.to.emit(sushiInstance, "Transfer").withArgs(strategyAddress, 7);
-                        });
-                        it("should emit transfer event to strategy for wmatic tokens");
-                        it("should emit transfer event to strategy for underlying tokens");
-                        it("should emit Withdraw event");
-                        it("should emit Harvest event");
-                        it("should update the correct user.amount and user.reward debt on the minichef contract");
-                    });
-            
-                    describe("When not claimAllowed", () => {
-                        it("should emit transfer event to strategy for wmatic tokens");
-                        it("should emit transfer event to strategy for underlying tokens");
-                        it("should emit Withdraw event");
-                        it("should emit Harvest event");
-                        it("should update the correct user.amount and user.reward debt on the minichef contract");
-                    });
-                    
+            describe("When balance != 0", () => {
+                let sushiInstance: Contract;
+                let wmaticInstance: Contract;
+                
+                before(async () => {
+                    sushiInstance = await ethers.getContractAt("IERC20", await strategyInstance.sushiTokenAddress());
+                    wmaticInstance = await ethers.getContractAt("IERC20", await strategyInstance.wmaticTokenAddress());
                 });
-            
-                describe("When balance == 0", () => {
-                    
-                });    
+
+                describe("When claimAllowed", () => {
+                    it("should emit transfer event to strategy for sushi tokens", async () => {
+                        await expectTxn.to.emit(sushiInstance, "Transfer").withArgs(strategyAddress, 7);
+                    });
+                    it("should emit transfer event to strategy for wmatic tokens");
+                    it("should emit transfer event to strategy for underlying tokens");
+                    it("should emit Withdraw event");
+                    it("should emit Harvest event");
+                    it("should update the correct user.amount and user.reward debt on the minichef contract");
+                });
         
+                describe("When not claimAllowed", () => {
+                    it("should emit transfer event to strategy for wmatic tokens");
+                    it("should emit transfer event to strategy for underlying tokens");
+                    it("should emit Withdraw event");
+                    it("should emit Harvest event");
+                    it("should update the correct user.amount and user.reward debt on the minichef contract");
+                });
+                
             });
         
+            describe("When balance == 0", () => {
+                
+            });
         }
         
         before(async () => {
