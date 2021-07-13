@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
+import { any } from "hardhat/internal/core/params/argumentTypes";
 import { advanceTime } from "../../../helpers/util";
 import { SUSHI_ADDRESS, USDC_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
 import { StrategyTestData } from "./masterchef-sushihodl-strategy-testprep-helper";
@@ -241,6 +242,31 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                           reject(new Error("timeout"));
                         }, 60000);
                     });
+
+                    transferEvent =  new Promise((resolve, reject) => {
+                        underlyingInstance.on(
+                          "Transfer",
+                          (
+                            sender : string,
+                            account : any,
+                            amount : any,
+                            event: any, 
+                          ) => {
+                            event.removeListener();
+                  
+                            resolve({
+
+                                sender : sender, 
+                                account : account,
+                                amount: amount,
+                            });
+                          },
+                        );
+                  
+                        setTimeout(() => {
+                          reject(new Error("timeout"));
+                        }, 60000);
+                    });
                 });
 
                 it("should emit mint event for receipt token");
@@ -258,7 +284,16 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     
 
                 it("should emit transfer event for underlying", async () => {
-                    //expectEvent(depositTransaction, 'Transfer', { value: value });
+                    let event = await transferEvent;
+
+                    const sender = event.sender;
+                    expect(sender).to.be.equal("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+
+                    const amount = event.amount;
+                    expect(sender).to.be.equal(0);
+
+                    const account = event.account;
+                    expect(sender).to.be.equal(depositorAddress);
                 });
 
                 it("should mint expected amount of receipt token");
