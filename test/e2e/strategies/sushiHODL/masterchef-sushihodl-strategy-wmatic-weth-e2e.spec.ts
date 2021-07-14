@@ -58,11 +58,14 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
     let depositor: string;
     let depositorSigner: any;
 
+    let beneficiarySigner: any;
+    let beneficiaryAddress: string;
+
     let strategyTestData: StrategyTestData;
 
     const prepareEnv = async () => {
 
-        [governanceSigner, depositorSigner, controllerSigner] = await ethers.getSigners();
+        [governanceSigner, depositorSigner, controllerSigner, beneficiarySigner] = await ethers.getSigners();
         governanceAddress = governanceSigner.address;
         depositor = depositorSigner.address;
         controllerAddress = controllerSigner.address;
@@ -221,7 +224,8 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         const testAccounts: TestAccounts = {
             governanceSigner,
             controllerSigner,
-            depositorSigner
+            depositorSigner,
+            beneficiarySigner
         };
 
         return strategyTestData = {

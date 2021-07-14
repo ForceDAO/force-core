@@ -12,14 +12,13 @@ const ONE_DAY = 86400;
 const ONE_MONTH = ONE_DAY * 30;
 const ONE_YEAR = ONE_DAY * 365;
 
-
-
-
 export async function sushiHodlBehavior(strategyTestData: () => Promise<StrategyTestData>) {
 
     describe("SushiHodl Behavior", async () => {
 
         let depositAmount: BigNumber;
+        let depositAmountForSelf: BigNumber;
+        let depositAmountForBeneficiary: BigNumber;
 
         let vaultAddress: string;
         let vaultInstance: Contract;
@@ -33,6 +32,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         let governanceSigner: any;
         let depositorSigner: any;
         let depositorAddress: string;
+
+        let beneficiarySigner: any;
+        let beneficiaryAddress: string;
         
         let sushiAddress: string;
         let sushiTokenInstance: Contract;
@@ -178,6 +180,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             governanceSigner = _strategyTestData.testAccounts.governanceSigner;
             depositorSigner = _strategyTestData.testAccounts.depositorSigner;
             depositorAddress = depositorSigner.address;
+            beneficiarySigner = _strategyTestData.testAccounts.beneficiarySigner;
+            beneficiaryAddress = beneficiarySigner.address;
             miniChefV2Address = _strategyTestData.testStrategy.miniChefV2;
             sushiAddress = SUSHI_ADDRESS;
             
@@ -191,7 +195,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             depositAmount = await underlyingInstance.balanceOf(depositorSigner.address);
             await vaultInstance.setTotalSupplyCap(depositAmount);
             await vaultInstance.setWithdrawFee(0);
-            
+
+            depositAmountForSelf = depositAmount.div(2);
+            depositAmountForBeneficiary = depositAmount.div(2);
+
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
         });
@@ -206,49 +213,18 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 let depositEvent: any;
                 let transferEvent: any;
+                let transferEventOfVault: any;
                 
-                it("should deposit underlying into vault");
-                it("should fail if beneficiary is address 0", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).depositFor(depositAmount, ethers.constants.AddressZero))
-                                .to.be.revertedWith("holder must be defined");
-                });
-                
-                it("should fail if amount is 0");
-
-                it("should fail if not approved token", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmount)).to.be.revertedWith("ds-math-sub-underflow");
-                });
-
-                it("should emit mint event for receipt token");
-                it("should emit deposit event");
-                it("should emit transfer event for underlying");
-                it("should mint expected amount of receipt token");
-
-            }); 
-            
-            describe("deposit (for self)", () => {
-
-                let depositEvent: any;
-                let transferEvent: any;
-
-                it("should fail if amount is 0", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).deposit(0)).to.be.revertedWith("Cannot deposit 0");
-                });
-
-                it("should fail if not approved token", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmount)).to.be.revertedWith("ds-math-sub-underflow");
-                });
-
                 it("should deposit underlying into vault", async () => {
-                    await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmount);
+                    await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmountForBeneficiary);
                     const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
     
-                    await vaultInstance.connect(depositorSigner).deposit(depositAmount);
-                    const totalShares = await vaultInstance.balanceOf(depositorSigner.address);
+                    await vaultInstance.connect(depositorSigner).depositFor(depositAmountForBeneficiary, beneficiaryAddress);
+                    const totalShares = await vaultInstance.balanceOf(beneficiaryAddress);
     
-                    expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmount);
-                    expect(totalShares).to.be.equal(depositAmount);
-                    expect(await vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(depositAmount);
+                    expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmountForBeneficiary);
+                    expect(totalShares).to.be.equal(depositAmountForBeneficiary);
+                    expect(await vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(depositAmountForBeneficiary);
 
                     depositEvent = new Promise((resolve, reject) => {
                         vaultInstance.on(
@@ -284,7 +260,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                             event.removeListener();
                   
                             resolve({
-
                                 sender : sender, 
                                 account : account,
                                 amount: amount,
@@ -296,32 +271,134 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                           reject(new Error("timeout"));
                         }, 60000);
                     });
+
+                    transferEventOfVault = new Promise((resolve, reject) => {
+                        vaultInstance.on(
+                          "Transfer",
+                          (
+                            sender : string,
+                            account : any,
+                            amount : any,
+                            event: any, 
+                          ) => {
+                            event.removeListener();
+                  
+                            resolve({
+                                sender : sender, 
+                                account : account,
+                                amount: amount,
+                            });
+                          },
+                        );
+                  
+                        setTimeout(() => {
+                          reject(new Error("timeout"));
+                        }, 60000);
+                    });   
                 });
 
-                it("should emit mint event for receipt token");
+                it("should fail if beneficiary is address 0", async () => {
+                    await expect(vaultInstance.connect(depositorSigner).depositFor(depositAmountForBeneficiary, ethers.constants.AddressZero))
+                                .to.be.revertedWith("holder must be defined");
+                });
+                
+                it("should fail if amount is 0", async () => {
+                    await expect(vaultInstance.connect(depositorSigner).deposit(0)).to.be.revertedWith("Cannot deposit 0");
+                });
 
+                it("should fail if not approved token", async () => {
+                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmountForBeneficiary)).to.be.revertedWith("ds-math-sub-underflow");
+                });
+
+                it("should emit mint event for receipt token", async () => {
+                
+                
+                });
+                
                 it("should emit deposit event", async () => {
 
                     let event = await depositEvent;
 
                     const beneficiary = event.beneficiary;
-                    expect(beneficiary).to.be.equal(depositorAddress);
+                    expect(beneficiary).to.be.equal(beneficiaryAddress);
 
                     const amount = event.amount;
-                    expect(amount).to.be.equal(depositAmount);
-                });    
+                    expect(amount).to.be.equal(depositAmountForBeneficiary);
+                });
 
                 it("should emit transfer event for underlying", async () => {
                     let event = await transferEvent;
-
+                    
                     const sender = event.sender;
                     expect(sender).to.be.equal(depositorAddress);
 
                     const amount = event.amount;
-                    expect(amount).to.be.gt(0);
+                    expect(amount).to.be.equal(depositAmountForBeneficiary);
 
                     const account = event.account;
                     expect(account).to.be.equal(vaultAddress);
+                });
+
+                it("should mint expected amount of receipt token");
+
+            }); 
+            
+            describe("deposit (for self)", () => {
+
+                let depositEvent: any;
+                let transferEvent: any;
+                let transferEventOfVault: any;
+                let depositTxnReceipt: any;
+      
+                it("should fail if amount is 0", async () => {
+                    await expect(vaultInstance.connect(depositorSigner).deposit(0)).to.be.revertedWith("Cannot deposit 0");
+                });
+
+                it("should fail if not approved token", async () => {
+                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf)).to.be.revertedWith("ds-math-sub-underflow");
+                });
+
+                it("should deposit underlying into vault", async () => {
+                    await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmountForSelf);
+                    const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
+    
+                    depositTxnReceipt = await vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf);
+                    depositTxnReceipt = await depositTxnReceipt.wait();
+
+                    const totalShares = await vaultInstance.balanceOf(depositorSigner.address);
+    
+                    expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmountForSelf);
+                    expect(totalShares).to.be.equal(depositAmountForSelf);
+                    expect(await vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(depositAmountForSelf);
+                });
+
+                it("should emit mint event for receipt token", async () => {
+
+                    expect(containsEvent(
+                        depositTxnReceipt,
+                        vaultInstance,
+                        "Transfer",
+                        [vaultAddress, beneficiaryAddress, 0]
+                    )).to.be.true;
+                });
+
+                it("should emit deposit event", async () => {
+
+                    expect(containsEvent(
+                        depositTxnReceipt,
+                        vaultInstance,
+                        "Deposit",
+                        [depositorAddress, depositAmountForSelf]
+                    )).to.be.true;
+                });    
+
+                it("should emit transfer event for underlying", async () => {
+                    expect(containsEvent(
+                        depositTxnReceipt,
+                        underlyingInstance,
+                        "Transfer",
+                        [depositorAddress, 0, vaultAddress]
+                    )).to.be.true;
                 });
 
                 it("should mint expected amount of receipt token");
