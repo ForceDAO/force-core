@@ -4,7 +4,7 @@ import { Interface, LogDescription } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 
 import { advanceTime, containsEvent } from "../../../helpers/util";
-import { SUSHI_ADDRESS, USDC_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
+import { SUSHI_ADDRESS, ZERO_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
 import { StrategyTestData } from "./masterchef-sushihodl-strategy-testprep-helper";
 
 const ZERO = BigNumber.from(0);
@@ -14,7 +14,15 @@ const ONE_YEAR = ONE_DAY * 365;
 
 const calculateMintedAmount = async (depositAmount: BigNumber, underlyingUnit: BigNumber, 
     underlyingBalanceWithInvestment: BigNumber, totalSupply: BigNumber): Promise<BigNumber> => {
-    const pricePerFullShare: BigNumber = (underlyingUnit.mul(underlyingBalanceWithInvestment)).div(totalSupply);
+
+       let  pricePerFullShare: BigNumber;
+
+       if(totalSupply.eq(ZERO)){
+            pricePerFullShare = underlyingUnit;
+       }else{
+            pricePerFullShare = (underlyingUnit.mul(underlyingBalanceWithInvestment)).div(totalSupply);
+       }
+      
     return depositAmount.mul(underlyingUnit).div(pricePerFullShare);
 }
 
@@ -196,6 +204,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             sushiTokenInstance = await ethers.getContractAt("IERC20", sushiAddress);
             underlyingInstance = await ethers.getContractAt("IERC20", underlyingAddress);
             vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
+
             strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
             miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", miniChefV2Address);
 
@@ -217,17 +226,26 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         });
 
         describe("Deposit", () => {
-            describe("depositFor", () => {
+            describe("depositFor",  () => {
 
-                let depositEvent: any;
-                let transferEvent: any;
-                let transferEventOfVault: any;
+                let depositTxnReceipt: any;
+                let mintedAmount: BigNumber;
+
+                before(async () => {
+                    mintedAmount = await calculateMintedAmount(
+                        depositAmountForBeneficiary,
+                        underlyingUnit,
+                        ZERO,
+                        ZERO);
+                });
                 
                 it("should deposit underlying into vault", async () => {
                     await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmountForBeneficiary);
                     const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
     
-                    await vaultInstance.connect(depositorSigner).depositFor(depositAmountForBeneficiary, beneficiaryAddress);
+                    depositTxnReceipt = await vaultInstance.connect(depositorSigner).depositFor(depositAmountForBeneficiary, beneficiaryAddress);
+                    depositTxnReceipt = await depositTxnReceipt.wait();
+                    
                     const totalShares = await vaultInstance.balanceOf(beneficiaryAddress);
     
                     expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmountForBeneficiary);
@@ -254,44 +272,32 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 it("should emit mint event for receipt token", async () => {
-                    
-                    const mintedAmount = await calculateMintedAmount(
-                        depositAmountForBeneficiary,
-                        underlyingUnit,
-                        ZERO,
-                        ZERO);
-
-                    // expect(containsEvent(
-                    //     depositTxnReceipt,
-                    //     vaultInstance,
-                    //     "Transfer",
-                    //     [vaultAddress, beneficiaryAddress, mintedAmount]
-                    // )).to.be.true;
+                    expect(containsEvent(
+                        depositTxnReceipt,
+                        vaultInstance,
+                        "Transfer",
+                        [ZERO_ADDRESS, beneficiaryAddress, mintedAmount]
+                    )).to.be.true;
                 
                 });
                 
                 it("should emit deposit event", async () => {
 
-                    let event = await depositEvent;
-
-                    const beneficiary = event.beneficiary;
-                    expect(beneficiary).to.be.equal(beneficiaryAddress);
-
-                    const amount = event.amount;
-                    expect(amount).to.be.equal(depositAmountForBeneficiary);
+                    expect(containsEvent(
+                        depositTxnReceipt,
+                        vaultInstance,
+                        "Deposit",
+                        [beneficiaryAddress, depositAmountForBeneficiary]
+                    )).to.be.true;
                 });
 
                 it("should emit transfer event for underlying", async () => {
-                    let event = await transferEvent;
-                    
-                    const sender = event.sender;
-                    expect(sender).to.be.equal(depositorAddress);
-
-                    const amount = event.amount;
-                    expect(amount).to.be.equal(depositAmountForBeneficiary);
-
-                    const account = event.account;
-                    expect(account).to.be.equal(vaultAddress);
+                    expect(containsEvent(
+                        depositTxnReceipt,
+                        underlyingInstance,
+                        "Transfer",
+                        [depositorAddress, vaultAddress, depositAmountForBeneficiary]
+                    )).to.be.true;
                 });
 
                 it("should mint expected amount of receipt token");
@@ -300,10 +306,16 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             
             describe("deposit (for self)", () => {
 
-                let depositEvent: any;
-                let transferEvent: any;
-                let transferEventOfVault: any;
                 let depositTxnReceipt: any;
+                let mintedAmount: BigNumber;
+
+                before( async () => {
+                     mintedAmount = await calculateMintedAmount(
+                        depositAmountForSelf,
+                        underlyingUnit,
+                        depositAmountForBeneficiary,
+                        depositAmountForBeneficiary);
+                });
       
                 it("should fail if amount is 0", async () => {
                     await expect(vaultInstance.connect(depositorSigner).deposit(0)).to.be.revertedWith("Cannot deposit 0");
@@ -328,18 +340,11 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 it("should emit mint event for receipt token", async () => {
-
-                    const mintedAmount = await calculateMintedAmount(
-                        depositAmountForSelf,
-                        underlyingUnit,
-                        depositAmountForBeneficiary,
-                        depositAmountForBeneficiary);
-
                     expect(containsEvent(
                         depositTxnReceipt,
                         vaultInstance,
                         "Transfer",
-                        [vaultAddress, beneficiaryAddress, mintedAmount]
+                        [ZERO_ADDRESS, depositorAddress, mintedAmount]
                     )).to.be.true;
                 });
 
@@ -358,7 +363,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         depositTxnReceipt,
                         underlyingInstance,
                         "Transfer",
-                        [depositorAddress, depositAmountForSelf, vaultAddress]
+                        [depositorAddress, vaultAddress, depositAmountForSelf]
                     )).to.be.true;
                 });
 
@@ -485,10 +490,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             describe("Without Fee", () => {
                 it("should permit withdrawal of all underlying", async () => {
                     const vaultShares = await vaultInstance.balanceOf(depositorSigner.address);
-    
                     await vaultInstance.connect(depositorSigner).withdraw(vaultShares);
     
-                    expect(depositAmount.lt(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.true;
+                    expect(depositAmountForSelf.lt(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.true;
                     expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(0);
                 });
 
@@ -507,11 +511,11 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             before(async () => {
                 // Deposit back into vault.
-                await underlyingInstance.connect(depositorSigner).approve(vaultInstance.address, depositAmount);
-                expect((await underlyingInstance.balanceOf(depositorSigner.address)).gt(depositAmount));
+                await underlyingInstance.connect(depositorSigner).approve(vaultInstance.address, depositAmountForSelf);
+                expect((await underlyingInstance.balanceOf(depositorSigner.address)).gt(depositAmountForSelf));
                 
-                await vaultInstance.connect(depositorSigner).deposit(depositAmount);
-                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmount);
+                await vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf);
+                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmountForSelf);
                 
                 // Allow time for rewards.
                 await advanceTime(ONE_DAY);
@@ -526,8 +530,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 // Withdraw all back into vault.
                 txnReceipt = await vaultInstance.connect(governanceSigner).withdrawAll();
                 txnReceipt = await txnReceipt.wait();
-
-
 
                 expect(containsEvent(
                     txnReceipt,
