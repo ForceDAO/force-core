@@ -229,10 +229,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             describe("depositFor",  () => {
 
                 let depositTxnReceipt: any;
-                let mintedAmount: BigNumber;
+                let expectedMintedAmount: BigNumber;
 
                 before(async () => {
-                    mintedAmount = await calculateMintedAmount(
+                    expectedMintedAmount = await calculateMintedAmount(
                         depositAmountForBeneficiary,
                         underlyingUnit,
                         ZERO,
@@ -264,8 +264,17 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         .to.be.revertedWith("Cannot deposit 0");
                 });
 
-                it("should fail if amount minted is higher than the totalSupplyCap");
-                it("should fail if deposit and withdraw is in the same block");
+                it("should fail if amount minted is higher than the totalSupplyCap", async () => {
+                    await expect(vaultInstance.connect(depositorSigner).depositFor(depositAmount.add(10), beneficiaryAddress))
+                    .to.be.revertedWith("Cannot mint more than cap");
+                });
+
+                it("should fail if deposit and withdraw is in the same block", async () => {
+                    await vaultInstance.connect(depositorSigner).depositFor(10, beneficiaryAddress);
+                    const vaultShares = await vaultInstance.balanceOf(beneficiaryAddress);
+                    expect(await vaultInstance.connect(beneficiarySigner).withdraw(vaultShares))
+                    .to.be.revertedWith("withdraw: withdraw in same block not permitted");
+                });
 
                 it("should fail if not approved token", async () => {
                     await expect(vaultInstance.connect(depositorSigner).deposit(depositAmountForBeneficiary)).to.be.revertedWith("ds-math-sub-underflow");
@@ -276,7 +285,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         depositTxnReceipt,
                         vaultInstance,
                         "Transfer",
-                        [ZERO_ADDRESS, beneficiaryAddress, mintedAmount]
+                        [ZERO_ADDRESS, beneficiaryAddress, expectedMintedAmount]
                     )).to.be.true;
                 
                 });
@@ -300,17 +309,19 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     )).to.be.true;
                 });
 
-                it("should mint expected amount of receipt token");
-
+                it("should mint expected amount of receipt token", async () => {
+                    const mintedTokensForBeneficiary = await vaultInstance.balanceOf(beneficiaryAddress);
+                    expect(mintedTokensForBeneficiary).to.be.equal(expectedMintedAmount);
+                });
             }); 
             
             describe("deposit (for self)", () => {
 
                 let depositTxnReceipt: any;
-                let mintedAmount: BigNumber;
+                let expectedMintedAmount: BigNumber;
 
                 before( async () => {
-                     mintedAmount = await calculateMintedAmount(
+                    expectedMintedAmount = await calculateMintedAmount(
                         depositAmountForSelf,
                         underlyingUnit,
                         depositAmountForBeneficiary,
@@ -344,7 +355,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         depositTxnReceipt,
                         vaultInstance,
                         "Transfer",
-                        [ZERO_ADDRESS, depositorAddress, mintedAmount]
+                        [ZERO_ADDRESS, depositorAddress, expectedMintedAmount]
                     )).to.be.true;
                 });
 
@@ -367,7 +378,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     )).to.be.true;
                 });
 
-                it("should mint expected amount of receipt token");
+                it("should mint expected amount of receipt token", async () => {
+                    const mintedTokensForSelf = await vaultInstance.balanceOf(depositorAddress);
+                    expect(mintedTokensForSelf).to.be.equal(expectedMintedAmount);
+                });
             }); 
 
         });
