@@ -13,6 +13,7 @@ import "../../hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMiniChefV2.sol";
 
+
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   using SafeMathUpgradeable for uint256;

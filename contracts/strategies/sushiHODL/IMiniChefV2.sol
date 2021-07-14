@@ -2,8 +2,23 @@
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IRewarder {
+    function onSushiReward(uint256 pid, address user, address recipient, uint256 sushiAmount, uint256 newLpAmount) external;
+    function pendingTokens(uint256 pid, address user, uint256 sushiAmount) external view returns (IERC20[] memory, uint256[] memory);
+}
 
 interface IMiniChefV2 {
+
+    event Deposit(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
+    event Withdraw(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
+    event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount, address indexed to);
+    event Harvest(address indexed user, uint256 indexed pid, uint256 amount);
+    event LogPoolAddition(uint256 indexed pid, uint256 allocPoint, IERC20 indexed lpToken, IRewarder indexed rewarder);
+    event LogSetPool(uint256 indexed pid, uint256 allocPoint, IRewarder indexed rewarder, bool overwrite);
+    event LogUpdatePool(uint256 indexed pid, uint64 lastRewardTime, uint256 lpSupply, uint256 accSushiPerShare);
+    event LogSushiPerSecond(uint256 sushiPerSecond);
 
     /// @notice Deposit LP tokens to MCV2 for SUSHI allocation.
     /// @param pid The index of the pool. See `poolInfo`.
