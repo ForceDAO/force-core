@@ -222,4 +222,5 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
     };
 
     sushiHodlBehavior(prepareEnv);
+    
 });
