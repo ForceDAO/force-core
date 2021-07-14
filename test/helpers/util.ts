@@ -29,7 +29,7 @@ export const containsEvent = (receipt: any, instance: Contract, eventName: strin
                 localRes = currentValue.eq(eventArgs[currentIndex]);
             } else {
                 localRes = currentValue === eventArgs[currentIndex];
-                //console.log(`${eventName} arg ${currentIndex} ${currentValue} === ${eventArgs[currentIndex]}  ${localRes}`);
+                console.log(`${eventName} arg ${currentIndex} ${currentValue} === ${eventArgs[currentIndex]}  ${localRes}`);
             }
             return acc && localRes;
          },  true);
