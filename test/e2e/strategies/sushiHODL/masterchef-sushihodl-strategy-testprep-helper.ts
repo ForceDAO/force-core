@@ -20,6 +20,7 @@ export interface TestAccounts {
    governanceSigner: Signer;
    controllerSigner: Signer;
    depositorSigner: Signer;
+   beneficiarySigner: Signer;
 }
 
 export interface StrategyTestData {
