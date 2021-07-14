@@ -1,11 +1,13 @@
 import { expect } from "chai";
-import { BigNumber, Contract, Event } from "ethers";
+import { BigNumber, Contract, Event, constants } from "ethers";
 import { Interface, LogDescription } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 
 import { advanceTime, containsEvent } from "../../../helpers/util";
-import { SUSHI_ADDRESS, ZERO_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
+import { SUSHI_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
 import { StrategyTestData } from "./masterchef-sushihodl-strategy-testprep-helper";
+
+const { AddressZero } = constants;
 
 const ZERO = BigNumber.from(0);
 const ONE_DAY = 86400;
@@ -285,7 +287,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         depositTxnReceipt,
                         vaultInstance,
                         "Transfer",
-                        [ZERO_ADDRESS, beneficiaryAddress, expectedMintedAmount]
+                        [AddressZero, beneficiaryAddress, expectedMintedAmount]
                     )).to.be.true;
                 
                 });
@@ -355,7 +357,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         depositTxnReceipt,
                         vaultInstance,
                         "Transfer",
-                        [ZERO_ADDRESS, depositorAddress, expectedMintedAmount]
+                        [AddressZero, depositorAddress, expectedMintedAmount]
                     )).to.be.true;
                 });
 
