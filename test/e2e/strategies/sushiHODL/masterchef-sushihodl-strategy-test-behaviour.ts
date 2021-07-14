@@ -306,6 +306,15 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     await expect(vaultInstance.connect(depositorSigner).deposit(0)).to.be.revertedWith("Cannot deposit 0");
                 });
 
+                it("should fail if strategy address is 0", async () => {
+                    let strategyAddress = ethers.constants.AddressZero;
+                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmount))
+                    .to.be.reverted;
+                });
+                it("should fail if arb is too high");
+                it("should fail if amount minted is higher than the totalSupplyCap");
+                it("should fail if deposit and withdraw is in the same block");
+
                 it("should fail if not approved token", async () => {
                     await expect(vaultInstance.connect(depositorSigner).deposit(depositAmountForBeneficiary)).to.be.revertedWith("ds-math-sub-underflow");
                 });
