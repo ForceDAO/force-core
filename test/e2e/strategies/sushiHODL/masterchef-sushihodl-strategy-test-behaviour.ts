@@ -226,75 +226,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     expect(totalShares).to.be.equal(depositAmountForBeneficiary);
                     expect(await vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(depositAmountForBeneficiary);
 
-                    depositEvent = new Promise((resolve, reject) => {
-                        vaultInstance.on(
-                          "Deposit",
-                          (
-                            beneficiary : string,
-                            amount : any,
-                            event: any,
-                          ) => {
-                            event.removeListener();
-                  
-                            resolve({
-                                beneficiary: beneficiary,
-                                amount: amount,
-                            });
-                          },
-                        );
-                  
-                        setTimeout(() => {
-                          reject(new Error("timeout"));
-                        }, 60000);
-                    });
-
-                    transferEvent =  new Promise((resolve, reject) => {
-                        underlyingInstance.on(
-                          "Transfer",
-                          (
-                            sender : string,
-                            account : any,
-                            amount : any,
-                            event: any, 
-                          ) => {
-                            event.removeListener();
-                  
-                            resolve({
-                                sender : sender, 
-                                account : account,
-                                amount: amount,
-                            });
-                          },
-                        );
-                  
-                        setTimeout(() => {
-                          reject(new Error("timeout"));
-                        }, 60000);
-                    });
-
-                    transferEventOfVault = new Promise((resolve, reject) => {
-                        vaultInstance.on(
-                          "Transfer",
-                          (
-                            sender : string,
-                            account : any,
-                            amount : any,
-                            event: any, 
-                          ) => {
-                            event.removeListener();
-                  
-                            resolve({
-                                sender : sender, 
-                                account : account,
-                                amount: amount,
-                            });
-                          },
-                        );
-                  
-                        setTimeout(() => {
-                          reject(new Error("timeout"));
-                        }, 60000);
-                    });   
                 });
 
                 it("should fail if beneficiary is address 0", async () => {
@@ -303,15 +234,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
                 
                 it("should fail if amount is 0", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).deposit(0)).to.be.revertedWith("Cannot deposit 0");
+                    await expect(vaultInstance.connect(depositorSigner).deposit(0))
+                        .to.be.revertedWith("Cannot deposit 0");
                 });
 
-                it("should fail if strategy address is 0", async () => {
-                    let strategyAddress = ethers.constants.AddressZero;
-                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmount))
-                    .to.be.reverted;
-                });
-                it("should fail if arb is too high");
                 it("should fail if amount minted is higher than the totalSupplyCap");
                 it("should fail if deposit and withdraw is in the same block");
 
