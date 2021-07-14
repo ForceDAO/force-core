@@ -12,6 +12,12 @@ const ONE_DAY = 86400;
 const ONE_MONTH = ONE_DAY * 30;
 const ONE_YEAR = ONE_DAY * 365;
 
+const calculateMintedAmount = async (depositAmount: BigNumber, underlyingUnit: BigNumber, 
+    underlyingBalanceWithInvestment: BigNumber, totalSupply: BigNumber): Promise<BigNumber> => {
+    const pricePerFullShare: BigNumber = (underlyingUnit.mul(underlyingBalanceWithInvestment)).div(totalSupply);
+    return depositAmount.mul(underlyingUnit).div(pricePerFullShare);
+}
+
 export async function sushiHodlBehavior(strategyTestData: () => Promise<StrategyTestData>) {
 
     describe("SushiHodl Behavior", async () => {
@@ -41,6 +47,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         let miniChefV2Address: string;
         let miniChefV2Instance: Contract;
+
+        let underlyingUnit: BigNumber;
 
         let txnReceipt: any;
 
@@ -191,13 +199,13 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
             miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", miniChefV2Address);
 
-
+            underlyingUnit = await vaultInstance.underlyingUnit();
             depositAmount = await underlyingInstance.balanceOf(depositorSigner.address);
             await vaultInstance.setTotalSupplyCap(depositAmount);
             await vaultInstance.setWithdrawFee(0);
 
             depositAmountForSelf = depositAmount.div(2);
-            depositAmountForBeneficiary = depositAmount.div(2);
+            depositAmountForBeneficiary = depositAmount.sub(depositAmountForSelf);
 
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
             expect(underlyingInstance.address).to.be.equal(underlyingAddress);
@@ -246,7 +254,19 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 it("should emit mint event for receipt token", async () => {
-                
+                    
+                    const mintedAmount = await calculateMintedAmount(
+                        depositAmountForBeneficiary,
+                        underlyingUnit,
+                        ZERO,
+                        ZERO);
+
+                    // expect(containsEvent(
+                    //     depositTxnReceipt,
+                    //     vaultInstance,
+                    //     "Transfer",
+                    //     [vaultAddress, beneficiaryAddress, mintedAmount]
+                    // )).to.be.true;
                 
                 });
                 
@@ -309,11 +329,17 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 it("should emit mint event for receipt token", async () => {
 
+                    const mintedAmount = await calculateMintedAmount(
+                        depositAmountForSelf,
+                        underlyingUnit,
+                        depositAmountForBeneficiary,
+                        depositAmountForBeneficiary);
+
                     expect(containsEvent(
                         depositTxnReceipt,
                         vaultInstance,
                         "Transfer",
-                        [vaultAddress, beneficiaryAddress, 0]
+                        [vaultAddress, beneficiaryAddress, mintedAmount]
                     )).to.be.true;
                 });
 
@@ -332,7 +358,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         depositTxnReceipt,
                         underlyingInstance,
                         "Transfer",
-                        [depositorAddress, 0, vaultAddress]
+                        [depositorAddress, depositAmountForSelf, vaultAddress]
                     )).to.be.true;
                 });
 
