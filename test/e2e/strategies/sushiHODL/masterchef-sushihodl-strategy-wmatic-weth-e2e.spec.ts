@@ -62,7 +62,11 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
     let beneficiarySigner: any;
     let beneficiaryAddress: string;
 
+    let mockDepositor: any; 
+    let mockDepositorAddress: string;
+
     let strategyTestData: StrategyTestData;
+
 
     const prepareEnv = async () => {
 
@@ -171,6 +175,10 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         const setControllerTransaction = await storageInstance.setController(controllerAddress);
         await setControllerTransaction.wait();
 
+        const MockDepositor = await ethers.getContractFactory("MockVaultDepositor");
+        mockDepositor = await MockDepositor.deploy();
+        mockDepositorAddress = mockDepositor.address;
+
         console.log(`completed set Strat & Vault init`);
 
 
@@ -213,13 +221,15 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             underlying: underlyingInstance.address,
             toInvestNumerator: TO_INVEST_NUM,
             toInvestDenominator: TO_INVEST_DEN,
-            totalSupplyCap: SUPPLY_CAP
+            totalSupplyCap: SUPPLY_CAP,
+            storageAddress: storageAddress
         };
 
         const testStrategy: TestStrategy = {
             strategyAddress,
             underlying: underlyingInstance.address,
             miniChefV2: MINICHEFV2,
+            mockDepositorAddress: mockDepositorAddress,
             complexRewarderTime: COMPLEX_REWARDER_TIME
         };
 

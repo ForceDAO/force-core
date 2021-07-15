@@ -6,6 +6,7 @@ export interface TestStrategy {
     strategyAddress: string;
     underlying: string;
     miniChefV2: string;
+    mockDepositorAddress: string;
     complexRewarderTime: string;
 }
 
@@ -15,6 +16,7 @@ export interface TestVault {
     toInvestNumerator: number;
     toInvestDenominator: number;
     totalSupplyCap: number;
+    storageAddress: string;
 }
 
 export interface TestAccounts {

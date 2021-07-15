@@ -14,13 +14,14 @@ contract MockVaultDepositor {
     using SafeMath for uint256;
 
     function depositFor(
+        address beneficiary,
         IERC20 underlying,
         IVault vault,
         uint256 amount
     ) public {
         underlying.safeTransferFrom(msg.sender, address(this), amount);
         underlying.safeApprove(address(vault), amount);
-        vault.depositFor(amount, msg.sender);
+        vault.depositFor(amount, beneficiary);
     }
 
     function deposit(
@@ -45,13 +46,14 @@ contract MockVaultDepositor {
     }
 
     function depositForAndWithdraw(
+        address beneficiary,
         IERC20 underlying,
         IVault vault,
         uint256 amount
     )
         external
     {
-        depositFor(underlying, vault, amount);
+        depositFor(beneficiary, underlying, vault, amount);
         vault.withdraw(amount);
     }
 }

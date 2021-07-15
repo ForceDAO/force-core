@@ -118,7 +118,7 @@ describe("Whitelisting Functions",  () => {
       expect(await storageInstance.whiteList(mockDepositor.address)).to.be.false;
 
       await expect(
-        mockDepositor.depositFor(underlying.address, vaultProxyInst.address, amountToMint)
+        mockDepositor.depositFor(governanceAddress, underlying.address, vaultProxyInst.address, amountToMint)
       ).to.be.revertedWith('This smart contract is not whitelisted');
 
       await expect(
@@ -131,7 +131,7 @@ describe("Whitelisting Functions",  () => {
       await storageInstance.addToWhiteList(mockDepositor.address);
       expect(await storageInstance.whiteList(mockDepositor.address)).to.be.true;
 
-      await mockDepositor.depositFor(underlying.address, vaultProxyInst.address, amountToMint.div(2));
+      await mockDepositor.depositFor(governanceAddress, underlying.address, vaultProxyInst.address, amountToMint.div(2));
       expect(await vaultProxyInst.balanceOf(governance.address)).to.equal(amountToMint.div(2));
 
       await mockDepositor.deposit(underlying.address, vaultProxyInst.address, amountToMint.div(2));
@@ -149,7 +149,7 @@ describe("Whitelisting Functions",  () => {
       ).to.be.revertedWith('withdraw: withdraw in same block not permitted');
 
       await expect(
-        mockDepositor.depositForAndWithdraw(underlying.address, vaultProxyInst.address, amountToMint)
+        mockDepositor.depositForAndWithdraw(governanceAddress, underlying.address, vaultProxyInst.address, amountToMint)
       ).to.be.revertedWith('withdraw: withdraw in same block not permitted');
 
     });
