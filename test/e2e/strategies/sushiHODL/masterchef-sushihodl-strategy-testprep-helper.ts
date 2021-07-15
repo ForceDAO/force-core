@@ -14,6 +14,7 @@ export interface TestVault {
     toInvestNumerator: number;
     toInvestDenominator: number;
     totalSupplyCap: number;
+    storageAddress: string;
 }
 
 export interface TestAccounts {
@@ -21,6 +22,7 @@ export interface TestAccounts {
    controllerSigner: SignerWithAddress;
    depositorSigner: SignerWithAddress;
    beneficiarySigner: SignerWithAddress;
+   mockDepositor: any;
 }
 
 export interface StrategyTestData {
