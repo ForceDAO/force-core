@@ -319,7 +319,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 it("should fail if amount minted is higher than the totalSupplyCap", async () => {
-                    await expect(_vaultInstance.connect(_depositorSigner).depositFor(_depositAmount.add(10), _beneficiarySigner.address))
+                    await expect(_vaultInstance.connect(_depositorSigner).depositFor(
+                        _depositAmount.add(10),
+                        _beneficiarySigner.address))
                     .to.be.revertedWith("Cannot mint more than cap");
                 });
 
@@ -327,11 +329,13 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     await _storageInstance.addToWhiteList(_mockDepositor.address);
                     expect(await _storageInstance.whiteList(_mockDepositor.address)).to.be.true;
 
+                    await _underlyingInstance.connect(_depositorSigner).approve(_mockDepositor.address, _depositAmountForSelf);
+
                     await expect(
                         _mockDepositor.connect(_depositorSigner).depositForAndWithdraw(
                             _beneficiarySigner.address,
-                            _underlyingInstance.address, 
-                            _vaultInstance.address, 
+                            _underlyingInstance.address,
+                            _vaultInstance.address,
                             10)
                     ).to.be.revertedWith('withdraw: withdraw in same block not permitted');
                 });
