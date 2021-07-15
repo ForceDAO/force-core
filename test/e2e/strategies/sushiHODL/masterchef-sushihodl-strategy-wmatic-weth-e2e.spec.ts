@@ -12,6 +12,7 @@ import {
   SUSHI_LP_WMATIC_WETH_WMATIC_ROUTE_0,
   SUSHI_LP_WMATIC_WETH_WMATIC_ROUTE_1,
   MINICHEFV2,
+  COMPLEX_REWARDER_TIME,
   POOL_ID_WMATIC_WETH,
 } from "../../../polygon-mainnet-fork-test-config";
 
@@ -228,7 +229,8 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             strategyAddress,
             underlying: underlyingInstance.address,
             miniChefV2: MINICHEFV2,
-            mockDepositorAddress: mockDepositorAddress
+            mockDepositorAddress: mockDepositorAddress,
+            complexRewarderTime: COMPLEX_REWARDER_TIME
         };
 
         const testAccounts: TestAccounts = {

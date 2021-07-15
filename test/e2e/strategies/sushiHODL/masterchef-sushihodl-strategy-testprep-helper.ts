@@ -7,6 +7,7 @@ export interface TestStrategy {
     underlying: string;
     miniChefV2: string;
     mockDepositorAddress: string;
+    complexRewarderTime: string;
 }
 
 export interface TestVault {
