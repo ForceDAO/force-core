@@ -3,11 +3,8 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./IRewarder.sol";
 
-interface IRewarder {
-    function onSushiReward(uint256 pid, address user, address recipient, uint256 sushiAmount, uint256 newLpAmount) external;
-    function pendingTokens(uint256 pid, address user, uint256 sushiAmount) external view returns (IERC20[] memory, uint256[] memory);
-}
 
 interface IMiniChefV2 {
 
@@ -54,6 +51,8 @@ interface IMiniChefV2 {
     }
 
     function userInfo(uint256 _pid, address _user) external view returns (IMiniChefV2.UserInfo memory);
+
+    function pendingSushi(uint256 _pid, address _user) external view returns (uint256 pending);
 
     /// @notice Update reward variables for all pools. Be careful of gas spending!
     /// @param pids Pool IDs of all to be updated. Make sure to update all active pools.

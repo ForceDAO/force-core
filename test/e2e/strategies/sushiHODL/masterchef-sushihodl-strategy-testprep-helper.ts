@@ -6,6 +6,7 @@ export interface TestStrategy {
     strategyAddress: string;
     underlying: string;
     miniChefV2: string;
+    complexRewarderTime: string;
 }
 
 export interface TestVault {
