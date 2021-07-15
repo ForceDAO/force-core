@@ -202,13 +202,14 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             const { testAccounts, testStrategy, testVault }  = await strategyTestData();
             const { vaultAddress, underlying, storageAddress } = testVault;
-            const { strategyAddress, miniChefV2 } = testStrategy;
-            const { governanceSigner, depositorSigner, beneficiarySigner, mockDepositor } = testAccounts;
+            const { strategyAddress, miniChefV2, mockDepositorAddress } = testStrategy;
+            const { governanceSigner, depositorSigner, beneficiarySigner } = testAccounts;
             const sushiAddress = SUSHI_ADDRESS;
                         
             const sushiTokenInstance = await ethers.getContractAt("IERC20", sushiAddress);
             const underlyingInstance = await ethers.getContractAt("IERC20", underlying);
             const vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
+            const mockDepositor = await ethers.getContractAt("MockVaultDepositor", mockDepositorAddress);
 
             const strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
             const miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", miniChefV2);
@@ -305,7 +306,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     expect(balancePre.sub(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.equal(_depositAmountForBeneficiary);
                     expect(totalShares).to.be.equal(_depositAmountForBeneficiary);
                     expect(await _vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(_depositAmountForBeneficiary);
-
                 });
 
                 it("should fail if beneficiary is address 0", async () => {

@@ -6,6 +6,7 @@ export interface TestStrategy {
     strategyAddress: string;
     underlying: string;
     miniChefV2: string;
+    mockDepositorAddress: string;
 }
 
 export interface TestVault {
@@ -22,7 +23,6 @@ export interface TestAccounts {
    controllerSigner: SignerWithAddress;
    depositorSigner: SignerWithAddress;
    beneficiarySigner: SignerWithAddress;
-   mockDepositor: any;
 }
 
 export interface StrategyTestData {
