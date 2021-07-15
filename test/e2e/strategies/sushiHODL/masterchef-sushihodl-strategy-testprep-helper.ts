@@ -1,4 +1,4 @@
-import { Signer } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Logger } from "tslog";
 const logger: Logger = new Logger();
 
@@ -17,10 +17,10 @@ export interface TestVault {
 }
 
 export interface TestAccounts {
-   governanceSigner: Signer;
-   controllerSigner: Signer;
-   depositorSigner: Signer;
-   beneficiarySigner: Signer;
+   governanceSigner: SignerWithAddress;
+   controllerSigner: SignerWithAddress;
+   depositorSigner: SignerWithAddress;
+   beneficiarySigner: SignerWithAddress;
 }
 
 export interface StrategyTestData {

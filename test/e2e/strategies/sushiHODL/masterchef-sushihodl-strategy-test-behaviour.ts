@@ -1,5 +1,6 @@
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { BigNumber, Contract, Event, constants } from "ethers";
+import { BigNumber, Contract, Event, constants, Signer } from "ethers";
 import { Interface, LogDescription } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 
@@ -32,35 +33,28 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
     describe("SushiHodl Behavior", async () => {
 
-        let depositAmount: BigNumber;
-        let depositAmountForSelf: BigNumber;
-        let depositAmountForBeneficiary: BigNumber;
+        let _depositAmount: BigNumber;
+        let _depositAmountForSelf: BigNumber;
+        let _depositAmountForBeneficiary: BigNumber;
 
-        let vaultAddress: string;
-        let vaultInstance: Contract;
+        let _vaultInstance: Contract;
         
-        let underlyingAddress: string;
-        let underlyingInstance: Contract;
+        let _underlyingInstance: Contract;
         
-        let strategyAddress: string;
-        let strategyInstance: Contract;
+        let _strategyInstance: Contract;
         
-        let governanceSigner: any;
-        let depositorSigner: any;
-        let depositorAddress: string;
+        let _governanceSigner: SignerWithAddress;
+        let _depositorSigner: SignerWithAddress;
 
-        let beneficiarySigner: any;
-        let beneficiaryAddress: string;
+        let _beneficiarySigner: SignerWithAddress;
         
-        let sushiAddress: string;
-        let sushiTokenInstance: Contract;
+        let _sushiTokenInstance: Contract;
 
-        let miniChefV2Address: string;
-        let miniChefV2Instance: Contract;
+        let _miniChefV2Instance: Contract;
 
-        let underlyingUnit: BigNumber;
+        let _underlyingUnit: BigNumber;
 
-        let txnReceipt: any;
+        let _txnReceipt: any;
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
@@ -155,8 +149,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let wmaticInstance: Contract;
                 
                 before(async () => {
-                    sushiInstance = await ethers.getContractAt("IERC20", await strategyInstance.sushiTokenAddress());
-                    wmaticInstance = await ethers.getContractAt("IERC20", await strategyInstance.wmaticTokenAddress());
+                    sushiInstance = await ethers.getContractAt("IERC20", await _strategyInstance.sushiTokenAddress());
+                    wmaticInstance = await ethers.getContractAt("IERC20", await _strategyInstance.wmaticTokenAddress());
                 });
 
                 describe("When claimAllowed", () => {
@@ -165,9 +159,21 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     // });
                     it("should emit transfer event to strategy for wmatic tokens");
                     it("should emit transfer event to strategy for underlying tokens", async () => {
-                        expect(false);
-                        // await txnReceipt.to.emit(underlyingInstance, "Transfer").withArgs(miniChefV2Address, strategyAddress, depositAmount);
-                        // await txnReceipt.to.emit(underlyingInstance, "Transfer").withArgs(strategyAddress, vaultAddress, depositAmount);
+
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _underlyingInstance,
+                            "Transfer",
+                            [_miniChefV2Instance.address, _strategyInstance.address, _depositAmount]
+                        ));
+                        
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _underlyingInstance,
+                            "Transfer",
+                            [_strategyInstance.address, _vaultInstance.address, _depositAmount]
+                        ));
+
                     });
                     it("should emit Withdraw event");
                     it("should emit Harvest event");
@@ -189,42 +195,79 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             });
         }
         
-        before(async () => {
-            const _strategyTestData = await strategyTestData();
+        const fixture = async () => {
 
-            vaultAddress = _strategyTestData.testVault.vaultAddress;
-            underlyingAddress = _strategyTestData.testVault.underlying;
-            strategyAddress = _strategyTestData.testStrategy.strategyAddress;
-            governanceSigner = _strategyTestData.testAccounts.governanceSigner;
-            depositorSigner = _strategyTestData.testAccounts.depositorSigner;
-            depositorAddress = depositorSigner.address;
-            beneficiarySigner = _strategyTestData.testAccounts.beneficiarySigner;
-            beneficiaryAddress = beneficiarySigner.address;
-            miniChefV2Address = _strategyTestData.testStrategy.miniChefV2;
-            sushiAddress = SUSHI_ADDRESS;
-            
-            sushiTokenInstance = await ethers.getContractAt("IERC20", sushiAddress);
-            underlyingInstance = await ethers.getContractAt("IERC20", underlyingAddress);
-            vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
+            const { testAccounts, testStrategy, testVault }  = await strategyTestData();
+            const { vaultAddress, underlying } = testVault;
+            const { strategyAddress, miniChefV2 } = testStrategy;
+            const { governanceSigner, depositorSigner, beneficiarySigner } = testAccounts;
+            const sushiAddress = SUSHI_ADDRESS;
+                        
+            const sushiTokenInstance = await ethers.getContractAt("IERC20", sushiAddress);
+            const underlyingInstance = await ethers.getContractAt("IERC20", underlying);
+            const vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
 
-            strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
-            miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", miniChefV2Address);
+            const strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
+            const miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", miniChefV2);
 
-            underlyingUnit = await vaultInstance.underlyingUnit();
-            depositAmount = await underlyingInstance.balanceOf(depositorSigner.address);
+            const underlyingUnit = await vaultInstance.underlyingUnit();
+            const depositAmount = await underlyingInstance.balanceOf(depositorSigner.address);
             await vaultInstance.setTotalSupplyCap(depositAmount);
             await vaultInstance.setWithdrawFee(0);
 
-            depositAmountForSelf = depositAmount.div(2);
-            depositAmountForBeneficiary = depositAmount.sub(depositAmountForSelf);
+            const depositAmountForSelf = depositAmount.div(2);
+            const depositAmountForBeneficiary = depositAmount.sub(depositAmountForSelf);
 
-            expect(underlyingInstance.address).to.be.equal(underlyingAddress);
-            expect(underlyingInstance.address).to.be.equal(underlyingAddress);
+            return  {
+                governanceSigner,
+                depositorSigner,
+                beneficiarySigner,
+                sushiTokenInstance,
+                strategyInstance,
+                miniChefV2Instance,
+                underlyingInstance,
+                vaultInstance,
+                underlyingUnit,
+                depositAmount,
+                depositAmountForSelf,
+                depositAmountForBeneficiary
+            };
+
+        }
+
+        before(async () => {
+            const {
+                governanceSigner,
+                depositorSigner,
+                beneficiarySigner,
+                sushiTokenInstance,
+                strategyInstance,
+                miniChefV2Instance,
+                underlyingInstance,
+                vaultInstance,
+                underlyingUnit,
+                depositAmount,
+                depositAmountForSelf,
+                depositAmountForBeneficiary
+            } = await fixture();
+
+            _governanceSigner = governanceSigner;
+            _depositorSigner = depositorSigner;
+            _beneficiarySigner = beneficiarySigner;
+            _sushiTokenInstance = sushiTokenInstance;
+            _strategyInstance = strategyInstance;
+            _miniChefV2Instance = miniChefV2Instance;
+            _underlyingInstance = underlyingInstance;
+            _vaultInstance = vaultInstance;
+            _underlyingUnit = underlyingUnit;
+            _depositAmount = depositAmount;
+            _depositAmountForSelf = depositAmountForSelf;
+            _depositAmountForBeneficiary = depositAmountForBeneficiary;
         });
 
         it("should have sell sushi and sell matic set to false as default", async () => {
-            expect(await strategyInstance.sellSushi()).to.be.false;
-            expect(await strategyInstance.sellWMatic()).to.be.false;
+            expect(await _strategyInstance.sellSushi()).to.be.false;
+            expect(await _strategyInstance.sellWMatic()).to.be.false;
         });
 
         describe("Deposit", () => {
@@ -235,59 +278,60 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 before(async () => {
                     expectedMintedAmount = await calculateMintedAmount(
-                        depositAmountForBeneficiary,
-                        underlyingUnit,
+                        _depositAmountForBeneficiary,
+                        _underlyingUnit,
                         ZERO,
                         ZERO);
                 });
                 
                 it("should deposit underlying into vault", async () => {
-                    await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmountForBeneficiary);
-                    const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
+                    await _underlyingInstance.connect(_depositorSigner).approve(_vaultInstance.address, _depositAmountForBeneficiary);
+                    const balancePre = await _underlyingInstance.balanceOf(_depositorSigner.address);
     
-                    depositTxnReceipt = await vaultInstance.connect(depositorSigner).depositFor(depositAmountForBeneficiary, beneficiaryAddress);
+                    depositTxnReceipt = await _vaultInstance.connect(_depositorSigner).depositFor(_depositAmountForBeneficiary, _beneficiarySigner.address);
                     depositTxnReceipt = await depositTxnReceipt.wait();
                     
-                    const totalShares = await vaultInstance.balanceOf(beneficiaryAddress);
+                    const totalShares = await _vaultInstance.balanceOf(_beneficiarySigner.address);
     
-                    expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmountForBeneficiary);
-                    expect(totalShares).to.be.equal(depositAmountForBeneficiary);
-                    expect(await vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(depositAmountForBeneficiary);
+                    expect(balancePre.sub(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.equal(_depositAmountForBeneficiary);
+                    expect(totalShares).to.be.equal(_depositAmountForBeneficiary);
+                    expect(await _vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(_depositAmountForBeneficiary);
 
                 });
 
                 it("should fail if beneficiary is address 0", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).depositFor(depositAmountForBeneficiary, ethers.constants.AddressZero))
+                    await expect(_vaultInstance.connect(_depositorSigner).depositFor(_depositAmountForBeneficiary, ethers.constants.AddressZero))
                                 .to.be.revertedWith("holder must be defined");
                 });
                 
                 it("should fail if amount is 0", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).deposit(0))
+                    await expect(_vaultInstance.connect(_depositorSigner).deposit(0))
                         .to.be.revertedWith("Cannot deposit 0");
                 });
 
                 it("should fail if amount minted is higher than the totalSupplyCap", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).depositFor(depositAmount.add(10), beneficiaryAddress))
+                    await expect(_vaultInstance.connect(_depositorSigner).depositFor(_depositAmount.add(10), _beneficiarySigner.address))
                     .to.be.revertedWith("Cannot mint more than cap");
                 });
 
-                it("should fail if deposit and withdraw is in the same block", async () => {
-                    await vaultInstance.connect(depositorSigner).depositFor(10, beneficiaryAddress);
-                    const vaultShares = await vaultInstance.balanceOf(beneficiaryAddress);
-                    expect(await vaultInstance.connect(beneficiarySigner).withdraw(vaultShares))
-                    .to.be.revertedWith("withdraw: withdraw in same block not permitted");
-                });
+                it("should fail if deposit and withdraw is in the same block");
+                // it("should fail if deposit and withdraw is in the same block", async () => {
+                //     await vaultInstance.connect(depositorSigner).depositFor(10, beneficiaryAddress);
+                //     const vaultShares = await vaultInstance.balanceOf(beneficiaryAddress);
+                //     expect(await vaultInstance.connect(beneficiarySigner).withdraw(vaultShares))
+                //     .to.be.revertedWith("withdraw: withdraw in same block not permitted");
+                // });
 
                 it("should fail if not approved token", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmountForBeneficiary)).to.be.revertedWith("ds-math-sub-underflow");
+                    await expect(_vaultInstance.connect(_depositorSigner).deposit(_depositAmountForBeneficiary)).to.be.revertedWith("ds-math-sub-underflow");
                 });
 
                 it("should emit mint event for receipt token", async () => {
                     expect(containsEvent(
                         depositTxnReceipt,
-                        vaultInstance,
+                        _vaultInstance,
                         "Transfer",
-                        [AddressZero, beneficiaryAddress, expectedMintedAmount]
+                        [AddressZero, _beneficiarySigner.address, expectedMintedAmount]
                     )).to.be.true;
                 
                 });
@@ -296,23 +340,23 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                     expect(containsEvent(
                         depositTxnReceipt,
-                        vaultInstance,
+                        _vaultInstance,
                         "Deposit",
-                        [beneficiaryAddress, depositAmountForBeneficiary]
+                        [_beneficiarySigner.address, _depositAmountForBeneficiary]
                     )).to.be.true;
                 });
 
                 it("should emit transfer event for underlying", async () => {
                     expect(containsEvent(
                         depositTxnReceipt,
-                        underlyingInstance,
+                        _underlyingInstance,
                         "Transfer",
-                        [depositorAddress, vaultAddress, depositAmountForBeneficiary]
+                        [_depositorSigner.address, _vaultInstance.address, _depositAmountForBeneficiary]
                     )).to.be.true;
                 });
 
                 it("should mint expected amount of receipt token", async () => {
-                    const mintedTokensForBeneficiary = await vaultInstance.balanceOf(beneficiaryAddress);
+                    const mintedTokensForBeneficiary = await _vaultInstance.balanceOf(_beneficiarySigner.address);
                     expect(mintedTokensForBeneficiary).to.be.equal(expectedMintedAmount);
                 });
             }); 
@@ -324,40 +368,40 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 before( async () => {
                     expectedMintedAmount = await calculateMintedAmount(
-                        depositAmountForSelf,
-                        underlyingUnit,
-                        depositAmountForBeneficiary,
-                        depositAmountForBeneficiary);
+                        _depositAmountForSelf,
+                        _underlyingUnit,
+                        _depositAmountForBeneficiary,
+                        _depositAmountForBeneficiary);
                 });
       
                 it("should fail if amount is 0", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).deposit(0)).to.be.revertedWith("Cannot deposit 0");
+                    await expect(_vaultInstance.connect(_depositorSigner).deposit(0)).to.be.revertedWith("Cannot deposit 0");
                 });
 
                 it("should fail if not approved token", async () => {
-                    await expect(vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf)).to.be.revertedWith("ds-math-sub-underflow");
+                    await expect(_vaultInstance.connect(_depositorSigner).deposit(_depositAmountForSelf)).to.be.revertedWith("ds-math-sub-underflow");
                 });
 
                 it("should deposit underlying into vault", async () => {
-                    await underlyingInstance.connect(depositorSigner).approve(vaultAddress, depositAmountForSelf);
-                    const balancePre = await underlyingInstance.balanceOf(depositorSigner.address);
+                    await _underlyingInstance.connect(_depositorSigner).approve(_vaultInstance.address, _depositAmountForSelf);
+                    const balancePre = await _underlyingInstance.balanceOf(_depositorSigner.address);
     
-                    depositTxnReceipt = await vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf);
+                    depositTxnReceipt = await _vaultInstance.connect(_depositorSigner).deposit(_depositAmountForSelf);
                     depositTxnReceipt = await depositTxnReceipt.wait();
 
-                    const totalShares = await vaultInstance.balanceOf(depositorSigner.address);
+                    const totalShares = await _vaultInstance.balanceOf(_depositorSigner.address);
     
-                    expect(balancePre.sub(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.equal(depositAmountForSelf);
-                    expect(totalShares).to.be.equal(depositAmountForSelf);
-                    expect(await vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(depositAmountForSelf);
+                    expect(balancePre.sub(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.equal(_depositAmountForSelf);
+                    expect(totalShares).to.be.equal(_depositAmountForSelf);
+                    expect(await _vaultInstance.getEstimatedWithdrawalAmount(totalShares)).to.be.equal(_depositAmountForSelf);
                 });
 
                 it("should emit mint event for receipt token", async () => {
                     expect(containsEvent(
                         depositTxnReceipt,
-                        vaultInstance,
+                        _vaultInstance,
                         "Transfer",
-                        [AddressZero, depositorAddress, expectedMintedAmount]
+                        [AddressZero, _depositorSigner.address, expectedMintedAmount]
                     )).to.be.true;
                 });
 
@@ -365,23 +409,23 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                     expect(containsEvent(
                         depositTxnReceipt,
-                        vaultInstance,
+                        _vaultInstance,
                         "Deposit",
-                        [depositorAddress, depositAmountForSelf]
+                        [_depositorSigner.address, _depositAmountForSelf]
                     )).to.be.true;
                 });    
 
                 it("should emit transfer event for underlying", async () => {
                     expect(containsEvent(
                         depositTxnReceipt,
-                        underlyingInstance,
+                        _underlyingInstance,
                         "Transfer",
-                        [depositorAddress, vaultAddress, depositAmountForSelf]
+                        [_depositorSigner.address, _vaultInstance.address, _depositAmountForSelf]
                     )).to.be.true;
                 });
 
                 it("should mint expected amount of receipt token", async () => {
-                    const mintedTokensForSelf = await vaultInstance.balanceOf(depositorAddress);
+                    const mintedTokensForSelf = await _vaultInstance.balanceOf(_depositorSigner.address);
                     expect(mintedTokensForSelf).to.be.equal(expectedMintedAmount);
                 });
             }); 
@@ -399,21 +443,24 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             describe("When _withdrawBeforeReinvesting is false", () => {
 
                 before(async () => {
-                    vaultBalancePre = await underlyingInstance.balanceOf(vaultAddress);
-                    expect(vaultBalancePre).to.be.equal(depositAmount);
+                    vaultBalancePre = await _underlyingInstance.balanceOf(_vaultInstance.address);
+                    expect(vaultBalancePre).to.be.equal(_depositAmount);
     
-                    miniChefBalancePre = await underlyingInstance.balanceOf(miniChefV2Address);
-                    txnReceipt = await vaultInstance.connect(governanceSigner).doHardWork();
-                    vaultBalancePost = await underlyingInstance.balanceOf(vaultAddress);
+                    miniChefBalancePre = await _underlyingInstance.balanceOf(_miniChefV2Instance.address);
+                    
+                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
+                    _txnReceipt = await _txnReceipt.wait();
+                    
+                    vaultBalancePost = await _underlyingInstance.balanceOf(_vaultInstance.address);
                 });
 
                 it("should move underlying from vault into strategy", async () => {
-                    expect(await underlyingInstance.balanceOf(vaultAddress)).to.be.equal(ZERO);
+                    expect(await _underlyingInstance.balanceOf(_vaultInstance.address)).to.be.equal(ZERO);
                 });
     
                 it("should move underlying to MiniChef", async () => {
-                    miniChefBalancePost = await underlyingInstance.balanceOf(miniChefV2Address);
-                    expect(miniChefBalancePost).to.be.equal(miniChefBalancePre.add(depositAmount));
+                    miniChefBalancePost = await _underlyingInstance.balanceOf(_miniChefV2Instance.address);
+                    expect(miniChefBalancePost).to.be.equal(miniChefBalancePre.add(_depositAmount));
                 });
 
                 describe("When availableToInvestOut > 0", () => {
@@ -426,6 +473,21 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     it("should not transfer amount availableToInvestOut to the strategy");
                 });
 
+                describe("Hardwork: Strategy", async () => {
+    
+                    describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
+                    describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
+                    
+                    describe("investAllUnderlying", () => {
+                        it("should call investAllUnderlying function");
+                        it("should emit approve event for reward pool of 0");
+                        it("should emit approve event for reward pool of entireBalance");
+                        it("should emit transfer event for tokens from strategy to reward pool");
+                        it("should emit Deposit event from reward pool");
+                        it("should have the correct underlying balance in the strategy");
+                        it("should have the correct user.amount and user.rewardDebt in the reward pool");
+                    });
+                });
             });
             
             describe("When _withdrawBeforeReinvesting is true", () => {
@@ -433,42 +495,24 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             });
 
 
-            describe("Hardwork: Strategy", async () => {
 
-                before(async () => {
-                    txnReceipt = await vaultInstance.connect(governanceSigner).doHardWork();
-                });
-
-                describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
-                describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
-                
-                describe("investAllUnderlying", () => {
-                    it("should call investAllUnderlying function");
-                    it("should emit approve event for reward pool of 0");
-                    it("should emit approve event for reward pool of entireBalance");
-                    it("should emit transfer event for tokens from strategy to reward pool");
-                    it("should emit Deposit event from reward pool");
-                    it("should have the correct underlying balance in the strategy");
-                    it("should have the correct user.amount and user.rewardDebt in the reward pool");
-                });
-            });
 
 
             describe("Advance 1 Day", () => {
 
                 before(async () => {
-                    await strategyInstance.setLiquidation(false, false, true);                        
+                    await _strategyInstance.setLiquidation(false, false, true);                        
                     await advanceTime(ONE_DAY);
-                    await vaultInstance.connect(governanceSigner).doHardWork();
+                    await _vaultInstance.connect(_governanceSigner).doHardWork();
                 });
 
                 it("should leave sell flags as false", async () => {
-                    expect(await strategyInstance.sellSushi()).to.be.false;
-                    expect(await strategyInstance.sellWMatic()).to.be.false;
+                    expect(await _strategyInstance.sellSushi()).to.be.false;
+                    expect(await _strategyInstance.sellWMatic()).to.be.false;
                 });
                 
                 it("should set claim rewards", async () => {
-                    expect(await strategyInstance.claimAllowed()).to.be.true;
+                    expect(await _strategyInstance.claimAllowed()).to.be.true;
                 });
 
             });
@@ -476,14 +520,14 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             
             describe("Advance 1 Day & Sell Rewards", async () => {
                 before(async () => {
-                    await strategyInstance.setLiquidation(true, true, true);
+                    await _strategyInstance.setLiquidation(true, true, true);
                     await advanceTime(ONE_DAY);
-                    await vaultInstance.connect(governanceSigner).doHardWork();
+                    await _vaultInstance.connect(_governanceSigner).doHardWork();
                 });
 
                 it("should set sell sushi and sell matic to true", async () => {
-                    expect(await strategyInstance.sellSushi()).to.be.true;
-                    expect(await strategyInstance.sellWMatic()).to.be.true;
+                    expect(await _strategyInstance.sellSushi()).to.be.true;
+                    expect(await _strategyInstance.sellWMatic()).to.be.true;
                 });
 
                 it("should auto-compound rewards");
@@ -500,16 +544,16 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             before(async () => {                     
                 await advanceTime(ONE_DAY);
-                await vaultInstance.connect(governanceSigner).doHardWork();
+                await _vaultInstance.connect(_governanceSigner).doHardWork();
             });
 
             describe("Without Fee", () => {
                 it("should permit withdrawal of all underlying", async () => {
-                    const vaultShares = await vaultInstance.balanceOf(depositorSigner.address);
-                    await vaultInstance.connect(depositorSigner).withdraw(vaultShares);
+                    const vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
+                    await _vaultInstance.connect(_depositorSigner).withdraw(vaultShares);
     
-                    expect(depositAmountForSelf.lt(await underlyingInstance.balanceOf(depositorSigner.address))).to.be.true;
-                    expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(0);
+                    expect(_depositAmountForSelf.lt(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.true;
+                    expect(await _vaultInstance.balanceOf(_depositorSigner.address)).to.be.equal(0);
                 });
 
                 it("should withdraw exact amount expected");
@@ -527,37 +571,37 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             before(async () => {
                 // Deposit back into vault.
-                await underlyingInstance.connect(depositorSigner).approve(vaultInstance.address, depositAmountForSelf);
-                expect((await underlyingInstance.balanceOf(depositorSigner.address)).gt(depositAmountForSelf));
+                await _underlyingInstance.connect(_depositorSigner).approve(_vaultInstance.address, _depositAmountForSelf);
+                expect((await _underlyingInstance.balanceOf(_depositorSigner.address)).gt(_depositAmountForSelf));
                 
-                await vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf);
-                expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmountForSelf);
+                await _vaultInstance.connect(_depositorSigner).deposit(_depositAmountForSelf);
+                expect(await _vaultInstance.balanceOf(_depositorSigner.address)).to.be.equal(_depositAmountForSelf);
                 
                 // Allow time for rewards.
                 await advanceTime(ONE_DAY);
                 
                 // Confirm claim allowed.
-                expect(await strategyInstance.claimAllowed());
+                expect(await _strategyInstance.claimAllowed());
                 
                 // dohardwork to deposit back into strategy.
-                await vaultInstance.connect(governanceSigner).doHardWork();
-                expect(await underlyingInstance.balanceOf(vaultInstance.address)).to.be.equal(0);
+                await _vaultInstance.connect(_governanceSigner).doHardWork();
+                expect(await _underlyingInstance.balanceOf(_vaultInstance.address)).to.be.equal(0);
 
                 // Withdraw all back into vault.
-                txnReceipt = await vaultInstance.connect(governanceSigner).withdrawAll();
-                txnReceipt = await txnReceipt.wait();
+                _txnReceipt = await _vaultInstance.connect(_governanceSigner).withdrawAll();
+                _txnReceipt = await _txnReceipt.wait();
 
                 expect(containsEvent(
-                    txnReceipt,
-                    underlyingInstance,
+                    _txnReceipt,
+                    _underlyingInstance,
                     "Transfer",
-                    [miniChefV2Instance.address, strategyInstance.address, depositAmount]
+                    [_miniChefV2Instance.address, _strategyInstance.address, _depositAmount]
                 )).to.be.true;
 
             });
 
             it("should fail if called by non governance", async () => {
-                await expect(vaultInstance.connect(depositorSigner).withdrawAll())
+                await expect(_vaultInstance.connect(_depositorSigner).withdrawAll())
                     .to.be.revertedWith("The caller must be controller or governance");
             });
 
