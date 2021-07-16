@@ -720,7 +720,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             });
 
-            
             describe("Advance 1 Day & Sell Rewards", async () => {
                 before(async () => {
                     await _strategyInstance.setLiquidation(true, true, true);
@@ -733,21 +732,60 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     expect(await _strategyInstance.sellWMatic()).to.be.true;
                 });
 
-                it("should auto-compound rewards");
-                // it("should auto-compound rewards", async () => {
-                //     const underlyingBalanceAfterAutoC = await underlyingInstance.balanceOf(miniChefV2);
-                //     console.log(`underlyingBalanceAfterAutoC is: ${underlyingBalanceAfterAutoC}`);
-                //     expect((await underlyingInstance.balanceOf(miniChefV2)).gt(miniChefBalancePost)).to.be.true;
-                // });
+                it("should auto-compound rewards", async () => {
+                    // const underlyingBalanceAfterAutoComp = await _underlyingInstance.balanceOf(miniChefV2);
+                    // console.log(`underlyingBalanceAfterAutoComp is: ${underlyingBalanceAfterAutoComp}`);
+
+                    // Minichef Values.
+                    const { miniChefBalancePost, rewardDebt } = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
+                    console.log(`miniChefBalancePost is: ${miniChefBalancePost} and rewardDebt is: ${rewardDebt}`);
+                    expect(miniChefBalancePost.gt(miniChefBalancePre)).to.be.true;
+                });
             });
         });
 
 
         describe("Withdraw", () => {
 
-            before(async () => {                     
+            before(async () => {
+
+                const {
+                    governanceSigner,
+                    depositorSigner,
+                    beneficiarySigner,
+                    sushiTokenInstance,
+                    strategyInstance,
+                    miniChefV2Instance,
+                    rewarderInstance,
+                    underlyingInstance,
+                    vaultInstance,
+                    storageInstance,
+                    underlyingUnit,
+                    depositAmount,
+                    depositAmountForSelf,
+                    depositAmountForBeneficiary,
+                    mockDepositor,
+                    miniChefBalancePreDeposit,
+                    miniChefBalancePostDeposit,
+                    rewardDebtMinichef,
+                    amountInMinichef,
+                    sushiRewardAmount,
+                    rewarderReportedRewards
+                } = await firstHardWorkFixture();
+                                   
+                _amountInMinichef = amountInMinichef;
+                _strategyInstance = strategyInstance;
+                _sushiRewardAmount = sushiRewardAmount;
+                _miniChefV2Instance = miniChefV2Instance;
+                _rewarderReportedRewards = rewarderReportedRewards;
+                _rewarderInstance = rewarderInstance;
+                _underlyingInstance = underlyingInstance;
+                _vaultInstance = vaultInstance;
+                _depositAmountForSelf = depositAmountForSelf;
+
                 await advanceTime(ONE_DAY);
-                await _vaultInstance.connect(_governanceSigner).doHardWork();
+                _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
+                _txnReceipt = await _txnReceipt.wait();
             });
 
             describe("Without Fee", () => {
