@@ -34,8 +34,8 @@ export interface StrategyTestData {
 }
 
 export interface UserInfo {
-    amount: BigNumber;
-    rewardDebt: BigNumber;
+    amount: number;
+    rewardDebt: number;
 }
 
 export function prepareForStrategyTest(strategyTestData : StrategyTestData) {

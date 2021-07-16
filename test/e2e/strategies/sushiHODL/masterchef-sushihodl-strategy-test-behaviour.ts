@@ -483,6 +483,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             const rewardDebtMinichef = rewardDebt;
             const amountInMinichef = amount;
             const sushiRewardAmount = await miniChefV2Instance.pendingSushi(await strategyInstance.poolId(), strategyInstance.address);
+            console.log(`Minichef Values In firstHardWork -> amount: ${amount} , rewardDebt: ${rewardDebt}, pendingSushi: ${sushiRewardAmount}`);
 
             // Rewarder (matic) Values.
             const [rewardAddress, rewards] = await rewarderInstance
@@ -1103,12 +1104,12 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let miniChefBalancePre: BigNumber;
 
                 before(async () => {
-                    const userInfo: UserInfo = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
-                    miniChefBalancePre = userInfo.amount;
-                   await _strategyInstance.setLiquidation(true, true, true);
-                   await advanceTime(ONE_DAY);
-                   _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
-                   _txnReceipt = await _txnReceipt.wait();
+                    const userInfo : UserInfo = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
+                    miniChefBalancePre = BigNumber.from(userInfo.amount);
+
+                    await _strategyInstance.setLiquidation(true, true, true);
+                    await advanceTime(ONE_DAY);
+                    await _vaultInstance.connect(_governanceSigner).doHardWork();
                 });
 
                 it("should set sell sushi and sell matic to true", async () => {
@@ -1117,13 +1118,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 it("should auto-compound rewards", async () => {
-                    // const underlyingBalanceAfterAutoComp = await _underlyingInstance.balanceOf(miniChefV2);
-                    // console.log(`underlyingBalanceAfterAutoComp is: ${underlyingBalanceAfterAutoComp}`);
-
-                    // Minichef Values.
-                    const { miniChefBalancePost, rewardDebt } = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
-                    console.log(`miniChefBalancePost is: ${miniChefBalancePost} and rewardDebt is: ${rewardDebt}`);
-                    expect(miniChefBalancePost.gt(miniChefBalancePre)).to.be.true;
+                    const {amount, rewardDebt} = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
+                    console.log(`miniChefBalancePost is: ${amount} and rewardDebt is: ${rewardDebt} & miniChefBalancePre: ${miniChefBalancePre}`);
+                    expect(amount.gt(miniChefBalancePre)).to.be.true;
                 });
             });
         });
