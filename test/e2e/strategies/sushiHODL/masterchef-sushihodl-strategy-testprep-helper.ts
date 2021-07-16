@@ -32,6 +32,11 @@ export interface StrategyTestData {
     testAccounts: TestAccounts;
 }
 
+export interface UserInfo {
+    amount: number;
+    rewardDebt: number;
+}
+
 export function prepareForStrategyTest(strategyTestData : StrategyTestData) {
 
     //compose the steps for Test Preparation
