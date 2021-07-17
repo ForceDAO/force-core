@@ -729,9 +729,13 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     const userInfo : UserInfo = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
                     miniChefBalancePre = BigNumber.from(userInfo.amount);
 
-                    await _strategyInstance.setLiquidation(true, true, true);
-                    await advanceTime(ONE_DAY);
-                    await _vaultInstance.connect(_governanceSigner).doHardWork();
+                   const minLiquidateTokens = await _strategyInstance.minLiquidateTokens();
+                   console.log(`minLiquidateTokens are: ${minLiquidateTokens}`);
+
+                   await _strategyInstance.setLiquidation(true, true, true);
+                   await advanceTime(ONE_DAY);
+                   _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
+                   _txnReceipt = await _txnReceipt.wait();
                 });
 
                 it("should set sell sushi and sell matic to true", async () => {
@@ -741,7 +745,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 it("should auto-compound rewards", async () => {
                     const {amount, rewardDebt} = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
-                    console.log(`miniChefBalancePost is: ${amount} and rewardDebt is: ${rewardDebt} & miniChefBalancePre: ${miniChefBalancePre}`);
                     expect(amount.gt(miniChefBalancePre)).to.be.true;
                 });
             });

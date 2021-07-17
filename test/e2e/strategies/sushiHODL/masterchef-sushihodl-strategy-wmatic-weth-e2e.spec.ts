@@ -29,12 +29,12 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
     const UNDERLYING_ADDRESS: string = SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH;
     const WITHDRAW_FEE: number = 10;
 
-    const WMATIC_DEPOSIT_AMOUNT = BigNumber.from(1000)
+    const WMATIC_DEPOSIT_AMOUNT = BigNumber.from(208310)
         .mul(BigNumber.from(10).pow(18));
-    const WETH_DEPOSIT_AMOUNT = BigNumber.from(1000)
+    const WETH_DEPOSIT_AMOUNT = BigNumber.from(1890)
         .mul(BigNumber.from(10).pow(18))
 
-    let underlyingInstance: any;  
+    let underlyingInstance: any;
 
     let vaultAddress: string;
     let vaultImplementationAddress: string;
