@@ -932,7 +932,15 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     expect(underlyingBalanceInVault).to.be.equal(underlyingBalanceOfStrategyBeforeHodlAndNotify);
                 });
 
-                it("should emit transfer event to vault from strategy");
+                it("should emit transfer event to vault from strategy", async () => {
+
+                    expect(containsEvent(
+                        _txnReceipt,
+                        _underlyingInstance,
+                        "Transfer",
+                        [_strategyInstance.address, _vaultInstance.address, _depositAmount]
+                    )).to.be.true;
+                });
 
             });
         });
