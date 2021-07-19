@@ -104,8 +104,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         const wethWhaleSigner = await ethers.provider.getSigner(WETH_WHALE_ADDRESS);
         expect(wethWhaleSigner).to.not.be.null;
 
-        console.log(`impersonation completed`);
-
         // Deploy Storage.
         const Storage = await ethers.getContractFactory("Storage");
         storageInstance = await Storage.deploy();
@@ -161,8 +159,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             strategyAddress
         );
 
-        console.log(`about to set Strat & Vault init`);
-
         // Set Strategy on Vault.
         const setStrategyTx = await vaultInstance.setStrategy(strategyAddress);
         await setStrategyTx.wait();
@@ -178,9 +174,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         const MockDepositor = await ethers.getContractFactory("MockVaultDepositor");
         mockDepositor = await MockDepositor.deploy();
         mockDepositorAddress = mockDepositor.address;
-
-        console.log(`completed set Strat & Vault init`);
-
 
         // Add liquidity.
         const wmaticInstance = await ethers.getContractAt("IERC20", WMATIC_ADDRESS);
