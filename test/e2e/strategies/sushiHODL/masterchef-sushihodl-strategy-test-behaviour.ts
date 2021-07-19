@@ -912,8 +912,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let underlyingBalanceOfVaultBeforeHodlAndNotify: BigNumber;
 
                 before( async () => {
-                    underlyingBalanceOfStrategyBeforeHodlAndNotify = await _underlyingInstance.balance(_strategyInstance.address);
-                    underlyingBalanceOfVaultBeforeHodlAndNotify = await _underlyingInstance.balance(_vaultInstance.address);
+                    underlyingBalanceOfStrategyBeforeHodlAndNotify = await _underlyingInstance.balanceOf(_strategyInstance.address);
+                    underlyingBalanceOfVaultBeforeHodlAndNotify = await _underlyingInstance.balanceOf(_vaultInstance.address);
                 });
 
                 describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
@@ -926,9 +926,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 it("should transfer underlying from strategy to vault", async () => {
-                    const underlyingBalanceInStrategy = await _underlyingInstance.balance(_strategyInstance.address);
+                    const underlyingBalanceInStrategy = await _underlyingInstance.balanceOf(_strategyInstance.address);
                     expect(underlyingBalanceInStrategy).to.be.equal(0);
-                    const underlyingBalanceInVault = await _underlyingInstance.balance(_vaultInstance.address);
+                    const underlyingBalanceInVault = await _underlyingInstance.balanceOf(_vaultInstance.address);
                     expect(underlyingBalanceInVault).to.be.equal(underlyingBalanceOfStrategyBeforeHodlAndNotify);
                 });
 
