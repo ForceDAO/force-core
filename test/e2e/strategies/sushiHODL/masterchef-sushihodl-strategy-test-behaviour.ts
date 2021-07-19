@@ -737,11 +737,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 before(async () => {
                     const userInfo : UserInfo = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
-                    miniChefBalancePre = BigNumber.from(userInfo.amount);
-
-                   const minLiquidateTokens = await _strategyInstance.minLiquidateTokens();
-                   console.log(`minLiquidateTokens are: ${minLiquidateTokens}`);
-
+                    miniChefBalancePre = userInfo.amount;
+                    console.log(`amount before auto-compounding is: ${miniChefBalancePre}`);
                    await _strategyInstance.setLiquidation(true, true, true);
                    await advanceTime(ONE_DAY);
                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
@@ -755,6 +752,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 it("should auto-compound rewards", async () => {
                     const {amount, rewardDebt} = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
+                    console.log(`amount after auto-compounding is: ${amount}`);
                     expect(amount.gt(miniChefBalancePre)).to.be.true;
                 });
             });
@@ -807,10 +805,12 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             describe("Without Fee", () => {
 
                 let vaultShares: BigNumber;
+                let underlyingBalanceofDepositorBeforeWithdraw: BigNumber;
 
                 before( async () => {
                     const setZeroWithdrawFeeTxn = await _vaultInstance.connect(_governanceSigner).setWithdrawFee(0);
                     await setZeroWithdrawFeeTxn.wait();
+                    underlyingBalanceofDepositorBeforeWithdraw = await _underlyingInstance.balanceOf(_depositorSigner.address);
                 });
 
                 it("should permit withdrawal of all underlying", async () => {
@@ -823,7 +823,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 it("should withdraw exact amount expected", async () => {
                     const underlyingBalanceofDepositor = await _underlyingInstance.balanceOf(_depositorSigner.address);
-                    expect(underlyingBalanceofDepositor).to.be.equal(vaultShares);
+                    expect(underlyingBalanceofDepositor).to.be.gt(_depositAmountForSelf);
+
                 });
             });
             

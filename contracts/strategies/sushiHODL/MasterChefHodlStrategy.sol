@@ -12,7 +12,7 @@ import "../../hardworkInterface/IStrategy.sol";
 import "../../hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMiniChefV2.sol";
-
+import "hardhat/console.sol";
 
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
@@ -206,10 +206,13 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   function exitRewardPool() internal {
       uint256 bal = rewardPoolBalance();
+      console.log("balance in exitRewardPool - before withdraw is: %s ", bal);
       if (bal != 0) {
           if (claimAllowed()) {
+            console.log("claimAllowed is enabled in exitRewardPool - before withdrawAndHarvest for balance: %s ",bal);
             IMiniChefV2(rewardPool()).withdrawAndHarvest(poolId(), bal, address(this));
           } else {
+            console.log("claimAllowed is disabled in exitRewardPool - before withdrawAndHarvest for balance: %s ",bal);
             IMiniChefV2(rewardPool()).withdraw(poolId(), bal, address(this));
           }
       }
@@ -256,15 +259,19 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
     uint256 liquidityAdded;
 
+    console.log("In _hodlAndNotify");
+
     //liquidate the Sushi Rewards
     if (sellSushi()) {
       (address[] memory sushiPath0, address[] memory sushiPath1) = getSushiRoutes();
+      console.log("About to liquidate sushi: ");
       liquidityAdded.add(liquidateRewardToken(sushiTokenAddress(), sushiPath0, sushiPath1));
     }
 
     //liquidate the WMatic Rewards
     if (sellWMatic()) {
       (address[] memory maticPath0, address[] memory maticPath1) = getWmaticRoutes();
+      console.log("About to liquidate wMatic: ");
       liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
     }
 
@@ -279,6 +286,12 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   function liquidateRewardToken(address _rewardTokenAddress, address[] memory _uniswapPath0, address[] memory _uniswapPath1) internal returns (uint256) {
     uint256 rewardTokenBalance = IERC20Upgradeable(_rewardTokenAddress).balanceOf(address(this));
+
+    uint256 minLiquidateTokensVal = minLiquidateTokens();
+
+    console.log("About to liquidate: %s ", rewardTokenBalance);
+    console.log(" of token: %s ", _rewardTokenAddress);
+    console.log(" with minLiquidateTokens: %s ",minLiquidateTokensVal);
 
     if (rewardTokenBalance > minLiquidateTokens()) {
       //halve the tokenBalance
