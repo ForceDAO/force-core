@@ -13,6 +13,7 @@ import "../../hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMiniChefV2.sol";
 
+
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   using SafeMathUpgradeable for uint256;
@@ -278,7 +279,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   function liquidateRewardToken(address _rewardTokenAddress, address[] memory _uniswapPath0, address[] memory _uniswapPath1) internal returns (uint256) {
     uint256 rewardTokenBalance = IERC20Upgradeable(_rewardTokenAddress).balanceOf(address(this));
-    uint256 minLiquidateTokensVal = minLiquidateTokens();
 
     if (rewardTokenBalance > minLiquidateTokens()) {
       //halve the tokenBalance
@@ -301,6 +301,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
           address(this),
           block.timestamp
         );
+
         token0Amount = amounts0[amounts0.length - 1];
       } else {
         token0Amount = half;
@@ -318,6 +319,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
           address(this),
           block.timestamp
         );
+
         token1Amount = amounts1[amounts1.length - 1];
       } else {
         token1Amount = otherHalf;
