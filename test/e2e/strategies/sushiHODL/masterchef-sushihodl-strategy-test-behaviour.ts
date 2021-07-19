@@ -895,26 +895,45 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     .to.be.revertedWith("The caller must be controller or governance");
             });
 
-            it("should fail when strategy not defined");
+            it("should fail when strategy not defined", async () => {
+                const setInvalidStrategy = await _vaultInstance.connect(_governanceSigner).setStrategy("");
+                await setInvalidStrategy.wait();
+                await expect(_vaultInstance.connect(_depositorSigner).withdrawAll())
+                    .to.be.revertedWith("");
+            });
 
-            it("should succeed if called by controller");
             it("should succeed if called by controller", async () => {
-                await expect(_vaultInstance.connect(_governanceSigner).withdrawAll());
+               await expect(_vaultInstance.connect(_governanceSigner).withdrawAll());                
             });
 
             describe("withdrawAllToVault: Strategy", async () => {
 
+                let underlyingBalanceOfStrategyBeforeHodlAndNotify: BigNumber;
+                let underlyingBalanceOfVaultBeforeHodlAndNotify: BigNumber;
+
+                before( async () => {
+                    underlyingBalanceOfStrategyBeforeHodlAndNotify = await _underlyingInstance.balance(_strategyInstance.address);
+                    underlyingBalanceOfVaultBeforeHodlAndNotify = await _underlyingInstance.balance(_vaultInstance.address);
+                });
+
                 describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
                 describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
 
-                it("should update the correct user.amount and user.reward debt on the minichef contract");
-                // it("should update the correct user.amount and user.reward debt on the minichef contract", async () => {
-                //     const { amount, rewardDebt } = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
-                //     expect(amount).to.be.equal(0);
-                //     expect(rewardDebt).to.be.equal(_rewardDebtMinichef.sub(_sushiRewardAmount));
-                // });
-                it("should transfer underlying from strategy to vault");
+                it("should update the correct user.amount and user.reward debt on the minichef contract", async () => {
+                    const { amount, rewardDebt } = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
+                    expect(amount).to.be.equal(0);
+                    expect(rewardDebt).to.be.equal(_rewardDebtMinichef.sub(_sushiRewardAmount));
+                });
+
+                it("should transfer underlying from strategy to vault", async () => {
+                    const underlyingBalanceInStrategy = await _underlyingInstance.balance(_strategyInstance.address);
+                    expect(underlyingBalanceInStrategy).to.be.equal(0);
+                    const underlyingBalanceInVault = await _underlyingInstance.balance(_vaultInstance.address);
+                    expect(underlyingBalanceInVault).to.be.equal(underlyingBalanceOfStrategyBeforeHodlAndNotify);
+                });
+
                 it("should emit transfer event to vault from strategy");
+
             });
         });
 
