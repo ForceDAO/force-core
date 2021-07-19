@@ -13,7 +13,6 @@ import "../../hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMiniChefV2.sol";
 
-
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   using SafeMathUpgradeable for uint256;
@@ -259,13 +258,13 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     //liquidate the Sushi Rewards
     if (sellSushi()) {
       (address[] memory sushiPath0, address[] memory sushiPath1) = getSushiRoutes();
-      liquidityAdded.add(liquidateRewardToken(sushiTokenAddress(), sushiPath0, sushiPath1));
+      liquidityAdded = liquidityAdded.add(liquidateRewardToken(sushiTokenAddress(), sushiPath0, sushiPath1));
     }
 
     //liquidate the WMatic Rewards
     if (sellWMatic()) {
       (address[] memory maticPath0, address[] memory maticPath1) = getWmaticRoutes();
-      liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
+      liquidityAdded = liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
     }
 
     //compute Fee and transfer Fee to controller
@@ -279,6 +278,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   function liquidateRewardToken(address _rewardTokenAddress, address[] memory _uniswapPath0, address[] memory _uniswapPath1) internal returns (uint256) {
     uint256 rewardTokenBalance = IERC20Upgradeable(_rewardTokenAddress).balanceOf(address(this));
+    uint256 minLiquidateTokensVal = minLiquidateTokens();
 
     if (rewardTokenBalance > minLiquidateTokens()) {
       //halve the tokenBalance
@@ -301,7 +301,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
           address(this),
           block.timestamp
         );
-
         token0Amount = amounts0[amounts0.length - 1];
       } else {
         token0Amount = half;
@@ -319,7 +318,6 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
           address(this),
           block.timestamp
         );
-
         token1Amount = amounts1[amounts1.length - 1];
       } else {
         token1Amount = otherHalf;
@@ -353,7 +351,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       token1Amount,
       1,  // min
       1,  // min
-      vault(),
+      address(this),
       block.timestamp
     );
 

@@ -1,4 +1,5 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber } from "ethers";
 import { Logger } from "tslog";
 const logger: Logger = new Logger();
 
@@ -30,6 +31,11 @@ export interface StrategyTestData {
     testVault: TestVault;
     testStrategy: TestStrategy;
     testAccounts: TestAccounts;
+}
+
+export interface UserInfo {
+    amount: BigNumber;
+    rewardDebt: BigNumber;
 }
 
 export function prepareForStrategyTest(strategyTestData : StrategyTestData) {
