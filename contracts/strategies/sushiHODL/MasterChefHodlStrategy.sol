@@ -265,14 +265,14 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     if (sellSushi()) {
       (address[] memory sushiPath0, address[] memory sushiPath1) = getSushiRoutes();
       console.log("About to liquidate sushi: ");
-      liquidityAdded.add(liquidateRewardToken(sushiTokenAddress(), sushiPath0, sushiPath1));
+      liquidityAdded = liquidityAdded.add(liquidateRewardToken(sushiTokenAddress(), sushiPath0, sushiPath1));
     }
 
     //liquidate the WMatic Rewards
     if (sellWMatic()) {
       (address[] memory maticPath0, address[] memory maticPath1) = getWmaticRoutes();
       console.log("About to liquidate wMatic: ");
-      liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
+      liquidityAdded = liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
     }
 
     //compute Fee and transfer Fee to controller
@@ -378,7 +378,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     console.log("In addLiquidity -> amountA: %s", amountA);
     console.log("In addLiquidity -> amountB: %s", amountB);
     console.log("In addLiquidity -> liquidity: %s", liquidity);
-    
+
     emit LogLiquidityAdded(token0Address, token1Address, amountA, amountB, liquidity);
     return liquidity;
   }
