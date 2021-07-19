@@ -467,6 +467,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             } = await useFixture;
             
             const miniChefBalancePreDeposit = await underlyingInstance.balanceOf(miniChefV2Instance.address);
+            
+            const underlyingBalanceBeforeHardWork = await _underlyingInstance.balanceOf(_vaultInstance.address);
+            console.log(`underlyingBalanceBeforeHardWork is: ${underlyingBalanceBeforeHardWork}`);
 
             // dohardwork to deposit back into strategy.
             let firstHardWorkTxnReceipt = await vaultInstance.connect(governanceSigner).doHardWork();
@@ -758,12 +761,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         miniChefBalancePostDeposit,
                         amountInMinichef,
                         sushiRewardAmount,
-                        rewarderReportedRewards,
-                        firstHardWorkTxnReceipt,
-                        governanceSigner
-                    } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
-
-                    _governanceSigner = governanceSigner;
+                        rewarderReportedRewards
+                    } = await firstHardWorkFixture();
+                    
                     _amountInMinichef = amountInMinichef;
                     _strategyInstance = strategyInstance;
                     _sushiRewardAmount = sushiRewardAmount;
@@ -777,11 +777,19 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
                     _txnReceipt = firstHardWorkTxnReceipt;
 
-                    expect(await vaultInstance.withdrawBeforeReinvesting()).to.be.false;
+                    const underlyingBalanceFirstHardWorkFixture = await _underlyingInstance.balanceOf(_vaultInstance.address);
+
+                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
+                    _txnReceipt = await _txnReceipt.wait();
+
+                    const underlyingBalanceSecondHardWorkFixture = await _underlyingInstance.balanceOf(_vaultInstance.address);
+                    console.log(`Hardwork: Vault -> underlyingBalance after firstHardWorkFixture: ${underlyingBalanceFirstHardWorkFixture}
+                     - underlyingBalance after 2nd hardwork is: ${underlyingBalanceSecondHardWorkFixture}`);                    
                 });
 
                 it("should move underlying from vault into strategy", async () => {
                     const underlyingBalanceAfterHardWork = await _underlyingInstance.balanceOf(_vaultInstance.address);
+                    console.log(`underlyingBalanceAfterHardWork is: ${underlyingBalanceAfterHardWork}`);
                     expect(underlyingBalanceAfterHardWork).to.be.equal(ZERO);
                 });
     
