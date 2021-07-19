@@ -805,23 +805,40 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             });
 
             describe("Without Fee", () => {
+
+                let vaultShares: BigNumber;
+
+                before( async () => {
+                    const setZeroWithdrawFeeTxn = await _vaultInstance.connect(_governanceSigner).setWithdrawFee(0);
+                    await setZeroWithdrawFeeTxn.wait();
+                });
+
                 it("should permit withdrawal of all underlying", async () => {
-                    const vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
+                    vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
                     await _vaultInstance.connect(_depositorSigner).withdraw(vaultShares);
     
                     expect(_depositAmountForSelf.lt(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.true;
                     expect(await _vaultInstance.balanceOf(_depositorSigner.address)).to.be.equal(0);
                 });
 
-                it("should withdraw exact amount expected");
+                it("should withdraw exact amount expected", async () => {
+                    const underlyingBalanceofDepositor = await _underlyingInstance.balanceOf(_depositorSigner.address);
+                    expect(underlyingBalanceofDepositor).to.be.equal(vaultShares);
+                });
             });
             
             describe("With Fee", () => {
+
+                before( async () => {
+                    const setZeroWithdrawFeeTxn = await _vaultInstance.connect(_governanceSigner).setWithdrawFee(10);
+                    await setZeroWithdrawFeeTxn.wait();
+                });
+
                 it("should permit withdrawal of all underlying");
+
                 it("should withdraw exact amount expected");
+            
             });
-
-
         });
 
         describe("withdrawAll: Vault", async () => {
@@ -866,6 +883,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 _underlyingInstance = underlyingInstance;
                 _vaultInstance = vaultInstance;
                 _depositAmountForSelf = depositAmountForSelf;
+                _governanceSigner = governanceSigner;
 
                 _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
                 _txnReceipt = await _txnReceipt.wait();
@@ -880,9 +898,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             it("should fail when strategy not defined");
 
             it("should succeed if called by controller");
-            // it("should succeed if called by controller", async () => {
-            //     await expect(vaultInstance.connect(controllerSigner).withdrawAll());
-            // });
+            it("should succeed if called by controller", async () => {
+                await expect(_vaultInstance.connect(_governanceSigner).withdrawAll());
+            });
 
             describe("withdrawAllToVault: Strategy", async () => {
 
