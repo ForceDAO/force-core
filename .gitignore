@@ -29,3 +29,4 @@ yarn.lock
 .openzeppelin
 slither-output.txt
 .history/
+tests-output
