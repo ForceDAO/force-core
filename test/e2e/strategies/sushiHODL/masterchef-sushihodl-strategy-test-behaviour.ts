@@ -159,7 +159,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 
             });
         }
-        
+
         const exitRewardPoolBehavior = async () => {
             describe("When balance != 0", () => {
                 let sushiInstance: Contract;
@@ -247,7 +247,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 
             });
         }
-        
+
         const fixture = async () => {
             console.log(`reverting to ${_snapshotId}`)
             await network.provider.request({
@@ -657,10 +657,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         describe("Hardwork: Vault", () => {
 
-            describe("When _withdrawBeforeReinvesting is false", () => {
+            let _miniChefBalancePreDeposit: BigNumber;
+            let _miniChefBalancePostDeposit: BigNumber;
 
-                let _miniChefBalancePreDeposit: BigNumber;
-                let _miniChefBalancePostDeposit: BigNumber;
+            describe("When _withdrawBeforeReinvesting is false", () => {
 
                 before(async () => {
 
@@ -694,6 +694,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
                     _txnReceipt = firstHardWorkTxnReceipt;
 
+                    expect(await vaultInstance.withdrawBeforeReinvesting()).to.be.false;
                 });
 
                 it("should move underlying from vault into strategy", async () => {
@@ -841,7 +842,64 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             });
             
             describe("When _withdrawBeforeReinvesting is true", () => {
-                it("should emit transfer event to the vault from strategy");
+
+                before(async () => {
+
+                    const {
+                        strategyInstance,
+                        miniChefV2Instance,
+                        rewarderInstance,
+                        underlyingInstance,
+                        vaultInstance,
+                        depositAmountForSelf,
+                        miniChefBalancePreDeposit,
+                        miniChefBalancePostDeposit,
+                        amountInMinichef,
+                        sushiRewardAmount,
+                        rewarderReportedRewards,
+                        governanceSigner
+                    } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
+
+                    _governanceSigner = governanceSigner;
+                    _amountInMinichef = amountInMinichef;
+                    _strategyInstance = strategyInstance;
+                    _sushiRewardAmount = sushiRewardAmount;
+                    _miniChefV2Instance = miniChefV2Instance;
+                    _rewarderReportedRewards = rewarderReportedRewards;
+                    _rewarderInstance = rewarderInstance;
+                    _underlyingInstance = underlyingInstance;
+                    _vaultInstance = vaultInstance;
+                    _depositAmountForSelf = depositAmountForSelf;
+                    _miniChefBalancePostDeposit = miniChefBalancePostDeposit;
+                    _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
+                    
+                    await vaultInstance.setWithdrawBeforeReinvesting(true);
+                    await advanceTime(ONE_DAY);
+                    
+                    const { amount }  = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
+                    _amountInMinichef = amount;
+                    _txnReceipt = await (await vaultInstance.doHardWork()).wait();
+                    expect(await vaultInstance.withdrawBeforeReinvesting()).to.be.true;
+
+                });
+
+                it("should emit transfer event to the strategy from minichef", async () => {
+                    expect(containsEvent(
+                        _txnReceipt,
+                        _underlyingInstance,
+                        "Transfer",
+                        [_miniChefV2Instance.address, _strategyInstance.address, _amountInMinichef]
+                    )).to.be.true;
+                });
+
+                it("should emit transfer event to the vault from strategy", async () => {
+                    expect(containsEvent(
+                        _txnReceipt,
+                        _underlyingInstance,
+                        "Transfer",
+                        [_strategyInstance.address, _vaultInstance.address, _amountInMinichef]
+                    )).to.be.true;
+                });
             });
 
             describe("Advance 1 Day", () => {
@@ -868,7 +926,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let miniChefBalancePre: BigNumber;
 
                 before(async () => {
-                    const userInfo : UserInfo = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
+                    const userInfo: UserInfo = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
                     miniChefBalancePre = userInfo.amount;
                    await _strategyInstance.setLiquidation(true, true, true);
                    await advanceTime(ONE_DAY);
