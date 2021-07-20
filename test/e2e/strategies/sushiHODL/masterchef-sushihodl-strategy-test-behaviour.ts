@@ -796,60 +796,44 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         describe("Withdraw", () => {
 
-            before(async () => {
-
-                const {
-                    governanceSigner,
-                    depositorSigner,
-                    beneficiarySigner,
-                    sushiTokenInstance,
-                    strategyInstance,
-                    miniChefV2Instance,
-                    rewarderInstance,
-                    underlyingInstance,
-                    vaultInstance,
-                    storageInstance,
-                    underlyingUnit,
-                    depositAmount,
-                    depositAmountForSelf,
-                    depositAmountForBeneficiary,
-                    mockDepositor,
-                    miniChefBalancePreDeposit,
-                    miniChefBalancePostDeposit,
-                    rewardDebtMinichef,
-                    amountInMinichef,
-                    sushiRewardAmount,
-                    rewarderReportedRewards
-                } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
-                                   
-                _amountInMinichef = amountInMinichef;
-                _strategyInstance = strategyInstance;
-                _sushiRewardAmount = sushiRewardAmount;
-                _miniChefV2Instance = miniChefV2Instance;
-                _rewarderReportedRewards = rewarderReportedRewards;
-                _rewarderInstance = rewarderInstance;
-                _underlyingInstance = underlyingInstance;
-                _vaultInstance = vaultInstance;
-                _depositAmountForSelf = depositAmountForSelf;
-
-                await advanceTime(ONE_DAY);
-                _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
-                _txnReceipt = await _txnReceipt.wait();
-            });
-
             describe("Without Fee", () => {
 
-                let vaultShares: BigNumber;
-                let underlyingBalanceofDepositorBeforeWithdraw: BigNumber;
+                before(async () => {
 
-                before( async () => {
+                    const {
+ 
+                        strategyInstance,
+                        miniChefV2Instance,
+                        rewarderInstance,
+                        underlyingInstance,
+                        vaultInstance,
+                        depositAmountForSelf,
+                        amountInMinichef,
+                        sushiRewardAmount,
+                        rewarderReportedRewards
+                    } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
+                                       
+                    _amountInMinichef = amountInMinichef;
+                    _strategyInstance = strategyInstance;
+                    _sushiRewardAmount = sushiRewardAmount;
+                    _miniChefV2Instance = miniChefV2Instance;
+                    _rewarderReportedRewards = rewarderReportedRewards;
+                    _rewarderInstance = rewarderInstance;
+                    _underlyingInstance = underlyingInstance;
+                    _vaultInstance = vaultInstance;
+                    _depositAmountForSelf = depositAmountForSelf;
+    
+                    await advanceTime(ONE_DAY);
+                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
+                    _txnReceipt = await _txnReceipt.wait();
+
                     const setZeroWithdrawFeeTxn = await _vaultInstance.connect(_governanceSigner).setWithdrawFee(0);
                     await setZeroWithdrawFeeTxn.wait();
-                    underlyingBalanceofDepositorBeforeWithdraw = await _underlyingInstance.balanceOf(_depositorSigner.address);
                 });
 
+
                 it("should permit withdrawal of all underlying", async () => {
-                    vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
+                    const vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
                     await _vaultInstance.connect(_depositorSigner).withdraw(vaultShares);
     
                     expect(_depositAmountForSelf.lt(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.true;
@@ -865,9 +849,37 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             
             describe("With Fee", () => {
 
-                before( async () => {
-                    const setZeroWithdrawFeeTxn = await _vaultInstance.connect(_governanceSigner).setWithdrawFee(10);
-                    await setZeroWithdrawFeeTxn.wait();
+
+                before(async () => {
+
+                    const {
+ 
+                        strategyInstance,
+                        miniChefV2Instance,
+                        rewarderInstance,
+                        underlyingInstance,
+                        vaultInstance,
+                        depositAmountForSelf,
+                        amountInMinichef,
+                        sushiRewardAmount,
+                        rewarderReportedRewards
+                    } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
+                                       
+                    _amountInMinichef = amountInMinichef;
+                    _strategyInstance = strategyInstance;
+                    _sushiRewardAmount = sushiRewardAmount;
+                    _miniChefV2Instance = miniChefV2Instance;
+                    _rewarderReportedRewards = rewarderReportedRewards;
+                    _rewarderInstance = rewarderInstance;
+                    _underlyingInstance = underlyingInstance;
+                    _vaultInstance = vaultInstance;
+                    _depositAmountForSelf = depositAmountForSelf;
+    
+                    await advanceTime(ONE_DAY);
+                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
+                    _txnReceipt = await _txnReceipt.wait();
+
+                    await (await _vaultInstance.connect(_governanceSigner).setWithdrawFee(10)).wait();
                 });
 
                 it("should permit withdrawal of all underlying");
