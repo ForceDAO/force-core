@@ -14,6 +14,7 @@ import "./hardworkInterface/IVault.sol";
 import "./hardworkInterface/IUpgradeSource.sol";
 import "./ControllableInit.sol";
 import "./VaultStorage.sol";
+import "hardhat/console.sol";
 
 contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, VaultStorage, ReentrancyGuardUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -328,8 +329,12 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
       .mul(withdrawFee())
       .div(underlyingUnit());
 
+    console.log('WithdrawFee is: %s and withdrawFeeShares is: %s',withdrawFee(), withdrawFeeShares);
+
     uint256 numberOfSharesPostFee = numberOfShares.sub(withdrawFeeShares);
     uint256 underlyingAmountToWithdraw = getEstimatedWithdrawalAmount(numberOfSharesPostFee);
+
+    console.log('numberOfSharesPostFee is: %s and underlyingAmountToWithdraw is: %s', numberOfSharesPostFee, underlyingAmountToWithdraw);
 
     _burn(msg.sender, numberOfShares);
     // Hand fees to controller.

@@ -743,46 +743,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         describe("Withdraw", () => {
 
-            before(async () => {
-
-                const {
-                    governanceSigner,
-                    depositorSigner,
-                    beneficiarySigner,
-                    sushiTokenInstance,
-                    strategyInstance,
-                    miniChefV2Instance,
-                    rewarderInstance,
-                    underlyingInstance,
-                    vaultInstance,
-                    storageInstance,
-                    underlyingUnit,
-                    depositAmount,
-                    depositAmountForSelf,
-                    depositAmountForBeneficiary,
-                    mockDepositor,
-                    miniChefBalancePreDeposit,
-                    miniChefBalancePostDeposit,
-                    rewardDebtMinichef,
-                    amountInMinichef,
-                    sushiRewardAmount,
-                    rewarderReportedRewards
-                } = await firstHardWorkFixture();
-                                   
-                _amountInMinichef = amountInMinichef;
-                _strategyInstance = strategyInstance;
-                _sushiRewardAmount = sushiRewardAmount;
-                _miniChefV2Instance = miniChefV2Instance;
-                _rewarderReportedRewards = rewarderReportedRewards;
-                _rewarderInstance = rewarderInstance;
-                _underlyingInstance = underlyingInstance;
-                _vaultInstance = vaultInstance;
-                _depositAmountForSelf = depositAmountForSelf;
-
-                await advanceTime(ONE_DAY);
-                _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
-                _txnReceipt = await _txnReceipt.wait();
-            });
+            let underlyingBalanceofDepositorAfterWithdrawWithNoFee: BigNumber;
 
             describe("Without Fee", () => {
 
@@ -790,6 +751,45 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let underlyingBalanceofDepositorBeforeWithdraw: BigNumber;
 
                 before( async () => {
+   
+                    const {
+                        governanceSigner,
+                        depositorSigner,
+                        beneficiarySigner,
+                        sushiTokenInstance,
+                        strategyInstance,
+                        miniChefV2Instance,
+                        rewarderInstance,
+                        underlyingInstance,
+                        vaultInstance,
+                        storageInstance,
+                        underlyingUnit,
+                        depositAmount,
+                        depositAmountForSelf,
+                        depositAmountForBeneficiary,
+                        mockDepositor,
+                        miniChefBalancePreDeposit,
+                        miniChefBalancePostDeposit,
+                        rewardDebtMinichef,
+                        amountInMinichef,
+                        sushiRewardAmount,
+                        rewarderReportedRewards
+                    } = await firstHardWorkFixture();
+                                        
+                    _amountInMinichef = amountInMinichef;
+                    _strategyInstance = strategyInstance;
+                    _sushiRewardAmount = sushiRewardAmount;
+                    _miniChefV2Instance = miniChefV2Instance;
+                    _rewarderReportedRewards = rewarderReportedRewards;
+                    _rewarderInstance = rewarderInstance;
+                    _underlyingInstance = underlyingInstance;
+                    _vaultInstance = vaultInstance;
+                    _depositAmountForSelf = depositAmountForSelf;
+
+                    await advanceTime(ONE_DAY);
+                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
+                    _txnReceipt = await _txnReceipt.wait();
+
                     const setZeroWithdrawFeeTxn = await _vaultInstance.connect(_governanceSigner).setWithdrawFee(0);
                     await setZeroWithdrawFeeTxn.wait();
                     underlyingBalanceofDepositorBeforeWithdraw = await _underlyingInstance.balanceOf(_depositorSigner.address);
@@ -806,21 +806,78 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 it("should withdraw exact amount expected", async () => {
                     const underlyingBalanceofDepositor = await _underlyingInstance.balanceOf(_depositorSigner.address);
                     expect(underlyingBalanceofDepositor).to.be.gt(_depositAmountForSelf);
-
+                    underlyingBalanceofDepositorAfterWithdrawWithNoFee = underlyingBalanceofDepositor;
                 });
             });
             
             describe("With Fee", () => {
 
+                let vaultShares: BigNumber;
+                let underlyingBalanceofDepositorBeforeWithdraw: BigNumber;
+                let withdrawFees: BigNumber = BigNumber.from(10);
+
                 before( async () => {
-                    const setZeroWithdrawFeeTxn = await _vaultInstance.connect(_governanceSigner).setWithdrawFee(10);
-                    await setZeroWithdrawFeeTxn.wait();
+   
+                    const {
+                        governanceSigner,
+                        depositorSigner,
+                        beneficiarySigner,
+                        sushiTokenInstance,
+                        strategyInstance,
+                        miniChefV2Instance,
+                        rewarderInstance,
+                        underlyingInstance,
+                        vaultInstance,
+                        storageInstance,
+                        underlyingUnit,
+                        depositAmount,
+                        depositAmountForSelf,
+                        depositAmountForBeneficiary,
+                        mockDepositor,
+                        miniChefBalancePreDeposit,
+                        miniChefBalancePostDeposit,
+                        rewardDebtMinichef,
+                        amountInMinichef,
+                        sushiRewardAmount,
+                        rewarderReportedRewards
+                    } = await firstHardWorkFixture();
+                                        
+                    _amountInMinichef = amountInMinichef;
+                    _strategyInstance = strategyInstance;
+                    _sushiRewardAmount = sushiRewardAmount;
+                    _miniChefV2Instance = miniChefV2Instance;
+                    _rewarderReportedRewards = rewarderReportedRewards;
+                    _rewarderInstance = rewarderInstance;
+                    _underlyingInstance = underlyingInstance;
+                    _vaultInstance = vaultInstance;
+                    _depositAmountForSelf = depositAmountForSelf;
+
+                    await advanceTime(ONE_DAY);
+                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
+                    _txnReceipt = await _txnReceipt.wait();
+
+                    const setWithdrawFeeTxn = await _vaultInstance.connect(_governanceSigner).setWithdrawFee(withdrawFees);
+                    await setWithdrawFeeTxn.wait();
+                    underlyingBalanceofDepositorBeforeWithdraw = await _underlyingInstance.balanceOf(_depositorSigner.address);
                 });
 
-                it("should permit withdrawal of all underlying");
+                it("should permit withdrawal of all underlying", async () => {
+                    vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
+                    await _vaultInstance.connect(_depositorSigner).withdraw(vaultShares);
+    
+                    expect(_depositAmountForSelf.lt(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.true;
+                    expect(await _vaultInstance.balanceOf(_depositorSigner.address)).to.be.equal(0);
+                });
 
-                it("should withdraw exact amount expected");
-            
+                it("should withdraw exact amount expected", async () => {
+                    const underlyingBalanceofDepositorAfterWithdrawWithFee = await _underlyingInstance.balanceOf(_depositorSigner.address);
+                    expect(underlyingBalanceofDepositorAfterWithdrawWithFee).to.be.gt(_depositAmountForSelf);
+                    console.log(`underlyingBalanceofDepositorAfterWithdrawWithNoFee: ${underlyingBalanceofDepositorAfterWithdrawWithNoFee} -
+                     \n underlyingBalanceofDepositorAfterWithdrawWithFee: ${underlyingBalanceofDepositorAfterWithdrawWithFee} \n - 
+                     with delta: ${underlyingBalanceofDepositorAfterWithdrawWithNoFee.sub(underlyingBalanceofDepositorAfterWithdrawWithFee)} \n`);
+                    expect(underlyingBalanceofDepositorAfterWithdrawWithNoFee.sub(underlyingBalanceofDepositorAfterWithdrawWithFee))
+                                .to.be.eq(withdrawFees.mul(BigNumber.from(10).pow(18)));
+                });
             });
         });
 
@@ -829,7 +886,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             let vaultBalancePost: BigNumber;
             let miniChefBalancePre: BigNumber;
             let miniChefBalancePost: BigNumber;
-
 
             before(async () => {
 
