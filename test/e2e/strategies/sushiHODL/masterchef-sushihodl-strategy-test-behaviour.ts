@@ -248,7 +248,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         wmaticInstance,
                         "Approval",
                         [owner, spender, value]
-                        )).to.be.true;
+                        ))
                     });
                    
                     it("should emit approve amount for route of rewardTokenBalance");
