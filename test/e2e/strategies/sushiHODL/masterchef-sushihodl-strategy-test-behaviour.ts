@@ -170,7 +170,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         expect(await sushiInstance.sellSushi()).to.be.true;
       
                     });
-                    it("should emit approve amount for route of 0", () => {
+                    it("should emit approve amount for route of 0", async () => {
                        expect(containsEvent(
                         _txnReceipt,
                         sushiInstance,
@@ -195,7 +195,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         it("should swap tokens for _uniswapPath1[1]");
                         it("should emit transfer event to strategy");
                         it("should emit transfer event from strategy");
-                        it("should emit swap event", () => {
+                        it("should emit swap event", async () => {
                             expect(containsEvent(
                                 _txnReceipt,
                                 sushiInstance,
@@ -218,7 +218,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         });
                         
                         it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                        it("should log LogLiquidityAdded event", () => {
+                        it("should log LogLiquidityAdded event", async () => {
                             expect(containsEvent(
                                 _txnReceipt,
                                 sushiInstance,
@@ -242,7 +242,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         expect(await wmaticInstance.sellWMatic()).to.be.true;
       
                     });
-                    it("should emit approve amount for route of 0", () => {
+                    it("should emit approve amount for route of 0", async () => {
                         expect(containsEvent(
                         _txnReceipt,
                         wmaticInstance,
@@ -283,7 +283,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         });
                         
                         it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                        it("should log LogLiquidityAdded event", () => {
+                        it("should log LogLiquidityAdded event", async () => {
                             expect(containsEvent(
                                 _txnReceipt,
                                 wmaticInstance,
