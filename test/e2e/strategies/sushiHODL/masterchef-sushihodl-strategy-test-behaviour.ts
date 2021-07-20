@@ -88,6 +88,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         let amountB: BigNumber;
         let liquidity: BigNumber;
 
+        let owner: any
+        let spender: any
+        let value: any
+
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
@@ -164,8 +168,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                        expect(containsEvent(
                         _txnReceipt,
                         sushiInstance,
-                        "LogLiquidateRewardToken",
-                        [rewardTokenAddress, token0Address, token1Address, rewardTokenBalance, token0Amount, token1Amount]
+                        "Approval",
+                        [owner, spender, value]
                         )).to.be.true; 
                     });
 
