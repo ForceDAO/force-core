@@ -91,8 +91,11 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
+                let sushiInstance: Contract;
+             
                 before(async () => {
-
+                   
+                    sushiInstance = await ethers.getContractAt("IERC20", await _strategyInstance.sushiTokenAddress());
 
                     const {
                         governanceSigner,
@@ -149,18 +152,18 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
                     before(async () => {
-                        expect(await _strategyInstance.sellSushi()).to.be.true;
+                        expect(await sushiInstance.sellSushi()).to.be.true;
 
                     })
                     it("should have sell sushi set to true", async () => {
-                        expect(await _strategyInstance.sellSushi()).to.be.true;
+                        expect(await sushiInstance.sellSushi()).to.be.true;
       
                     });
                     it("should emit approve amount for route of 0", async () => {
                                             // expect(await _strategyInstance.sellWMatic()).to.be.false;
                        expect(containsEvent(
                         _txnReceipt,
-                        _strategyInstance,
+                        sushiInstance,
                         "LogLiquidateRewardToken",
                         [rewardTokenAddress, token0Address, token1Address, rewardTokenBalance, token0Amount, token1Amount]
                         )).to.be.true; 
@@ -197,7 +200,14 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         });
                         
                         it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                        it("should log LogLiquidityAdded event");
+                        it("should log LogLiquidityAdded event", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                sushiInstance,
+                                "LogLiquidityAdded",
+                                [token0Address, token1Address, amountA, amountB, liquidity]
+                            )).to.be.true;
+                        });
                     });
                 });
             });
