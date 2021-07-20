@@ -92,6 +92,13 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         let spender: any
         let value: any
 
+        let sender: Address;
+        let amount0In: BigNumber;
+        let amount1In: BigNumber;
+        let amount0Out: BigNumber;
+        let amount1Out: BigNumber;
+        let to: Address;
+
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
@@ -163,8 +170,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         expect(await sushiInstance.sellSushi()).to.be.true;
       
                     });
-                    it("should emit approve amount for route of 0", async () => {
-                                            // expect(await _strategyInstance.sellWMatic()).to.be.false;
+                    it("should emit approve amount for route of 0", () => {
                        expect(containsEvent(
                         _txnReceipt,
                         sushiInstance,
@@ -185,10 +191,18 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         it("should emit swap event");
                     });
                     describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
+                        
                         it("should swap tokens for _uniswapPath1[1]");
                         it("should emit transfer event to strategy");
                         it("should emit transfer event from strategy");
-                        it("should emit swap event");
+                        it("should emit swap event", () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                sushiInstance,
+                                "Swap",
+                                [sender, amount0In, amount1In, amount0Out, amount1Out, to]
+                            )).to.be.true;
+                        });
                     });
     
                     describe("Add Liquidity", () => {
@@ -204,7 +218,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         });
                         
                         it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                        it("should log LogLiquidityAdded event", async () => {
+                        it("should log LogLiquidityAdded event", () => {
                             expect(containsEvent(
                                 _txnReceipt,
                                 sushiInstance,
@@ -228,9 +242,13 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         expect(await wmaticInstance.sellWMatic()).to.be.true;
       
                     });
-                    it("should emit approve amount for route of 0", async () => {
-                        expect(await wmaticInstance.sellWMatic()).to.be.true;
-                        
+                    it("should emit approve amount for route of 0", () => {
+                        expect(containsEvent(
+                        _txnReceipt,
+                        wmaticInstance,
+                        "Approval",
+                        [owner, spender, value]
+                        )).to.be.true;
                     });
                    
                     it("should emit approve amount for route of rewardTokenBalance");
@@ -265,7 +283,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         });
                         
                         it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                        it("should log LogLiquidityAdded event", async () => {
+                        it("should log LogLiquidityAdded event", () => {
                             expect(containsEvent(
                                 _txnReceipt,
                                 wmaticInstance,
