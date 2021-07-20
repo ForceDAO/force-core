@@ -13,6 +13,7 @@ import {
   SUSHI_LP_USDC_USDT_WMATIC_ROUTE_1,
   MINICHEFV2,
   POOL_ID_USDC_USDT,
+  COMPLEX_REWARDER_TIME,
 } from "../../../polygon-mainnet-fork-test-config";
 
 import { sushiHodlBehavior } from "./masterchef-sushihodl-strategy-test-behaviour";
@@ -212,7 +213,8 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             strategyAddress,
             underlying: underlyingInstance.address,
             miniChefV2: MINICHEFV2,
-            mockDepositorAddress: mockDepositorAddress
+            mockDepositorAddress: mockDepositorAddress,
+            complexRewarderTime: COMPLEX_REWARDER_TIME
         };
 
         const testAccounts: TestAccounts = {

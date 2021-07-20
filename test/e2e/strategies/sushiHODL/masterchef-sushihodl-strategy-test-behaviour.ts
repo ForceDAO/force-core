@@ -295,7 +295,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         const firstHardWorkFixture = async () => {
             const [someSigner] = await ethers.getSigners();
-            console.log(` Block before before revert ${await someSigner.provider?.getBlockNumber()}`);
             console.log(`reverting to ${_snapshotId}`)
             await network.provider.request({
                 method: "evm_revert",
@@ -306,7 +305,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 method: "evm_snapshot",
                 params: [],
             })) as string;
-            console.log(` Block block after snapshot revert ${await someSigner.provider?.getBlockNumber()}`);
 
             const {
                 governanceSigner,
