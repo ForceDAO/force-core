@@ -657,9 +657,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         describe("Hardwork: Vault", () => {
 
-            let miniChefBalancePre: BigNumber;
-            let miniChefBalancePost: BigNumber;
-
             describe("When _withdrawBeforeReinvesting is false", () => {
 
                 let _miniChefBalancePreDeposit: BigNumber;
@@ -668,29 +665,22 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 before(async () => {
 
                     const {
-                        governanceSigner,
-                        depositorSigner,
-                        beneficiarySigner,
-                        sushiTokenInstance,
                         strategyInstance,
                         miniChefV2Instance,
                         rewarderInstance,
                         underlyingInstance,
                         vaultInstance,
-                        storageInstance,
-                        underlyingUnit,
-                        depositAmount,
                         depositAmountForSelf,
-                        depositAmountForBeneficiary,
-                        mockDepositor,
                         miniChefBalancePreDeposit,
                         miniChefBalancePostDeposit,
-                        rewardDebtMinichef,
                         amountInMinichef,
                         sushiRewardAmount,
-                        rewarderReportedRewards
+                        rewarderReportedRewards,
+                        firstHardWorkTxnReceipt,
+                        governanceSigner
                     } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
-                    
+
+                    _governanceSigner = governanceSigner;
                     _amountInMinichef = amountInMinichef;
                     _strategyInstance = strategyInstance;
                     _sushiRewardAmount = sushiRewardAmount;
@@ -702,11 +692,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     _depositAmountForSelf = depositAmountForSelf;
                     _miniChefBalancePostDeposit = miniChefBalancePostDeposit;
                     _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
+                    _txnReceipt = firstHardWorkTxnReceipt;
 
-                    const underlyingBalanceFirstHardWorkFixture = await _underlyingInstance.balanceOf(_vaultInstance.address);
-
-                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
-                    _txnReceipt = await _txnReceipt.wait();
                 });
 
                 it("should move underlying from vault into strategy", async () => {
@@ -719,28 +706,136 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 describe("When availableToInvestOut > 0", () => {
-                    it("should emit Invest event");
-                    it("should transfer amount availableToInvestOut to the strategy");
+
+                    it("should emit Invest event", async () => {
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _vaultInstance,
+                            "Invest",
+                            [_depositAmountForSelf]
+                        )).to.be.true;
+                    });
+
+                    it("should emit transfer event of availableToInvestOut to the strategy", async () => {
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _underlyingInstance,
+                            "Transfer",
+                            [_vaultInstance.address, _strategyInstance.address, _depositAmountForSelf]
+                        )).to.be.true;
+                    });
+
                 });
 
                 describe("When availableToInvestOut == 0", () => {
-                    it("should not Invest event");
-                    it("should not transfer amount availableToInvestOut to the strategy");
+
+                    before(async () => {
+                        _txnReceipt = await (await _vaultInstance.connect(_governanceSigner).doHardWork()).wait();
+                    });
+
+                    it("should not Invest event", async () => {
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _vaultInstance,
+                            "Invest",
+                            [_depositAmountForSelf]
+                        )).to.be.false;
+                    });
+
+                    it("should not transfer amount availableToInvestOut to the strategy", async () => {
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _underlyingInstance,
+                            "Transfer",
+                            [_vaultInstance.address, _strategyInstance.address, _depositAmountForSelf]
+                        )).to.be.false;
+                    });
                 });
 
                 describe("Hardwork: Strategy", async () => {
+
+                    before(async () => {
+
+                        const {
+                            strategyInstance,
+                            miniChefV2Instance,
+                            rewarderInstance,
+                            underlyingInstance,
+                            vaultInstance,
+                            depositAmountForSelf,
+                            miniChefBalancePreDeposit,
+                            miniChefBalancePostDeposit,
+                            amountInMinichef,
+                            sushiRewardAmount,
+                            rewarderReportedRewards,
+                            firstHardWorkTxnReceipt,
+                            governanceSigner
+                        } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
+    
+                        _governanceSigner = governanceSigner;
+                        _amountInMinichef = amountInMinichef;
+                        _strategyInstance = strategyInstance;
+                        _sushiRewardAmount = sushiRewardAmount;
+                        _miniChefV2Instance = miniChefV2Instance;
+                        _rewarderReportedRewards = rewarderReportedRewards;
+                        _rewarderInstance = rewarderInstance;
+                        _underlyingInstance = underlyingInstance;
+                        _vaultInstance = vaultInstance;
+                        _depositAmountForSelf = depositAmountForSelf;
+                        _miniChefBalancePostDeposit = miniChefBalancePostDeposit;
+                        _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
+                        _txnReceipt = firstHardWorkTxnReceipt;
+    
+                    });
 
                     // describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
                     // describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
                     
                     describe("investAllUnderlying", () => {
-                        it("should call investAllUnderlying function");
-                        it("should emit approve event for reward pool of 0");
-                        it("should emit approve event for reward pool of entireBalance");
-                        it("should emit transfer event for tokens from strategy to reward pool");
-                        it("should emit Deposit event from reward pool");
-                        it("should have the correct underlying balance in the strategy");
-                        it("should have the correct user.amount and user.rewardDebt in the reward pool");
+
+                        it("should emit approve event for reward pool of 0", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                _underlyingInstance,
+                                "Approval",
+                                [_strategyInstance.address, await _strategyInstance.rewardPool(), 0]
+                            )).to.be.true;
+                        });
+
+                        it("should emit approve event for reward pool of entireBalance", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                _underlyingInstance,
+                                "Approval",
+                                [_strategyInstance.address, await _strategyInstance.rewardPool(), _depositAmountForSelf]
+                            )).to.be.true;
+                        });
+
+                        it("should emit transfer event for tokens from strategy to reward pool", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                _underlyingInstance,
+                                "Transfer",
+                                [_strategyInstance.address, await _strategyInstance.rewardPool(), _depositAmountForSelf]
+                            )).to.be.true;
+                        });
+
+                        it("should emit Deposit event from reward pool", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                _miniChefV2Instance,
+                                "Deposit",
+                                [_strategyInstance.address, await _strategyInstance.poolId(), _depositAmountForSelf, _strategyInstance.address]
+                            )).to.be.true;
+                        });
+
+                        it("should have the correct underlying balance in the strategy", async () => {
+                            expect(await _underlyingInstance.balanceOf(_strategyInstance.address)).to.be.equal(0);
+                        });
+
+                        it("should have the correct user.amount and user.rewardDebt in the reward pool", async () => {
+                            expect(_amountInMinichef).to.be.equal(_depositAmountForSelf);
+                        });
                     });
                 });
             });
