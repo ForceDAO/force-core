@@ -16,6 +16,8 @@ import {
   COMPLEX_REWARDER_TIME,
 } from "../../../polygon-mainnet-fork-test-config";
 
+import { legos } from "@studydefi/money-legos";
+
 import { sushiHodlBehavior } from "./masterchef-sushihodl-strategy-test-behaviour";
 import { StrategyTestData, TestAccounts, TestStrategy, TestVault } from "./masterchef-sushihodl-strategy-testprep-helper";
 import { BigNumber } from "ethers";
@@ -129,10 +131,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             "MasterChefHodlStrategy",
             strategyAddress
         );
-
-        // Set Strategy on Vault.
-        const setStrategyTx = await vaultInstance.setStrategy(strategyAddress);
-        await setStrategyTx.wait();
         
         // Set Supply Cap on Vault.
         const totalSupplyCapTxnResponse = await vaultInstance.setTotalSupplyCap(SUPPLY_CAP);
@@ -172,7 +170,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         await usdcInstance.connect(depositorSigner).approve(SUSHISWAP_V2_ROUTER02_ADDRESS, USDC_DEPOSIT_AMOUNT);
         await usdtInstance.connect(depositorSigner).approve(SUSHISWAP_V2_ROUTER02_ADDRESS, USDT_DEPOSIT_AMOUNT);
 
-        underlyingInstance = await ethers.getContractAt("IERC20", SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT);   
+        underlyingInstance = await ethers.getContractAt("IUniswapV2Pair", SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT);   
         
         routerInstance = await ethers.getContractAt("IUniswapV2Router02", SUSHISWAP_V2_ROUTER02_ADDRESS);
         const NOW_PLUS_DAY = Math.floor(new Date().getTime() / 1000) + 86400;
