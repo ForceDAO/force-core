@@ -832,19 +832,20 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
 
-                it("should permit withdrawal of all underlying", async () => {
+                it("should permit withdrawal of expected amount of all underlying", async () => {
+                    
+                    // Pre numbers.
                     const vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
+                    const underlyingBalanceSelf = await _underlyingInstance.balanceOf(_depositorSigner.address);  
+                    
+                    // Withdraw.
                     await _vaultInstance.connect(_depositorSigner).withdraw(vaultShares);
     
-                    expect(_depositAmountForSelf.lt(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.true;
+                    // Specs.
+                    expect(_depositAmountForSelf.add(underlyingBalanceSelf)).to.be.equal(await _underlyingInstance.balanceOf(_depositorSigner.address));
                     expect(await _vaultInstance.balanceOf(_depositorSigner.address)).to.be.equal(0);
                 });
 
-                it("should withdraw exact amount expected", async () => {
-                    const underlyingBalanceofDepositor = await _underlyingInstance.balanceOf(_depositorSigner.address);
-                    expect(underlyingBalanceofDepositor).to.be.gt(_depositAmountForSelf);
-
-                });
             });
             
             describe("With Fee", () => {
@@ -882,9 +883,23 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     await (await _vaultInstance.connect(_governanceSigner).setWithdrawFee(10)).wait();
                 });
 
-                it("should permit withdrawal of all underlying");
+                it("should permit withdrawal of expected amount of all underlying", async () => {
+                    
+                    // Pre numbers.
+                    const vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
+                    const underlyingBalanceSelf = await _underlyingInstance.balanceOf(_depositorSigner.address);  
+                    
+                    // Withdraw.
+                    await _vaultInstance.connect(_depositorSigner).withdraw(vaultShares);
+                    
+                    const fee = _depositAmountForSelf
+                        .mul(await _vaultInstance.withdrawFee())
+                        .div(await _vaultInstance.underlyingUnit());
 
-                it("should withdraw exact amount expected");
+                    // Specs.
+                    expect(_depositAmountForSelf.add(underlyingBalanceSelf).sub(fee)).to.be.equal(await _underlyingInstance.balanceOf(_depositorSigner.address));
+                    expect(await _vaultInstance.balanceOf(_depositorSigner.address)).to.be.equal(0);
+                });
             
             });
         });
