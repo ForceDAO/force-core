@@ -84,6 +84,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         let rewardTokenAddress: Address;
         let rewardTokenBalance: BigNumber; 
 
+        let amountA: BigNumber;
+        let amountB: BigNumber;
+        let liquidity: BigNumber;
+
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
@@ -152,18 +156,22 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         expect(await _strategyInstance.sellSushi()).to.be.true;
       
                     });
-                    it("should emit approve amount for route of 0");
-                    // expect(await _strategyInstance.sellWMatic()).to.be.false;
+                    it("should emit approve amount for route of 0", async () => {
+                                            // expect(await _strategyInstance.sellWMatic()).to.be.false;
                        expect(containsEvent(
                         _txnReceipt,
-                        _sushiTokenInstance,
+                        _strategyInstance,
                         "LogLiquidateRewardToken",
                         [rewardTokenAddress, token0Address, token1Address, rewardTokenBalance, token0Amount, token1Amount]
                         )).to.be.true; 
+                    });
+
+                        
                         
                     it("should emit approve amount for route of rewardTokenBalance");
                 
                     describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
+                        
                         it("should swap tokens for _uniswapPath0[1]");
                         it("should emit transfer event to strategy");
                         it("should emit transfer event from strategy");
@@ -195,8 +203,22 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             });
     
             describe("sellWMatic", () => {
+                let wmaticInstance: Contract
+                before(async () => {
+                    wmaticInstance = await ethers.getContractAt("IERC20", await _strategyInstance.wmaticTokenAddress());
+                    expect(await _strategyInstance.sellWMatic()).to.be.true;
+
+                })
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
-                    it("should emit approve amount for route of 0");
+                    it("should have sell WMatic set to true", async () => {
+                        expect(await wmaticInstance.sellWMatic()).to.be.true;
+      
+                    });
+                    it("should emit approve amount for route of 0", async () => {
+                        expect(await wmaticInstance.sellWMatic()).to.be.true;
+                        
+                    });
+                   
                     it("should emit approve amount for route of rewardTokenBalance");
                 
                     describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
@@ -213,6 +235,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     });
     
                     describe("Add Liquidity", () => {
+                        before(async () => {
+                            expect(await wmaticInstance.addLiquidity()).to.be.true;
+
+                        })
                         
                         describe("token0Address", () => {
                             it("should emit approve amount for router of 0");
@@ -225,7 +251,14 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         });
                         
                         it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                        it("should log LogLiquidityAdded event");
+                        it("should log LogLiquidityAdded event", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                wmaticInstance,
+                                "LogLiquidityAdded",
+                                [token0Address, token1Address, amountA, amountB, liquidity]
+                            )).to.be.true;
+                        });
                     });
                 });
             });
