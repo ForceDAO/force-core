@@ -3,6 +3,7 @@ import { expect } from "chai";
 import { BigNumber, Contract, Event, constants, Signer } from "ethers";
 import { Interface, LogDescription } from "ethers/lib/utils";
 import { ethers, network } from "hardhat";
+import { Address } from "hardhat-deploy/dist/types";
 import { HardhatNetworkForkingConfig, HardhatNetworkUserConfig } from "hardhat/types";
 
 import { advanceTime, containsEvent, isWithin } from "../../../helpers/util";
@@ -65,6 +66,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         // GLobal scope transaction receipt
         let _txnReceipt: any;
+        let _firstHardWorkTxnReceipt: any;
 
         // Pre-Balances tracking
         let _underlyingInVault: BigNumber;
@@ -72,11 +74,93 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         let _amountInMinichef: BigNumber;
         let _sushiRewardAmount: BigNumber;
         let _rewarderReportedRewards: BigNumber;
+        
+        let _miniChefBalancePreDeposit: BigNumber;
+        let _miniChefBalancePostDeposit: BigNumber;
+        let token0Address: Address;
+        let token1Address: Address;
+        let token0Amount: BigNumber;
+        let token1Amount: BigNumber;
+        let rewardTokenAddress: Address;
+        let rewardTokenBalance: BigNumber; 
+
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
+                before(async () => {
+
+
+                    const {
+                        governanceSigner,
+                        depositorSigner,
+                        beneficiarySigner,
+                        sushiTokenInstance,
+                        strategyInstance,
+                        miniChefV2Instance,
+                        rewarderInstance,
+                        underlyingInstance,
+                        vaultInstance,
+                        storageInstance,
+                        underlyingUnit,
+                        depositAmount,
+                        depositAmountForSelf,
+                        depositAmountForBeneficiary,
+                        mockDepositor,
+                        miniChefBalancePreDeposit,
+                        miniChefBalancePostDeposit,
+                        rewardDebtMinichef,
+                        amountInMinichef,
+                        sushiRewardAmount,
+                        rewarderReportedRewards,
+                        firstHardWorkTxnReceipt
+                    } = await firstHardWorkFixture()
+
+
+
+
+                    _governanceSigner = governanceSigner;
+                    _depositorSigner = depositorSigner;
+                    _beneficiarySigner = beneficiarySigner;
+                    _sushiTokenInstance = sushiTokenInstance;
+                    _strategyInstance = strategyInstance;
+                    _miniChefV2Instance = miniChefV2Instance;
+                    _rewarderInstance = rewarderInstance;
+                    _underlyingInstance = underlyingInstance;
+                    _vaultInstance = vaultInstance;
+                    _storageInstance = storageInstance;
+                    _underlyingUnit = underlyingUnit;
+                    _depositAmount = depositAmount;
+                    _depositAmountForSelf = depositAmountForSelf;
+                    _depositAmountForBeneficiary = depositAmountForBeneficiary;
+                    _mockDepositor = mockDepositor;
+                    _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
+                    _miniChefBalancePostDeposit = miniChefBalancePostDeposit;
+                    _rewardDebtMinichef = rewardDebtMinichef;
+                    _amountInMinichef = amountInMinichef;
+                    _sushiRewardAmount = sushiRewardAmount;
+                    _rewarderReportedRewards = rewarderReportedRewards;
+                    _firstHardWorkTxnReceipt = firstHardWorkTxnReceipt;
+
+                });
+
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
+                    before(async () => {
+                        expect(await _strategyInstance.sellSushi()).to.be.true;
+
+                    })
+                    it("should have sell sushi set to true", async () => {
+                        expect(await _strategyInstance.sellSushi()).to.be.true;
+      
+                    });
                     it("should emit approve amount for route of 0");
+                    // expect(await _strategyInstance.sellWMatic()).to.be.false;
+                       expect(containsEvent(
+                        _txnReceipt,
+                        _sushiTokenInstance,
+                        "LogLiquidateRewardToken",
+                        [rewardTokenAddress, token0Address, token1Address, rewardTokenBalance, token0Amount, token1Amount]
+                        )).to.be.true; 
+                        
                     it("should emit approve amount for route of rewardTokenBalance");
                 
                     describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
