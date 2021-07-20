@@ -281,7 +281,17 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         }
         
         const fixture = async () => {
-            
+            console.log(`reverting to ${_snapshotId}`)
+            await network.provider.request({
+                method: "evm_revert",
+                params: [_snapshotId],
+            });
+
+            _snapshotId = (await network.provider.request({
+                method: "evm_snapshot",
+                params: [],
+            })) as string;
+
             const { testAccounts, testStrategy, testVault }  = await strategyTestData();
             const { vaultAddress, underlying, storageAddress } = testVault;
             const { strategyAddress, miniChefV2, mockDepositorAddress, complexRewarderTime } = testStrategy;
@@ -289,7 +299,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             const sushiAddress = SUSHI_ADDRESS;
 
             const sushiTokenInstance = await ethers.getContractAt("IERC20", sushiAddress);
-            const underlyingInstance = await ethers.getContractAt("IERC20", underlying);
+            const underlyingInstance = await ethers.getContractAt("IUniswapV2Pair", underlying);
             const vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
             const mockDepositor = await ethers.getContractAt("MockVaultDepositor", mockDepositorAddress);
 
@@ -325,18 +335,68 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             };
         }
 
-        const firstHardWorkFixture = async () => {
-            const [someSigner] = await ethers.getSigners();
-            console.log(`reverting to ${_snapshotId}`)
-            await network.provider.request({
-                method: "evm_revert",
-                params: [_snapshotId],
-            });
+        const fixtureStrategySet = async (useFixture: Promise<any>) => {
+            const instances = await useFixture;
+            let { vaultInstance } = instances;
+            
+            // Set Strategy on Vault.
+            const setStrategyTx = await vaultInstance.setStrategy(instances.strategyInstance.address);
+            await setStrategyTx.wait();
 
-            _snapshotId = (await network.provider.request({
-                method: "evm_snapshot",
-                params: [],
-            })) as string;
+            return { ...instances, vaultInstance };
+        } 
+
+        const fixtureDeposit = async (useFixture: Promise<any>) => {
+            const instances = await useFixture;
+
+            let {
+                vaultInstance,
+                underlyingInstance,
+                depositorSigner,
+                depositAmountForSelf,
+                miniChefV2Instance,
+                strategyInstance
+            } = instances;
+            
+            // Deposit into vault.
+            await underlyingInstance.connect(depositorSigner).approve(vaultInstance.address, depositAmountForSelf);
+            await vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf);
+            expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmountForSelf);
+            
+            const { amount, rewardDebt } = await miniChefV2Instance.userInfo(await strategyInstance.poolId(), strategyInstance.address);
+            const rewardDebtMinichef = rewardDebt;
+            const amountInMinichef = amount;
+            const sushiRewardAmount = await miniChefV2Instance.pendingSushi(await strategyInstance.poolId(), strategyInstance.address);
+
+            return {
+                ...instances,
+                vaultInstance,
+                underlyingInstance,
+                rewardDebtMinichef,
+                amountInMinichef,
+                sushiRewardAmount
+            };
+        }
+
+        const fixtureClaimable = async (useFixture: Promise<any>) => {
+            const instances = await useFixture;
+
+            let {
+                strategyInstance
+            } = instances;
+            
+            // Deposit into vault.
+            // Confirm claim allowed.
+            await strategyInstance.setLiquidation(true, true, true);
+            expect(await strategyInstance.claimAllowed());
+
+            return {
+                ...instances,
+                strategyInstance
+            };
+        }
+
+        const firstHardWorkFixture = async (useFixture: Promise<any>) => {
 
             const {
                 governanceSigner,
@@ -353,21 +413,10 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 depositAmount,
                 depositAmountForSelf,
                 depositAmountForBeneficiary,
-                mockDepositor
-            } = await fixture();
-            
-            // Deposit into vault.
-            await underlyingInstance.connect(depositorSigner).approve(vaultInstance.address, depositAmountForSelf);
-            await vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf);
-            expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmountForSelf);
-            
-            // Confirm claim allowed.
-            await strategyInstance.setLiquidation(true, true, true);
-            expect(await strategyInstance.claimAllowed());
+                mockDepositor,
+            } = await useFixture;
             
             const miniChefBalancePreDeposit = await underlyingInstance.balanceOf(miniChefV2Instance.address);
-            
-            const underlyingBalanceBeforeHardWork = await _underlyingInstance.balanceOf(_vaultInstance.address);
 
             // dohardwork to deposit back into strategy.
             let firstHardWorkTxnReceipt = await vaultInstance.connect(governanceSigner).doHardWork();
@@ -424,6 +473,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 params: [],
             });
 
+            _snapshotId = snapshotId as string;
+
             const {
                 governanceSigner,
                 depositorSigner,
@@ -440,7 +491,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 depositAmountForSelf,
                 depositAmountForBeneficiary,
                 mockDepositor
-            } = await fixture();
+            } = await fixtureStrategySet(fixture());
 
             _governanceSigner = governanceSigner;
             _depositorSigner = depositorSigner;
@@ -457,7 +508,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             _depositAmountForSelf = depositAmountForSelf;
             _depositAmountForBeneficiary = depositAmountForBeneficiary;
             _mockDepositor = mockDepositor;
-            _snapshotId = snapshotId as string;
+            
         });
 
         it("should have sell sushi and sell matic set to false as default", async () => {
@@ -670,7 +721,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         amountInMinichef,
                         sushiRewardAmount,
                         rewarderReportedRewards
-                    } = await firstHardWorkFixture();
+                    } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
                     
                     _amountInMinichef = amountInMinichef;
                     _strategyInstance = strategyInstance;
@@ -681,6 +732,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     _underlyingInstance = underlyingInstance;
                     _vaultInstance = vaultInstance;
                     _depositAmountForSelf = depositAmountForSelf;
+                    _miniChefBalancePostDeposit = miniChefBalancePostDeposit;
+                    _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
 
                     const underlyingBalanceFirstHardWorkFixture = await _underlyingInstance.balanceOf(_vaultInstance.address);
 
@@ -709,8 +762,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                 describe("Hardwork: Strategy", async () => {
 
-                    describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
-                    describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
+                    // describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
+                    // describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
                     
                     describe("investAllUnderlying", () => {
                         it("should call investAllUnderlying function");
@@ -775,12 +828,41 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         describe("Withdraw", () => {
 
+<<<<<<< HEAD
             let underlyingBalanceofDepositorAfterWithdrawWithNoFee: BigNumber;
 
+=======
+>>>>>>> f1164bae41ebb9c6c19f6fe71ded27aa0078dd8b
             describe("Without Fee", () => {
 
-                let vaultShares: BigNumber;
-                let underlyingBalanceofDepositorBeforeWithdraw: BigNumber;
+                before(async () => {
+
+                    const {
+ 
+                        strategyInstance,
+                        miniChefV2Instance,
+                        rewarderInstance,
+                        underlyingInstance,
+                        vaultInstance,
+                        depositAmountForSelf,
+                        amountInMinichef,
+                        sushiRewardAmount,
+                        rewarderReportedRewards
+                    } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
+                                       
+                    _amountInMinichef = amountInMinichef;
+                    _strategyInstance = strategyInstance;
+                    _sushiRewardAmount = sushiRewardAmount;
+                    _miniChefV2Instance = miniChefV2Instance;
+                    _rewarderReportedRewards = rewarderReportedRewards;
+                    _rewarderInstance = rewarderInstance;
+                    _underlyingInstance = underlyingInstance;
+                    _vaultInstance = vaultInstance;
+                    _depositAmountForSelf = depositAmountForSelf;
+    
+                    await advanceTime(ONE_DAY);
+                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
+                    _txnReceipt = await _txnReceipt.wait();
 
                 before( async () => {
    
@@ -824,11 +906,11 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                     const setZeroWithdrawFeeTxn = await _vaultInstance.connect(_governanceSigner).setWithdrawFee(0);
                     await setZeroWithdrawFeeTxn.wait();
-                    underlyingBalanceofDepositorBeforeWithdraw = await _underlyingInstance.balanceOf(_depositorSigner.address);
                 });
 
+
                 it("should permit withdrawal of all underlying", async () => {
-                    vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
+                    const vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
                     await _vaultInstance.connect(_depositorSigner).withdraw(vaultShares);
     
                     expect(_depositAmountForSelf.lt(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.true;
@@ -884,7 +966,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     _underlyingInstance = underlyingInstance;
                     _vaultInstance = vaultInstance;
                     _depositAmountForSelf = depositAmountForSelf;
-
                     await advanceTime(ONE_DAY);
                     _txnReceipt = await _vaultInstance.connect(_governanceSigner).doHardWork();
                     _txnReceipt = await _txnReceipt.wait();
@@ -895,36 +976,15 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 it("should permit withdrawal of all underlying", async () => {
-                    console.log(`underlyingAmount of depositor - ${_depositAmountForSelf}`)
                     vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
-                    console.log(`vaultShares for withdraw is: ${vaultShares}`);
                     await _vaultInstance.connect(_depositorSigner).withdraw(vaultShares);
-    
-                    /**
-                     * withdrawFeeShares is: 211170996897725348950 
-                        with numberOfShares: 2111709968977253489500 and withdrawFee: 100000000000000000
-                        underlyingUnit is: 1000000000000000000
-                        numberOfSharesPostFee is: 1900538972079528140550 and underlyingAmountToWithdraw is: 1903669948469671003112
-
-
-
-                        underlyingBalanceofDepositorAfterWithdrawWithNoFee: 4226898820740335349784 -
-                        underlyingBalanceofDepositorAfterWithdrawWithFee: 4015379917446924492612 
-                        with delta: 211518903293410857172
-                     */
-
                     expect(_depositAmountForSelf.lt(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.true;
                     expect(await _vaultInstance.balanceOf(_depositorSigner.address)).to.be.equal(0);
                 });
 
                 it("should withdraw exact amount expected", async () => {
-
                     const underlyingBalanceofDepositorAfterWithdrawWithFee = await _underlyingInstance.balanceOf(_depositorSigner.address);
                     expect(underlyingBalanceofDepositorAfterWithdrawWithFee).to.be.gt(_depositAmountForSelf);
-                    console.log(`depositedAmount is: ${_depositAmountForSelf} \n`);
-                    console.log(`underlyingBalanceofDepositorAfterWithdrawWithNoFee: ${underlyingBalanceofDepositorAfterWithdrawWithNoFee}
-                     \n underlyingBalanceofDepositorAfterWithdrawWithFee: ${underlyingBalanceofDepositorAfterWithdrawWithFee} \n 
-                     with delta: ${underlyingBalanceofDepositorAfterWithdrawWithNoFee.sub(underlyingBalanceofDepositorAfterWithdrawWithFee)} \n`);
                     expect(underlyingBalanceofDepositorAfterWithdrawWithNoFee.sub(underlyingBalanceofDepositorAfterWithdrawWithFee))
                                 .to.be.eq(withdrawFeeShares);        
                 });
@@ -1004,34 +1064,115 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     underlyingBalanceOfStrategyBeforeHodlAndNotify = await _underlyingInstance.balanceOf(_strategyInstance.address);
                     underlyingBalanceOfVaultBeforeHodlAndNotify = await _underlyingInstance.balanceOf(_vaultInstance.address);
                 });
+            describe("when strategy not defined", () => {
+                let localVaultInstance: Contract;
+                before(async () => {
+                    
+                    const {
+                        underlyingInstance,
+                        depositorSigner,
+                        beneficiarySigner,
+                        vaultInstance,
+                        governanceSigner,
+                        depositAmountForBeneficiary
+                    } = await fixture();
 
-                describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
-                describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
+                    await underlyingInstance.connect(depositorSigner).approve(vaultInstance.address, depositAmountForBeneficiary);
+                    await (await vaultInstance.connect(depositorSigner).depositFor(depositAmountForBeneficiary, beneficiarySigner.address)).wait();
 
-                it("should update the correct user.amount and user.reward debt on the minichef contract", async () => {
-                    const { amount, rewardDebt } = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
-                    expect(amount).to.be.equal(0);
-                    expect(rewardDebt).to.be.equal(_rewardDebtMinichef.sub(_sushiRewardAmount));
+                    localVaultInstance = vaultInstance;
                 });
 
-                it("should transfer underlying from strategy to vault", async () => {
-                    const underlyingBalanceInStrategy = await _underlyingInstance.balanceOf(_strategyInstance.address);
-                    expect(underlyingBalanceInStrategy).to.be.equal(0);
-                    const underlyingBalanceInVault = await _underlyingInstance.balanceOf(_vaultInstance.address);
-                    expect(underlyingBalanceInVault).to.be.equal(underlyingBalanceOfStrategyBeforeHodlAndNotify);
+                it("should fail when strategy not defined", async () => {
+                    await expect(localVaultInstance.withdrawAll())
+                        .to.be.revertedWith("Strategy must be defined");
                 });
+    
+            });
 
-                it("should emit transfer event to vault from strategy", async () => {
+            describe("when strategy defined", () => {
 
-                    expect(containsEvent(
-                        _txnReceipt,
-                        _underlyingInstance,
-                        "Transfer",
-                        [_strategyInstance.address, _vaultInstance.address, _depositAmount]
-                    )).to.be.true;
+                before(async () => {
+
+                    const {
+                        governanceSigner,
+                        depositorSigner,
+                        beneficiarySigner,
+                        sushiTokenInstance,
+                        strategyInstance,
+                        miniChefV2Instance,
+                        rewarderInstance,
+                        underlyingInstance,
+                        vaultInstance,
+                        storageInstance,
+                        underlyingUnit,
+                        depositAmount,
+                        depositAmountForSelf,
+                        depositAmountForBeneficiary,
+                        mockDepositor,
+                        miniChefBalancePreDeposit,
+                        miniChefBalancePostDeposit,
+                        rewardDebtMinichef,
+                        amountInMinichef,
+                        sushiRewardAmount,
+                        rewarderReportedRewards
+                    } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
+                                       
+                    _amountInMinichef = amountInMinichef;
+                    _strategyInstance = strategyInstance;
+                    _sushiRewardAmount = sushiRewardAmount;
+                    _miniChefV2Instance = miniChefV2Instance;
+                    _rewarderReportedRewards = rewarderReportedRewards;
+                    _rewarderInstance = rewarderInstance;
+                    _underlyingInstance = underlyingInstance;
+                    _vaultInstance = vaultInstance;
+                    _depositAmountForSelf = depositAmountForSelf;
+                    _governanceSigner = governanceSigner;
+                    _rewardDebtMinichef = rewardDebtMinichef;
+
+                    _txnReceipt = await _vaultInstance.connect(_governanceSigner).withdrawAll();
+                    _txnReceipt = await _txnReceipt.wait();
+                });
+    
+                it("should fail if called by non governance", async () => {
+                    await expect(_vaultInstance.connect(_depositorSigner).withdrawAll())
+                        .to.be.revertedWith("The caller must be controller or governance");
+                });
+    
+                describe("withdrawAllToVault: Strategy", async () => {
+    
+                    // describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
+                    // describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
+    
+                    it("should update the correct user.amount on the minichef contract", async () => {
+                        const { amount, rewardDebt } = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
+                        expect(amount).to.be.equal(0);
+                    });
+    
+                    it("should transfer underlying from strategy to vault", async () => {
+                        const underlyingBalanceInStrategy = await _underlyingInstance.balanceOf(_strategyInstance.address);
+                        expect(underlyingBalanceInStrategy).to.be.equal(0);
+                        const underlyingBalanceInVault = await _underlyingInstance.balanceOf(_vaultInstance.address);
+                        expect(underlyingBalanceInVault).to.be.equal(_amountInMinichef);
+                    });
+    
+                    it("should emit transfer event to vault from strategy", async () => {
+    
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _underlyingInstance,
+                            "Transfer",
+                            [_strategyInstance.address, _vaultInstance.address, _depositAmountForSelf]
+                        )).to.be.true;
+                    });
+    
                 });
 
             });
+
         });
+    
     });
+});
+}
 }

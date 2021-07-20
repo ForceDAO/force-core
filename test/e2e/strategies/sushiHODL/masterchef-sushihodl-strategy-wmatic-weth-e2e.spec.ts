@@ -158,10 +158,6 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             "MasterChefHodlStrategy",
             strategyAddress
         );
-
-        // Set Strategy on Vault.
-        const setStrategyTx = await vaultInstance.setStrategy(strategyAddress);
-        await setStrategyTx.wait();
         
         // Set Supply Cap on Vault.
         const totalSupplyCapTxnResponse = await vaultInstance.setTotalSupplyCap(SUPPLY_CAP);
@@ -184,7 +180,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         await wmaticInstance.connect(depositorSigner).approve(SUSHISWAP_V2_ROUTER02_ADDRESS, WMATIC_DEPOSIT_AMOUNT);
         await wethInstance.connect(depositorSigner).approve(SUSHISWAP_V2_ROUTER02_ADDRESS, WETH_DEPOSIT_AMOUNT);
 
-        underlyingInstance = await ethers.getContractAt("IERC20", SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH);   
+        underlyingInstance = await ethers.getContractAt("IUniswapV2Pair", SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH);   
         
         routerInstance = await ethers.getContractAt("IUniswapV2Router02", SUSHISWAP_V2_ROUTER02_ADDRESS);
         const NOW_PLUS_DAY = Math.floor(new Date().getTime() / 1000) + 86400;
