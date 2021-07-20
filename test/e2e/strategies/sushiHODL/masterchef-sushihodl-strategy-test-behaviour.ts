@@ -33,6 +33,38 @@ const calculateMintedAmount = async (depositAmount: BigNumber, underlyingUnit: B
     return depositAmount.mul(underlyingUnit).div(pricePerFullShare);
 }
 
+const calculateWithdrawFeeShares =  (withdrawShares: BigNumber, withdrawFees: BigNumber, underlyingUnit: BigNumber) : BigNumber => {
+    const withdrawFeeShares = withdrawShares.mul(withdrawFees.mul(BigNumber.from(10).pow(18))).div(underlyingUnit);
+    return withdrawFeeShares;
+}
+
+const calculateUnderlyingAmountToWithdraw = (withdrawShares: BigNumber,
+                                             withdrawFeeShares: BigNumber,
+                                             underlyingUnit: BigNumber,
+                                             underlyingBalanceWithInvestment: BigNumber,
+                                             totalSupply : BigNumber) : BigNumber => {
+
+    const numberOfSharesPostFee = withdrawShares.sub(withdrawFeeShares);
+    const underlyingAmountToWithdraw = numberOfSharesPostFee.mul(getPricePerFullShare(
+                                                                    underlyingUnit,
+                                                                    underlyingBalanceWithInvestment,
+                                                                    totalSupply))
+                                        .div(underlyingUnit);
+    return underlyingAmountToWithdraw;                                            
+}
+
+const getPricePerFullShare = (underlyingUnit: BigNumber, underlyingBalanceWithInvestment : BigNumber, totalSupply : BigNumber) : BigNumber => {
+    let pricePerFullShare;
+
+    if(totalSupply.eq(ZERO)){
+        pricePerFullShare = underlyingUnit;
+    }else{
+        pricePerFullShare = (underlyingUnit.mul(underlyingBalanceWithInvestment)).div(totalSupply);
+    }
+
+    return pricePerFullShare;
+  }
+
 export async function sushiHodlBehavior(strategyTestData: () => Promise<StrategyTestData>) {
 
     describe("SushiHodl Behavior", async () => {
@@ -815,6 +847,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let vaultShares: BigNumber;
                 let underlyingBalanceofDepositorBeforeWithdraw: BigNumber;
                 let withdrawFees: BigNumber = BigNumber.from(10);
+                let withdrawFeeShares: BigNumber;
 
                 before( async () => {
    
@@ -862,21 +895,38 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 it("should permit withdrawal of all underlying", async () => {
+                    console.log(`underlyingAmount of depositor - ${_depositAmountForSelf}`)
                     vaultShares = await _vaultInstance.balanceOf(_depositorSigner.address);
+                    console.log(`vaultShares for withdraw is: ${vaultShares}`);
                     await _vaultInstance.connect(_depositorSigner).withdraw(vaultShares);
     
+                    /**
+                     * withdrawFeeShares is: 211170996897725348950 
+                        with numberOfShares: 2111709968977253489500 and withdrawFee: 100000000000000000
+                        underlyingUnit is: 1000000000000000000
+                        numberOfSharesPostFee is: 1900538972079528140550 and underlyingAmountToWithdraw is: 1903669948469671003112
+
+
+
+                        underlyingBalanceofDepositorAfterWithdrawWithNoFee: 4226898820740335349784 -
+                        underlyingBalanceofDepositorAfterWithdrawWithFee: 4015379917446924492612 
+                        with delta: 211518903293410857172
+                     */
+
                     expect(_depositAmountForSelf.lt(await _underlyingInstance.balanceOf(_depositorSigner.address))).to.be.true;
                     expect(await _vaultInstance.balanceOf(_depositorSigner.address)).to.be.equal(0);
                 });
 
                 it("should withdraw exact amount expected", async () => {
+
                     const underlyingBalanceofDepositorAfterWithdrawWithFee = await _underlyingInstance.balanceOf(_depositorSigner.address);
                     expect(underlyingBalanceofDepositorAfterWithdrawWithFee).to.be.gt(_depositAmountForSelf);
-                    console.log(`underlyingBalanceofDepositorAfterWithdrawWithNoFee: ${underlyingBalanceofDepositorAfterWithdrawWithNoFee} -
-                     \n underlyingBalanceofDepositorAfterWithdrawWithFee: ${underlyingBalanceofDepositorAfterWithdrawWithFee} \n - 
+                    console.log(`depositedAmount is: ${_depositAmountForSelf} \n`);
+                    console.log(`underlyingBalanceofDepositorAfterWithdrawWithNoFee: ${underlyingBalanceofDepositorAfterWithdrawWithNoFee}
+                     \n underlyingBalanceofDepositorAfterWithdrawWithFee: ${underlyingBalanceofDepositorAfterWithdrawWithFee} \n 
                      with delta: ${underlyingBalanceofDepositorAfterWithdrawWithNoFee.sub(underlyingBalanceofDepositorAfterWithdrawWithFee)} \n`);
                     expect(underlyingBalanceofDepositorAfterWithdrawWithNoFee.sub(underlyingBalanceofDepositorAfterWithdrawWithFee))
-                                .to.be.eq(withdrawFees.mul(BigNumber.from(10).pow(18)));
+                                .to.be.eq(withdrawFeeShares);        
                 });
             });
         });
@@ -983,60 +1033,5 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             });
         });
-
-        // describe("withdraw from Vault to Depositor", async () => {
-
-        //     it("should compound rewards after 1 week", async () => {
-    
-        //     const lpBalanceBeforeWithdraw = await underlyingInstance.balanceOf(depositorAddress);
-        //     console.log(`\nSLP-Balance of Depositor Before Withdraw: ${lpBalanceBeforeWithdraw}`);
-    
-        //     let xlpForWithdrawal = Number(xlpBalanceAfterHardwork1);
-    
-        //     console.log(`\n--------------- WITHDRAW-FEE MATH LOGGING --------------\n`)
-    
-        //     const totalSupply = await vaultInstance.totalSupply();
-        //     const withdrawFee = await vaultInstance.withdrawFee();
-        //     const withdrawFeeShares = (Number(xlpForWithdrawal)*Number(withdrawFee))/(10 ** 18);
-        //     console.log(`\nwithdrawFeeShares: ${withdrawFeeShares} computed using formula -> (XLP For Withdrawal: ${xlpForWithdrawal}) * (withdrawFee: ${withdrawFee}) / (10 ** 18)`);
-    
-        //     const numberOfSharesPostFee = Number(xlpForWithdrawal) - Number(withdrawFeeShares);
-        //     console.log(`numberOfShares Post Fee: ${numberOfSharesPostFee} \n`);
-    
-        //     const calculatedSharePrice  = await vaultInstance.getPricePerFullShare();
-        //     const underlyingUnit = await vaultInstance.underlyingUnit();
-        //     const underlyingAmountToWithdraw = (Number(numberOfSharesPostFee) * Number(calculatedSharePrice))/underlyingUnit;
-        //     console.log(`SLP To be Withdrawn to Depositor (Post Fee Deduction): ${underlyingAmountToWithdraw}`);
-    
-        //     let underlyingBalanceInVault = await vaultInstance.underlyingBalanceInVault();
-    
-        //     const lpBalanceOfStrategyBeforeWithdraw = await underlyingInstance.balanceOf(strategyAddress);
-        //     console.log(`SLP-Balance Of Strategy Before Withdraw: ${lpBalanceOfStrategyBeforeWithdraw}`);
-            
-        //     console.log(`\nabout to withdraw: ${xlpForWithdrawal} from strategy to vault: ${vaultAddress}`);
-    
-        //     console.log(`\n--------------- WITHDRAW-FEE MATH LOGGING ENDED --------------\n`)
-    
-        //     // const withdrawAllFromVaultTxn = await vaultInstance.connect(governanceSigner).withdrawAll();
-        //     // await withdrawAllFromVaultTxn.wait();
-    
-        //     // underlyingBalanceInVault = await vaultInstance.underlyingBalanceInVault();
-        //     // console.log(`SLP-Balance In Vault After withdrawAll: ${underlyingBalanceInVault}`);
-    
-        //     console.log(`\n--------------- WITHDRAW LOGGING --------------\n`)
-    
-        //     //74616502
-        //     const withdrawTxnResponse = await vaultInstance.connect(depositorSigner).withdraw(xlpBalanceAfterHardwork1);
-        //     await withdrawTxnResponse.wait();
-    
-        //     const lpBalanceAfterWithdraw = await underlyingInstance.balanceOf(depositorAddress);
-        //     console.log(`SLP-Balance of Depositor After Withdraw: ${lpBalanceAfterWithdraw} \n`);
-        //     expect(Number(lpBalanceAfterWithdraw)).to.be.gt(Number(lpBalanceBeforeWithdraw));
-    
-        //     console.log(`\n--------------- WITHDRAW ENDED --------------\n`)
-        //     });
-    
-        // });
-    
     });
 }

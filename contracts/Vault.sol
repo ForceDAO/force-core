@@ -325,21 +325,24 @@ contract Vault is ERC20Upgradeable, IVault, IUpgradeSource, ControllableInit, Va
     
     uint256 totalShareSupply = totalSupply();
 
+    console.log('withdraw -> totalShareSupply is: %s ',totalShareSupply);
+
     uint256 withdrawFeeShares = numberOfShares
       .mul(withdrawFee())
       .div(underlyingUnit());
 
-    console.log('WithdrawFee is: %s and withdrawFeeShares is: %s',withdrawFee(), withdrawFeeShares);
+    console.log('withdraw -> withdrawFeeShares is: %s ',withdrawFeeShares);
+    console.log('withdraw -> with numberOfShares: %s and withdrawFee: %s',numberOfShares, withdrawFee());
+    console.log('withdraw -> underlyingUnit is: %s',underlyingUnit());
 
     uint256 numberOfSharesPostFee = numberOfShares.sub(withdrawFeeShares);
     uint256 underlyingAmountToWithdraw = getEstimatedWithdrawalAmount(numberOfSharesPostFee);
 
-    console.log('numberOfSharesPostFee is: %s and underlyingAmountToWithdraw is: %s', numberOfSharesPostFee, underlyingAmountToWithdraw);
+    console.log('withdraw -> numberOfSharesPostFee is: %s and underlyingAmountToWithdraw is: %s', numberOfSharesPostFee, underlyingAmountToWithdraw);
 
     _burn(msg.sender, numberOfShares);
     // Hand fees to controller.
     _mint(controller(), withdrawFeeShares);
-
 
     if (underlyingAmountToWithdraw > underlyingBalanceInVault()) {
       // withdraw everything from the strategy to accurately check the share value
