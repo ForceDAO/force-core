@@ -303,8 +303,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             };
         }
 
-        const fixtureStrategySet = async () => {
-            const instances = await fixture();
+        const fixtureStrategySet = async (useFixture: Promise<any>) => {
+            const instances = await useFixture;
             let { vaultInstance } = instances;
             
             // Set Strategy on Vault.
@@ -314,7 +314,57 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             return { ...instances, vaultInstance };
         } 
 
-        const firstHardWorkFixture = async () => {
+        const fixtureDeposit = async (useFixture: Promise<any>) => {
+            const instances = await useFixture;
+
+            let {
+                vaultInstance,
+                underlyingInstance,
+                depositorSigner,
+                depositAmountForSelf,
+                miniChefV2Instance,
+                strategyInstance
+            } = instances;
+            
+            // Deposit into vault.
+            await underlyingInstance.connect(depositorSigner).approve(vaultInstance.address, depositAmountForSelf);
+            await vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf);
+            expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmountForSelf);
+            
+            const { amount, rewardDebt } = await miniChefV2Instance.userInfo(await strategyInstance.poolId(), strategyInstance.address);
+            const rewardDebtMinichef = rewardDebt;
+            const amountInMinichef = amount;
+            const sushiRewardAmount = await miniChefV2Instance.pendingSushi(await strategyInstance.poolId(), strategyInstance.address);
+
+            return {
+                ...instances,
+                vaultInstance,
+                underlyingInstance,
+                rewardDebtMinichef,
+                amountInMinichef,
+                sushiRewardAmount
+            };
+        }
+
+        const fixtureClaimable = async (useFixture: Promise<any>) => {
+            const instances = await useFixture;
+
+            let {
+                strategyInstance
+            } = instances;
+            
+            // Deposit into vault.
+            // Confirm claim allowed.
+            await strategyInstance.setLiquidation(true, true, true);
+            expect(await strategyInstance.claimAllowed());
+
+            return {
+                ...instances,
+                strategyInstance
+            };
+        }
+
+        const firstHardWorkFixture = async (useFixture: Promise<any>) => {
 
             const {
                 governanceSigner,
@@ -331,17 +381,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 depositAmount,
                 depositAmountForSelf,
                 depositAmountForBeneficiary,
-                mockDepositor
-            } = await fixtureStrategySet();
-            
-            // Deposit into vault.
-            await underlyingInstance.connect(depositorSigner).approve(vaultInstance.address, depositAmountForSelf);
-            await vaultInstance.connect(depositorSigner).deposit(depositAmountForSelf);
-            expect(await vaultInstance.balanceOf(depositorSigner.address)).to.be.equal(depositAmountForSelf);
-            
-            // Confirm claim allowed.
-            await strategyInstance.setLiquidation(true, true, true);
-            expect(await strategyInstance.claimAllowed());
+                mockDepositor,
+            } = await useFixture;
             
             const miniChefBalancePreDeposit = await underlyingInstance.balanceOf(miniChefV2Instance.address);
 
@@ -418,7 +459,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 depositAmountForSelf,
                 depositAmountForBeneficiary,
                 mockDepositor
-            } = await fixtureStrategySet();
+            } = await fixtureStrategySet(fixture());
 
             _governanceSigner = governanceSigner;
             _depositorSigner = depositorSigner;
@@ -648,7 +689,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         amountInMinichef,
                         sushiRewardAmount,
                         rewarderReportedRewards
-                    } = await firstHardWorkFixture();
+                    } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
                     
                     _amountInMinichef = amountInMinichef;
                     _strategyInstance = strategyInstance;
@@ -779,7 +820,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     amountInMinichef,
                     sushiRewardAmount,
                     rewarderReportedRewards
-                } = await firstHardWorkFixture();
+                } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
                                    
                 _amountInMinichef = amountInMinichef;
                 _strategyInstance = strategyInstance;
@@ -890,7 +931,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         amountInMinichef,
                         sushiRewardAmount,
                         rewarderReportedRewards
-                    } = await firstHardWorkFixture();
+                    } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
                                        
                     _amountInMinichef = amountInMinichef;
                     _strategyInstance = strategyInstance;
@@ -903,12 +944,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     _depositAmountForSelf = depositAmountForSelf;
                     _governanceSigner = governanceSigner;
                     _rewardDebtMinichef = rewardDebtMinichef;
-    
-                    const { amount, rewardDebt } = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
 
-                    console.log(`_amountInMinichef ${_amountInMinichef.toString()}`);
-                    console.log(`amount ${amount.toString()}`);
-                    console.log(`rewardDebt ${rewardDebt.toString()}`);
                     _txnReceipt = await _vaultInstance.connect(_governanceSigner).withdrawAll();
                     _txnReceipt = await _txnReceipt.wait();
                 });
@@ -923,13 +959,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     // describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
                     // describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
     
-                    it("should update the correct user.amount and user.reward debt on the minichef contract", async () => {
+                    it("should update the correct user.amount on the minichef contract", async () => {
                         const { amount, rewardDebt } = await _miniChefV2Instance.userInfo(await _strategyInstance.poolId(), _strategyInstance.address);
                         expect(amount).to.be.equal(0);
-                        console.log(`rewardDebt ${rewardDebt.toString()}`)
-                        console.log(`_rewardDebtMinichef ${_rewardDebtMinichef.toString()}`)
-                        console.log(`_sushiRewardAmount ${_sushiRewardAmount.toString()}`)
-                        expect(rewardDebt).to.be.equal(_rewardDebtMinichef.sub(_sushiRewardAmount));
                     });
     
                     it("should transfer underlying from strategy to vault", async () => {
