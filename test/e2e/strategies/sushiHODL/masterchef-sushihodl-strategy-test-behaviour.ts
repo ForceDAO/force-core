@@ -160,7 +160,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             });
         }
 
-        const exitRewardPoolBehavior = async () => {
+        const exitRewardPoolBehaviorWhenClaimAllowed = async () => {
             describe("When balance != 0", () => {
                 let sushiInstance: Contract;
                 let wmaticInstance: Contract;
@@ -186,7 +186,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                             )).to.be.true;
                         });
                         
-                        it("should emit transfer event to strategy for wmatic tokens", async () => {
+                    it("should emit transfer event to strategy for wmatic tokens", async () => {
                         expect(containsEvent(
                             _txnReceipt,
                             wmaticInstance,
@@ -232,6 +232,21 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     });
 
                 });
+                
+            });
+
+        }
+
+        const exitRewardPoolBehaviorWhenClaimNotAllowed = async () => {
+            describe("When balance != 0", () => {
+                let sushiInstance: Contract;
+                let wmaticInstance: Contract;
+
+                before(async () => {
+                    sushiInstance = await ethers.getContractAt("IERC20", await _strategyInstance.sushiTokenAddress());
+                    wmaticInstance = await ethers.getContractAt("IERC20", await _strategyInstance.wmaticTokenAddress());
+                    expect(await _strategyInstance.claimAllowed()).to.be.false;
+                });
         
                 describe("When not claimAllowed", () => {
                     it("should emit transfer event to strategy for wmatic tokens");
@@ -242,10 +257,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
                 
             });
-        
-            describe("When balance == 0", () => {
-                
-            });
+
         }
 
         const fixture = async () => {
@@ -789,9 +801,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
     
                     });
 
-                    // describe("exitRewardPoolBehavior", exitRewardPoolBehavior);
-                    // describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
-                    
                     describe("investAllUnderlying", () => {
 
                         it("should emit approve event for reward pool of 0", async () => {
@@ -838,6 +847,60 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                             expect(_amountInMinichef).to.be.equal(_depositAmountForSelf);
                         });
                     });
+
+                    describe("exitRewardPool & hodlAndNotify", () => {
+
+                        describe("When Claim Allowed", () => {
+                            before(async () => {
+
+                                let {
+                                    strategyInstance: _strategyInstance,
+                                    miniChefV2Instance: _miniChefV2Instance,
+                                    rewarderInstance: _rewarderInstance,
+                                    underlyingInstance: _underlyingInstance,
+                                    vaultInstance: _vaultInstance,
+                                    depositAmountForSelf: _depositAmountForSelf,
+                                    miniChefBalancePreDeposit: _miniChefBalancePreDeposit,
+                                    miniChefBalancePostDeposit: _miniChefBalancePostDeposit,
+                                    amountInMinichef: _amountInMinichef,
+                                    sushiRewardAmount: _sushiRewardAmount,
+                                    rewarderReportedRewards: _rewarderReportedRewards,
+                                    firstHardWorkTxnReceipt: _firstHardWorkTxnReceipt,
+                                    governanceSigner: _governanceSigner
+                                } = await firstHardWorkFixture(fixtureClaimable(fixtureDeposit(fixtureStrategySet(fixture()))));
+                            });
+    
+                            describe("exitRewardPoolBehavior", exitRewardPoolBehaviorWhenClaimAllowed);
+                            // describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
+                        });
+
+                        describe("When Claim Not Allowed", () => {
+                            before(async () => {
+
+                                let {
+                                    strategyInstance: _strategyInstance,
+                                    miniChefV2Instance: _miniChefV2Instance,
+                                    rewarderInstance: _rewarderInstance,
+                                    underlyingInstance: _underlyingInstance,
+                                    vaultInstance: _vaultInstance,
+                                    depositAmountForSelf: _depositAmountForSelf,
+                                    miniChefBalancePreDeposit: _miniChefBalancePreDeposit,
+                                    miniChefBalancePostDeposit: _miniChefBalancePostDeposit,
+                                    amountInMinichef: _amountInMinichef,
+                                    sushiRewardAmount: _sushiRewardAmount,
+                                    rewarderReportedRewards: _rewarderReportedRewards,
+                                    firstHardWorkTxnReceipt: _firstHardWorkTxnReceipt,
+                                    governanceSigner: _governanceSigner
+                                } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
+                            });
+    
+                            describe("exitRewardPoolBehavior", exitRewardPoolBehaviorWhenClaimNotAllowed);
+                            // describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
+                        });
+
+                    });
+                    
+
                 });
             });
             
