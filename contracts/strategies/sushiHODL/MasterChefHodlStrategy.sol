@@ -268,7 +268,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     }
 
     //compute Fee and transfer Fee to controller
-    console.log("In _hodlAndNotify -> liquidityAdded is: %s",liquidityAdded);
+    //console.log("In _hodlAndNotify -> liquidityAdded is: %s",liquidityAdded);
     if(controller() != address(0)){
       uint256 fee = liquidityAdded.mul(feeRatio()).div(feeBase());
       if(fee > 0){
@@ -295,7 +295,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
       if(_uniswapPath0[0] != _uniswapPath0[1]){
         // we can accept 1 as the minimum because this will be called only by a trusted worker
-        console.log("In liquidateRewardToken : liquidating LHS : half is %s",half);
+        //console.log("In liquidateRewardToken : liquidating LHS : half is %s",half);
         uint256[] memory amounts0 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
           half,
           1,
@@ -304,7 +304,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
           block.timestamp
         );
         token0Amount = amounts0[amounts0.length - 1];
-        console.log("In liquidateRewardToken -> liquidating LHS -> amounts0 is: %s , token0Amount is: %s", amounts0[0],token0Amount);
+        //console.log("In liquidateRewardToken -> liquidating LHS -> amounts0 is: %s , token0Amount is: %s", amounts0[0],token0Amount);
       } else {
         token0Amount = half;
       }
@@ -314,7 +314,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       if(_uniswapPath1[0] != _uniswapPath1[1]){
 
         // we can accept 1 as the minimum because this will be called only by a trusted worker
-        console.log("In liquidateRewardToken -> liquidating RHS -> otherHalf is: %s",otherHalf);
+        //console.log("In liquidateRewardToken -> liquidating RHS -> otherHalf is: %s",otherHalf);
         uint256[] memory amounts1 = IUniswapV2Router02(routerAddressV2()).swapExactTokensForTokens(
           otherHalf,
           1,
@@ -323,7 +323,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
           block.timestamp
         );
         token1Amount = amounts1[amounts1.length - 1];
-        console.log("In liquidateRewardToken -> liquidating RHS -> amounts1 is: %s and token1Amount is: %s", amounts1[0], token1Amount);
+        //console.log("In liquidateRewardToken -> liquidating RHS -> amounts1 is: %s and token1Amount is: %s", amounts1[0], token1Amount);
       } else {
         token1Amount = otherHalf;
       }
@@ -360,11 +360,11 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       block.timestamp
     );
 
-    console.log("In addLiquidity -> token0Address is: %s:",token0Address);
-    console.log("In addLiquidity -> token1Address is: %s", token1Address);
-    console.log("In addLiquidity -> amountA: %s", amountA);
-    console.log("In addLiquidity -> amountB: %s", amountB);
-    console.log("In addLiquidity -> liquidity: %s", liquidity);
+    //console.log("In addLiquidity -> token0Address is: %s:",token0Address);
+    //console.log("In addLiquidity -> token1Address is: %s", token1Address);
+    //console.log("In addLiquidity -> amountA: %s", amountA);
+    //console.log("In addLiquidity -> amountB: %s", amountB);
+    //console.log("In addLiquidity -> liquidity: %s", liquidity);
     
     emit LogLiquidityAdded(token0Address, token1Address, amountA, amountB, liquidity);
     return liquidity;
@@ -376,7 +376,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
   function investAllUnderlying() internal onlyNotPausedInvesting {
     // this check is needed, because most of the SNX reward pools will revert if
     // you try to stake(0).
-    console.log("In investAllUnderlying -> underlyingBalance is: %s",IERC20Upgradeable(underlying()).balanceOf(address(this)));
+    //console.log("In investAllUnderlying -> underlyingBalance is: %s",IERC20Upgradeable(underlying()).balanceOf(address(this)));
 
     if(IERC20Upgradeable(underlying()).balanceOf(address(this)) > 0) {
       enterRewardPool();
