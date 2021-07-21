@@ -50,6 +50,12 @@ interface IMiniChefV2 {
         uint256 rewardDebt; // Reward debt. See explanation below.
     }
 
+    struct PoolInfo {
+        uint128 accSushiPerShare;
+        uint64 lastRewardTime;
+        uint64 allocPoint;
+    }
+
     function userInfo(uint256 _pid, address _user) external view returns (IMiniChefV2.UserInfo memory);
 
     function pendingSushi(uint256 _pid, address _user) external view returns (uint256 pending);
@@ -57,6 +63,8 @@ interface IMiniChefV2 {
     /// @notice Update reward variables for all pools. Be careful of gas spending!
     /// @param pids Pool IDs of all to be updated. Make sure to update all active pools.
     function massUpdatePools(uint256[] calldata pids) external;
+
+    function updatePool(uint256 pid) external returns (PoolInfo memory pool);
 
     /// @param pid The index of the pool.
     function lpToken(uint256 pid) external returns (address);
