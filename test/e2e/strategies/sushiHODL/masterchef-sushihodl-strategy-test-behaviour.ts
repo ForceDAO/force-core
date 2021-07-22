@@ -96,156 +96,84 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
-
-
-                before(async () => {
-                    _strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
-
-                    const {
-                        governanceSigner,
-                        depositorSigner,
-                        beneficiarySigner,
-                        sushiTokenInstance,
-                        strategyInstance,
-                        miniChefV2Instance,
-                        rewarderInstance,
-                        underlyingInstance,
-                        vaultInstance,
-                        storageInstance,
-                        underlyingUnit,
-                        depositAmount,
-                        depositAmountForSelf,
-                        depositAmountForBeneficiary,
-                        mockDepositor,
-                        miniChefBalancePreDeposit,
-                        miniChefBalancePostDeposit,
-                        rewardDebtMinichef,
-                        amountInMinichef,
-                        sushiRewardAmount,
-                        rewarderReportedRewards,
-                        firstHardWorkTxnReceipt
-                    } = await firstHardWorkFixture(fixtureClaimable(fixtureDeposit(fixtureStrategySet(fixture()))));
-                    await advanceTime(ONE_DAY);
-                    // const {
-
-                    // } = await fixture();
-
-                    _governanceSigner = governanceSigner
-                    _depositorSigner = depositorSigner
-                    _beneficiarySigner = beneficiarySigner
-                    _sushiTokenInstance = sushiTokenInstance
-                    _strategyInstance = strategyInstance
-                   _miniChefV2Instance = miniChefV2Instance
-                   _rewarderInstance = rewarderInstance
-                    _underlyingInstance = underlyingInstance
-                    _vaultInstance = vaultInstance
-                    _storageInstance = storageInstance
-                    _underlyingUnit = underlyingUnit
-                    _depositAmount = depositAmount
-                    _depositAmountForSelf = depositAmountForSelf
-                    _depositAmountForBeneficiary = depositAmountForBeneficiary
-                    _mockDepositor = mockDepositor
-                    _miniChefBalancePreDeposit = miniChefBalancePreDeposit
-                    _miniChefBalancePostDeposit = miniChefBalancePostDeposit
-                    _rewardDebtMinichef = rewardDebtMinichef
-                    _amountInMinichef = amountInMinichef
-                   _sushiRewardAmount = sushiRewardAmount
-                   _rewarderReportedRewards = rewarderReportedRewards
-                 // _firstHardWorkTxnReceipt = firstHardWorkTxnReceipt
-
-
-                    // await _miniChefV2Instance.updatePool(await _strategyInstance.poolId());
-                    // await _rewarderInstance.updatePool(await _strategyInstance.poolId());
-                    // await ethers.provider.send("evm_mine", []);
-
-                    // _sushiRewardAmount = await _miniChefV2Instance.pendingSushi(await _strategyInstance.poolId(), _strategyInstance.address);
-
-                    // _rewarderReportedRewards = await _rewarderInstance.pendingToken(await _strategyInstance.poolId(), _strategyInstance.address);
-                    // // _txnReceipt = await (await _vaultInstance.doHardWork()).wait();
-                     _txnReceipt = await (await _vaultInstance.connect(_governanceSigner).doHardWork()).wait();
-
-                });
-
-                describe("verify Strategy Initialization", () => {
-
-                    it("WMatic routes ", async () => {
-                        const wMaticRoutes = await _strategyInstance.getWmaticRoutes();
-                        expect(wMaticRoutes[0]).to.have.members(SUSHI_LP_USDC_USDT_WMATIC_ROUTE_0);
-                        expect(wMaticRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_WMATIC_ROUTE_1);
-                    });
-
-                    it("Sushi routes ", async () => {
-                        const sushiRoutes = await _strategyInstance.getSushiRoutes();
-                        expect(sushiRoutes[0]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0);
-                        expect(sushiRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_1);
-                    });
-                });
-
-                it("should have sell sushi set to be true", async () => {
-                    expect(await _strategyInstance.sellSushi()).to.be.true;
-                    console.log(await `Sell Sushi Value: ${await _strategyInstance.sellSushi().wait()}`)
-                    await _storageInstance.sellSushi().then(console.log)
-                    let result = await _storageInstance.sellSushi()
-                    console.log(`Selling Sushi Values: ${result}`)
-                });
-
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
-                    // Liquidate Reward Token in MasterChefHodlStrategy
-                    it("should have liquidate reward token set to be true", async () => {
-                        expect(await _strategyInstance.liquidateRewardToken()).to.be.true;
+
+                    describe("verify Strategy Initialization", () => {
+
+                        it("WMatic routes ", async () => {
+                            const wMaticRoutes = await _strategyInstance.getWmaticRoutes();
+                            expect(wMaticRoutes[0]).to.have.members(SUSHI_LP_USDC_USDT_WMATIC_ROUTE_0);
+                            expect(wMaticRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_WMATIC_ROUTE_1);
+                        });
+
+                        it("Sushi routes ", async () => {
+                            const sushiRoutes = await _strategyInstance.getSushiRoutes();
+                            expect(sushiRoutes[0]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0);
+                            expect(sushiRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_1);
+                        });
+
+                        it("should have sell sushi set to be true", async () => {
+                            expect(await _strategyInstance.sellSushi()).to.be.true;
+                            console.log(await `Sell Sushi Value: ${await _strategyInstance.sellSushi().wait()}`)
+                            await _storageInstance.sellSushi().then(console.log)
+                            let result = await _storageInstance.sellSushi()
+                            console.log(`Selling Sushi Values: ${result}`)
+                        });
+    
+                        // Liquidate Reward Token in MasterChefHodlStrategy
+                        it("should have liquidate reward token set to be true", async () => {
+                            expect(await _strategyInstance.liquidateRewardToken()).to.be.true;
+                        });
                     });
 
+                    it("should emit approve amount for route of 0", async () => {
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _underlyingInstance,
+                            "Approval",
+                            [SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0, _strategyInstance.address, 0]
+                        )).to.be.true;
+                    });
 
+                    it("should emit approve amount for route of rewardTokenBalance", async () => {
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _underlyingInstance,
+                            "Approval",
+                            [SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0, _strategyInstance.address, _sushiRewardAmount]
+                        )).to.be.true;
+                    });
 
-                });
-                it("should emit approve amount for route of 0", async () => {
-                    expect(containsEvent(
-                        _txnReceipt,
-                        _underlyingInstance,
-                        "Approval",
-                        [SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0, _strategyInstance.address, 0]
-                    )).to.be.true;
-                });
-                it("should emit approve amount for route of rewardTokenBalance", async () => {
-                    expect(containsEvent(
-                        _txnReceipt,
-                        _underlyingInstance,
-                        "Approval",
-                        [SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0, _strategyInstance.address, _sushiRewardAmount]
-                    )).to.be.true;
+                    describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
+                        it("should swap tokens for _uniswapPath0[1]");
+                        it("should emit transfer event to strategy");
+                        it("should emit transfer event from strategy");
+                        it("should emit swap event");
+                    });
+                    describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
+                        it("should swap tokens for _uniswapPath1[1]");
+                        it("should emit transfer event to strategy");
+                        it("should emit transfer event from strategy");
+                        it("should emit swap event");
+                    });
+
+                    describe("Add Liquidity", () => {
+
+                        describe("token0Address", () => {
+                            it("should emit approve amount for router of 0");
+                            it("should emit approve amount for router of token0Amount");
+                        });
+        
+                        describe("token1Address", () => {
+                            it("should emit approve amount for router of 0");
+                            it("should emit approve amount for router of token0Amount");
+                        });
+        
+                        it("should log Mint event for correct underlying amount from the UniswapV2Pair");
+                        it("should log LogLiquidityAdded event");
+                    });
                 });
             });
-
-            describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
-                it("should swap tokens for _uniswapPath0[1]");
-                it("should emit transfer event to strategy");
-                it("should emit transfer event from strategy");
-                it("should emit swap event");
-            });
-            describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
-                it("should swap tokens for _uniswapPath1[1]");
-                it("should emit transfer event to strategy");
-                it("should emit transfer event from strategy");
-                it("should emit swap event");
-            });
-
-            describe("Add Liquidity", () => {
-
-                describe("token0Address", () => {
-                    it("should emit approve amount for router of 0");
-                    it("should emit approve amount for router of token0Amount");
-                });
-
-                describe("token1Address", () => {
-                    it("should emit approve amount for router of 0");
-                    it("should emit approve amount for router of token0Amount");
-                });
-
-                it("should log Mint event for correct underlying amount from the UniswapV2Pair");
-                it("should log LogLiquidityAdded event");
-            });
-            //});
-            // });
 
             describe("sellWMatic", () => {
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
