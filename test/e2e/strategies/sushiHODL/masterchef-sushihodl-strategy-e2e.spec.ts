@@ -19,7 +19,7 @@ import {
 import { legos } from "@studydefi/money-legos";
 
 import { sushiHodlBehavior } from "./masterchef-sushihodl-strategy-test-behaviour";
-import { StrategyTestData, TestAccounts, TestStrategy, TestVault } from "./masterchef-sushihodl-strategy-testprep-helper";
+import { StrategyTestData, Accounts, Strategy, Vault } from "./masterchef-sushihodl-strategy-testprep-helper";
 import { BigNumber } from "ethers";
 
 
@@ -198,7 +198,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         mockDepositorAddress = mockDepositor.address;
 
         // Set test data.
-        const testVault: TestVault = {
+        const testVault: Vault = {
             vaultAddress,
             underlying: underlyingInstance.address,
             toInvestNumerator: TO_INVEST_NUM,
@@ -207,7 +207,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             storageAddress: storageAddress
         };
 
-        const testStrategy: TestStrategy = {
+        const testStrategy: Strategy = {
             strategyAddress,
             underlying: underlyingInstance.address,
             miniChefV2: MINICHEFV2,
@@ -215,7 +215,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             complexRewarderTime: COMPLEX_REWARDER_TIME
         };
 
-        const testAccounts: TestAccounts = {
+        const testAccounts: Accounts = {
             governanceSigner,
             controllerSigner,
             depositorSigner,
@@ -223,9 +223,9 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         };
 
         return strategyTestData = {
-            testVault,
-            testStrategy,
-            testAccounts
+            Vault: testVault,
+            Strategy: testStrategy,
+            Accounts: testAccounts
         };
 
     };

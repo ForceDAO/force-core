@@ -47,6 +47,8 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         let _underlyingInstance: Contract;
         let _strategyInstance: Contract;
+        let _routerInstance: Contract;
+        let _uniswapFactoryInstance: Contract;
         let _sushiTokenInstance: Contract;
         let _miniChefV2Instance: Contract;
         let _rewarderInstance: Contract;
@@ -76,13 +78,17 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
             let sushiInstance: Contract;
             let wmaticInstance: Contract;
+            let underlyingPair0Instance: Contract;
+            let underlyingPair1Instance: Contract;
             let wMaticRoutes: string[];
-            let sushiRoutes: string[];
+            let sushiRoutes: string[][];
 
             before(async () => {
                 sushiInstance = await ethers.getContractAt("IERC20", await _strategyInstance.sushiTokenAddress());
                 wmaticInstance = await ethers.getContractAt("IERC20", await _strategyInstance.wmaticTokenAddress());
                 sushiRoutes = await _strategyInstance.getSushiRoutes();
+                underlyingPair0Instance = await ethers.getContractAt("IERC20", sushiRoutes[0][1]);
+                underlyingPair1Instance = await ethers.getContractAt("IERC20",sushiRoutes[1][1]);
                 wMaticRoutes = await _strategyInstance.getWmaticRoutes();
             });
 
@@ -123,17 +129,120 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         )).to.be.true;
                     });
 
-                    describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
-                        it("should swap tokens for _uniswapPath0[1]");
-                        it("should emit transfer event to strategy");
-                        it("should emit transfer event from strategy");
-                        it("should emit swap event");
+                    describe("_uniswapPath0[0] != _uniswapPath0[1]", function () {
+                        let uniPair: Contract;
+
+                        before(async function () {
+    
+                            const pairAddress = await _uniswapFactoryInstance.getPair(sushiRoutes[0][0], sushiRoutes[0][1]);
+                            uniPair = await ethers.getContractAt("IUniswapV2Pair", pairAddress);
+                            
+                            const condition = sushiRoutes[0][0] != sushiRoutes[0][1];
+                            if (!(condition)) {
+                                console.log("skipping sushi to sushi trade");
+                                this.skip();  // <= skips entire describe
+                            }
+                        });
+
+                        it("should emit transfer event of _uniswapPath0[1] token from Uni Pair to strategy", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                underlyingPair0Instance,
+                                "Transfer",
+                                [
+                                    uniPair.address,
+                                    _strategyInstance.address,
+                                    (actual: BigNumber) => actual.gt(BigNumber.from(0))
+                                ]
+                            )).to.be.true;
+                        });
+
+                        it("should emit transfer event of _uniswapPath0[0] token from strategy to Uni Pair", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                sushiInstance,
+                                "Transfer",
+                                [
+                                    _strategyInstance.address,
+                                    uniPair.address,
+                                    (actual: BigNumber) => actual.gt(BigNumber.from(0))
+                                ]
+                            )).to.be.true;
+                        });
+
+                        it("should emit swap event", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                uniPair,
+                                "Swap",
+                                [
+                                    _routerInstance.address,
+                                    (actual: BigNumber) => actual.gt(BigNumber.from(0)),
+                                    0,
+                                    0,
+                                    (actual: BigNumber) => actual.gt(BigNumber.from(0)),
+                                    _strategyInstance.address
+                                ]
+                            )).to.be.true;
+                        });
                     });
-                    describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
-                        it("should swap tokens for _uniswapPath1[1]");
-                        it("should emit transfer event to strategy");
-                        it("should emit transfer event from strategy");
-                        it("should emit swap event");
+
+                    describe("_uniswapPath1[0] != _uniswapPath1[1]", function () {
+                        let uniPair: Contract;
+
+                        before(async function () {
+    
+                            const pairAddress = await _uniswapFactoryInstance.getPair(sushiRoutes[1][0], sushiRoutes[1][1]);
+                            uniPair = await ethers.getContractAt("IUniswapV2Pair", pairAddress);
+                            
+                            const condition = sushiRoutes[1][0] != sushiRoutes[1][1];
+                            if (!(condition)) {
+                                console.log("skipping sushi to sushi trade");
+                                this.skip();  // <= skips entire describe
+                            }
+                        });
+
+                        it("should emit transfer event of _uniswapPath1[1] token from Uni Pair to strategy", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                underlyingPair1Instance,
+                                "Transfer",
+                                [
+                                    uniPair.address,
+                                    _strategyInstance.address,
+                                    (actual: BigNumber) => actual.gt(BigNumber.from(0))
+                                ]
+                            )).to.be.true;
+                        });
+
+                        it("should emit transfer event of _uniswapPath1[0] token from strategy to Uni Pair", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                sushiInstance,
+                                "Transfer",
+                                [
+                                    _strategyInstance.address,
+                                    uniPair.address,
+                                    (actual: BigNumber) => actual.gt(BigNumber.from(0))
+                                ]
+                            )).to.be.true;
+                        });
+
+                        it("should emit swap event", async () => {
+                            expect(containsEvent(
+                                _txnReceipt,
+                                uniPair,
+                                "Swap",
+                                [
+                                    _routerInstance.address,
+                                    (actual: BigNumber) => actual.gt(BigNumber.from(0)),
+                                    0,
+                                    0,
+                                    (actual: BigNumber) => actual.gt(BigNumber.from(0)),
+                                    _strategyInstance.address
+                                ]
+                            )).to.be.true;
+                        });
                     });
 
                     describe("Add Liquidity", () => {
@@ -159,14 +268,43 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                     it("should emit approve amount for route of 0");
                     it("should emit approve amount for route of rewardTokenBalance");
 
-                    describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
-                        it("should swap tokens for _uniswapPath0[1]");
-                        it("should emit transfer event to strategy");
+                    describe("_uniswapPath0[0] != _uniswapPath0[1]", function () {
+                        let uniPair: Contract;
+
+                        before(async function () {
+    
+                            const pairAddress = await _uniswapFactoryInstance.getPair(wMaticRoutes[0][0], wMaticRoutes[0][1]);
+                            uniPair = await ethers.getContractAt("IUniswapV2Pair", pairAddress);
+                            
+                            const condition = wMaticRoutes[0][0] != wMaticRoutes[0][1];
+                            if (!(condition)) {
+                                console.log("skipping wmatic to wmatic trade");
+                                this.skip();  // <= skips entire describe
+                            }
+                        });
+
+                        it("should emit transfer event to strategy", async () => {
+                            expect(false).to.be.true;
+                        });
                         it("should emit transfer event from strategy");
                         it("should emit swap event");
                     });
-                    describe("_uniswapPath1[0] != _uniswapPath1[1]", () => {
-                        it("should swap tokens for _uniswapPath1[1]");
+
+                    describe("_uniswapPath1[0] != _uniswapPath1[1]", function () {
+                        let uniPair: Contract;
+
+                        before(async function () {
+    
+                            const pairAddress = await _uniswapFactoryInstance.getPair(wMaticRoutes[1][0], wMaticRoutes[1][1]);
+                            uniPair = await ethers.getContractAt("IUniswapV2Pair", pairAddress);
+                            
+                            const condition = wMaticRoutes[1][0] != wMaticRoutes[1][1];
+                            if (!(condition)) {
+                                console.log("skipping wmatic to wmatic trade");
+                                this.skip();  // <= skips entire describe
+                            }
+                        });
+
                         it("should emit transfer event to strategy");
                         it("should emit transfer event from strategy");
                         it("should emit swap event");
@@ -383,18 +521,20 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 params: [],
             })) as string;
 
-            const { testAccounts, testStrategy, testVault } = await strategyTestData();
-            const { vaultAddress, underlying, storageAddress } = testVault;
+            const { Accounts: testAccounts, Strategy: testStrategy, Vault: testVault } = await strategyTestData();
+            const { vaultAddress, underlying, storageAddress, uniFactory } = testVault;
             const { strategyAddress, miniChefV2, mockDepositorAddress, complexRewarderTime } = testStrategy;
             const { governanceSigner, depositorSigner, beneficiarySigner } = testAccounts;
             const sushiAddress = SUSHI_ADDRESS;
 
             const sushiTokenInstance = await ethers.getContractAt("IERC20", sushiAddress);
             const underlyingInstance = await ethers.getContractAt("IUniswapV2Pair", underlying);
+            const uniswapFactoryInstance = await ethers.getContractAt("IUniswapV2Factory", uniFactory);
             const vaultInstance = await ethers.getContractAt("Vault", vaultAddress);
             const mockDepositor = await ethers.getContractAt("MockVaultDepositor", mockDepositorAddress);
 
             const strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", strategyAddress);
+            const routerInstance = await ethers.getContractAt("IUniswapV2Router02", await strategyInstance.routerAddressV2());
             const miniChefV2Instance = await ethers.getContractAt("IMiniChefV2", miniChefV2);
             const storageInstance = await ethers.getContractAt("Storage", storageAddress);
             const rewarderInstance = await ethers.getContractAt("IRewarder", complexRewarderTime);
@@ -412,7 +552,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 depositorSigner,
                 beneficiarySigner,
                 sushiTokenInstance,
+                uniswapFactoryInstance,
                 strategyInstance,
+                routerInstance,
                 miniChefV2Instance,
                 rewarderInstance,
                 underlyingInstance,
@@ -488,7 +630,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         }
 
         const firstHardWorkFixture = async (useFixture: Promise<any>) => {
-
+            const instances = await useFixture;
             const {
                 governanceSigner,
                 depositorSigner,
@@ -505,7 +647,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 depositAmountForSelf,
                 depositAmountForBeneficiary,
                 mockDepositor,
-            } = await useFixture;
+            } = instances;
 
             const miniChefBalancePreDeposit = await underlyingInstance.balanceOf(miniChefV2Instance.address);
 
@@ -532,6 +674,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             const rewarderReportedRewards = rewards[0];
 
             return {
+                ...instances,
                 governanceSigner,
                 depositorSigner,
                 beneficiarySigner,
@@ -966,6 +1109,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
                                 const {
                                     strategyInstance,
+                                    routerInstance,
                                     miniChefV2Instance,
                                     rewarderInstance,
                                     underlyingInstance,
@@ -976,10 +1120,13 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                                     amountInMinichef,
                                     rewarderReportedRewards,
                                     firstHardWorkTxnReceipt,
-                                    governanceSigner
+                                    governanceSigner,
+                                    uniswapFactoryInstance
                                 } = await firstHardWorkFixture(fixtureClaimable(fixtureDeposit(fixtureStrategySet(fixture()))));
 
+                                _uniswapFactoryInstance = uniswapFactoryInstance;
                                 _strategyInstance = strategyInstance;
+                                _routerInstance = routerInstance;
                                 _miniChefV2Instance = miniChefV2Instance;
                                 _rewarderInstance = rewarderInstance;
                                 _underlyingInstance = underlyingInstance;

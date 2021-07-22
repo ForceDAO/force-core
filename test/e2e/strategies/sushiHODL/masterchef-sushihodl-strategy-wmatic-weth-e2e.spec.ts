@@ -4,6 +4,7 @@ import {
   MATIC_WHALE_ADDRESS,
   SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH,
   SUSHISWAP_V2_ROUTER02_ADDRESS,
+  SUSHISWAP_V2_FACTORY_ADDRESS,
   WMATIC_ADDRESS, WMATIC_WHALE_ADDRESS,
   WETH_ADDRESS, WETH_WHALE_ADDRESS,
   SUSHI_ADDRESS,
@@ -17,7 +18,7 @@ import {
 } from "../../../polygon-mainnet-fork-test-config";
 
 import { sushiHodlBehavior } from "./masterchef-sushihodl-strategy-test-behaviour";
-import { StrategyTestData, TestAccounts, TestStrategy, TestVault } from "./masterchef-sushihodl-strategy-testprep-helper";
+import { StrategyTestData, Accounts, Strategy, Vault } from "./masterchef-sushihodl-strategy-testprep-helper";
 import { BigNumber } from "ethers";
 
 
@@ -205,16 +206,17 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         await setWithdrawFeeTxn.wait();
 
         // Set test data.
-        const testVault: TestVault = {
+        const testVault: Vault = {
             vaultAddress,
             underlying: underlyingInstance.address,
+            uniFactory: SUSHISWAP_V2_FACTORY_ADDRESS,
             toInvestNumerator: TO_INVEST_NUM,
             toInvestDenominator: TO_INVEST_DEN,
             totalSupplyCap: SUPPLY_CAP,
             storageAddress: storageAddress
         };
 
-        const testStrategy: TestStrategy = {
+        const testStrategy: Strategy = {
             strategyAddress,
             underlying: underlyingInstance.address,
             miniChefV2: MINICHEFV2,
@@ -222,7 +224,7 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
             complexRewarderTime: COMPLEX_REWARDER_TIME
         };
 
-        const testAccounts: TestAccounts = {
+        const testAccounts: Accounts = {
             governanceSigner,
             controllerSigner,
             depositorSigner,
@@ -230,9 +232,9 @@ describe("MasterChefV2 E2E - mainnet fork Tests", function () {
         };
 
         return strategyTestData = {
-            testVault,
-            testStrategy,
-            testAccounts
+            Vault: testVault,
+            Strategy: testStrategy,
+            Accounts: testAccounts
         };
 
     };
