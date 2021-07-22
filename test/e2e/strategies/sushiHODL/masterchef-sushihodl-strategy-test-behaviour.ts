@@ -145,9 +145,6 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                       expect(sushiRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_1);
                     });
                 });
-                 
-                // Deposit
-                // Advance One Day
                 
                 it("should have sell sushi set to be true", async () => {
                     expect(await _strategyInstance.sellSushi()).to.be.true;
@@ -163,9 +160,22 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
     
                     });
                     it("should emit approve amount for route of 0", async () => {
-
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _underlyingInstance,
+                            "Approval",
+                            [SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0, _strategyInstance.address, 0]
+                        )).to.be.true;
                     });
-                    it("should emit approve amount for route of rewardTokenBalance");
+                    it("should emit approve amount for route of rewardTokenBalance", async () => {
+                        expect(containsEvent(
+                            _txnReceipt,
+                            _underlyingInstance,
+                            "Approval",
+                            [SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0, _strategyInstance.address, _sushiRewardAmount]
+                        )).to.be.true;
+                    });
+                    });
                 
                     describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
                         it("should swap tokens for _uniswapPath0[1]");
@@ -195,7 +205,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         it("should log Mint event for correct underlying amount from the UniswapV2Pair");
                         it("should log LogLiquidityAdded event");
                     });
-                });
+                //});
            // });
     
             describe("sellWMatic", () => {
