@@ -78,14 +78,61 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         let _rewardDebtMinichef: BigNumber;
         let _amountInMinichef: BigNumber;
         let _sushiRewardAmount: BigNumber;
-        let _rewarderReportedRewards: BigNumber;
+        let _rewarderReportedRewards: BigNumber
+        
+        // Pre and post deposit balances
+        let _miniChefBalancePreDeposit: BigNumber;
+        let _miniChefBalancePostDeposit: BigNumber;
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
-                before(async () => {
-                    _strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
 
-                })
+
+                before(async () => {
+                    console.log("Before Hook 1");
+                    _strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
+                    let sushiRoutes = await _strategyInstance.getSushiRoutes();
+
+                });
+                // before(async () => {
+
+                //     const {
+                //         strategyInstance,
+                //         miniChefV2Instance,
+                //         rewarderInstance,
+                //         underlyingInstance,
+                //         vaultInstance,
+                //         depositAmountForSelf,
+                //         miniChefBalancePreDeposit,
+                //         miniChefBalancePostDeposit,
+                //         amountInMinichef,
+                //         sushiRewardAmount,
+                //         rewarderReportedRewards,
+                //         firstHardWorkTxnReceipt,
+                //         governanceSigner
+                //     } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
+
+                //     _governanceSigner = governanceSigner;
+                //     _amountInMinichef = amountInMinichef;
+                //     _strategyInstance = strategyInstance;
+                //     _sushiRewardAmount = sushiRewardAmount;
+                //     _miniChefV2Instance = miniChefV2Instance;
+                //     _rewarderReportedRewards = rewarderReportedRewards;
+                //     _rewarderInstance = rewarderInstance;
+                //     _underlyingInstance = underlyingInstance;
+                //     _vaultInstance = vaultInstance;
+                //     _depositAmountForSelf = depositAmountForSelf;
+                //     _miniChefBalancePostDeposit = miniChefBalancePostDeposit;
+                //     _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
+                //     _txnReceipt = firstHardWorkTxnReceipt;
+                    
+
+
+
+                it("should sell Sushi", async () => {
+                    expect(await _strategyInstance.sellSushi()).to.be.true;
+                });
+
                 describe("verify Strategy Initialization", () => {
 
                     it("WMatic routes ", async () => {
@@ -102,7 +149,15 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 });
 
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
-                    it("should emit approve amount for route of 0");
+                    // Liquidate Reward Token in MasterChefHodlStrategy
+                    // Deposit
+                    // Advance One Day
+                   
+    
+                    });
+                    it("should emit approve amount for route of 0", async () => {
+
+                    });
                     it("should emit approve amount for route of rewardTokenBalance");
                 
                     describe("_uniswapPath0[0] != _uniswapPath0[1]", () => {
@@ -134,7 +189,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                         it("should log LogLiquidityAdded event");
                     });
                 });
-            });
+           // });
     
             describe("sellWMatic", () => {
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
@@ -192,6 +247,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let wmaticInstance: Contract;
 
                 before(async () => {
+                    console.log("Before Hook 2");
                     sushiInstance = await ethers.getContractAt("IERC20", await _strategyInstance.sushiTokenAddress());
                     wmaticInstance = await ethers.getContractAt("IERC20", await _strategyInstance.wmaticTokenAddress());
                 });
@@ -199,6 +255,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 describe("When claimAllowed", () => {
 
                     before(async () => {
+                        console.log("Before Hook 3");
                         expect(await _strategyInstance.claimAllowed()).to.be.true;
                         expect(_amountInMinichef.gt(BigNumber.from("0"))).to.be.true;
                     });
@@ -289,6 +346,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let wmaticInstance: Contract;
 
                 before(async () => {
+                    console.log("Before Hook 4");
                     sushiInstance = await ethers.getContractAt("IERC20", await _strategyInstance.sushiTokenAddress());
                     wmaticInstance = await ethers.getContractAt("IERC20", await _strategyInstance.wmaticTokenAddress());
                     expect(await _strategyInstance.claimAllowed()).to.be.false;
@@ -541,8 +599,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 firstHardWorkTxnReceipt
             }
         }
-
+        // Root Before Hook - Runs first
         before(async () => {
+            console.log("Before Hook 5");
 
             const snapshotId = await network.provider.request({
                 method: "evm_snapshot",
@@ -584,6 +643,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             _depositAmountForSelf = depositAmountForSelf;
             _depositAmountForBeneficiary = depositAmountForBeneficiary;
             _mockDepositor = mockDepositor;
+            console.log('another before hook')
             
         });
 
@@ -599,6 +659,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let expectedMintedAmount: BigNumber;
 
                 before(async () => {
+                    console.log("Before Hook 6");
                     expectedMintedAmount = await calculateMintedAmount(
                         _depositAmountForBeneficiary,
                         _underlyingUnit,
@@ -697,6 +758,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                 let expectedMintedAmount: BigNumber;
 
                 before( async () => {
+                    console.log("Before Hook 7");
                     expectedMintedAmount = await calculateMintedAmount(
                         _depositAmountForSelf,
                         _underlyingUnit,
@@ -771,6 +833,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
             describe("When _withdrawBeforeReinvesting is false", () => {
 
                 before(async () => {
+                    console.log("Before Hook 8");
 
                     const {
                         strategyInstance,

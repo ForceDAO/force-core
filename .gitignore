@@ -28,3 +28,6 @@ scripts/hardhat.configOld.ts
 yarn.lock
 .openzeppelin
 slither-output.txt
+.history/
+1
+tests-output
