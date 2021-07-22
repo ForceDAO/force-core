@@ -1,33 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { BigNumber, Contract, Event, constants, Signer } from "ethers";
-import { Interface, LogDescription } from "ethers/lib/utils";
+import { BigNumber, Contract, constants } from "ethers";
 import { ethers, network } from "hardhat";
-import { HardhatNetworkForkingConfig, HardhatNetworkUserConfig } from "hardhat/types";
 
 import { advanceTime, containsEvent, isWithin } from "../../../helpers/util";
-import {
-    SUSHI_ADDRESS,
-    MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT,
-    SUSHI_LP_USDC_USDT_WMATIC_ROUTE_0,
-    SUSHI_LP_USDC_USDT_WMATIC_ROUTE_1,
-    SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0,
-    SUSHI_LP_USDC_USDT_SUSHI_ROUTE_1,
-   SUSHI_LP_UNDERLYING_ADDRESS_USDC_USDT,
-   SUSHI_LP_UNDERLYING_USDC_USDT_WHALE,
-   VAULT_ADDRESS_USDC_USDT,
-   SUSHI_LP_UNDERLYING_ADDRESS_WMATIC_WETH,
-   SUSHI_LP_WMATIC_WETH_WMATIC_ROUTE_0,
-   SUSHI_LP_WMATIC_WETH_WMATIC_ROUTE_1,
-   SUSHI_LP_WMATIC_WETH_SUSHI_ROUTE_0,
-   SUSHI_LP_WMATIC_WETH_SUSHI_ROUTE_1,
-   POOL_ID_WMATIC_WETH
-} from "../../../polygon-mainnet-fork-test-config";
-
+import { SUSHI_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
 import { StrategyTestData, UserInfo } from "./masterchef-sushihodl-strategy-testprep-helper";
-
-require("dotenv").config();
-const INFURA_POLYGON_MAINNET_KEY = process.env.INFURA_POLYGON_MAINNET_KEY || "";
 
 const { AddressZero } = constants;
 
@@ -95,50 +73,53 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
         let _miniChefBalancePostDeposit: BigNumber;
 
         const hodlAndNotifyBehavior = async () => {
+
+            let sushiInstance: Contract;
+            let wmaticInstance: Contract;
+            let wMaticRoutes: string[];
+            let sushiRoutes: string[];
+
+            before(async () => {
+                sushiInstance = await ethers.getContractAt("IERC20", await _strategyInstance.sushiTokenAddress());
+                wmaticInstance = await ethers.getContractAt("IERC20", await _strategyInstance.wmaticTokenAddress());
+                sushiRoutes = await _strategyInstance.getSushiRoutes();
+                wMaticRoutes = await _strategyInstance.getWmaticRoutes();
+            });
+
             describe("sellSushi", () => {
+
+                describe("verify Strategy Initialization", () => {
+                    it("should have sell sushi set to be true", async () => {
+                        expect(await _strategyInstance.sellSushi()).to.be.true;
+                    });
+                });
 
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
 
-                    describe("verify Strategy Initialization", () => {
-
-                        it("WMatic routes ", async () => {
-                            const wMaticRoutes = await _strategyInstance.getWmaticRoutes();
-                            expect(wMaticRoutes[0]).to.have.members(SUSHI_LP_USDC_USDT_WMATIC_ROUTE_0);
-                            expect(wMaticRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_WMATIC_ROUTE_1);
-                        });
-
-                        it("Sushi routes ", async () => {
-                            const sushiRoutes = await _strategyInstance.getSushiRoutes();
-                            expect(sushiRoutes[0]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0);
-                            expect(sushiRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_1);
-                        });
-
-                        it("should have sell sushi set to be true", async () => {
-                            expect(await _strategyInstance.sellSushi()).to.be.true;
-                            let result = await _storageInstance.sellSushi();
-                        });
-    
-                        // Liquidate Reward Token in MasterChefHodlStrategy
-                        it("should have liquidate reward token set to be true", async () => {
-                            expect(await _strategyInstance.liquidateRewardToken()).to.be.true;
-                        });
-                    });
-
-                    it("should emit approve amount for route of 0", async () => {
+                    it("should emit sushi token approve amount for route of 0", async () => {
                         expect(containsEvent(
                             _txnReceipt,
-                            _underlyingInstance,
+                            _sushiTokenInstance,
                             "Approval",
-                            [SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0, _strategyInstance.address, 0]
+                            [_strategyInstance.address, await _strategyInstance.routerAddressV2(), 0]
                         )).to.be.true;
                     });
 
-                    it("should emit approve amount for route of rewardTokenBalance", async () => {
+                    it("should emit sushi token approve amount for route of rewardTokenBalance", async () => {
                         expect(containsEvent(
                             _txnReceipt,
-                            _underlyingInstance,
+                            _sushiTokenInstance,
                             "Approval",
-                            [SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0, _strategyInstance.address, _sushiRewardAmount]
+                            [
+                                _strategyInstance.address,
+                                await _strategyInstance.routerAddressV2(),
+                                (actual: BigNumber) => isWithin(
+                                    // Acceptable Percent =/-
+                                    ethers.utils.parseEther((0.001 / 100).toString()),
+                                    actual,
+                                    _sushiRewardAmount
+                                )
+                            ]
                         )).to.be.true;
                     });
 
@@ -322,11 +303,9 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         const exitRewardPoolBehaviorWhenClaimNotAllowed = async () => {
             describe("When balance != 0", () => {
-                let sushiInstance: Contract;
                 let wmaticInstance: Contract;
 
                 before(async () => {
-                    sushiInstance = await ethers.getContractAt("IERC20", await _strategyInstance.sushiTokenAddress());
                     wmaticInstance = await ethers.getContractAt("IERC20", await _strategyInstance.wmaticTokenAddress());
                     expect(await _strategyInstance.claimAllowed()).to.be.false;
                 });
