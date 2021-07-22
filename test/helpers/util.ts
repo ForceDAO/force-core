@@ -34,14 +34,14 @@ export const containsEvent = (receipt: any, instance: Contract, eventName: strin
             if (typeof eventArgs[currentIndex] === 'function') {
                 const fun = eventArgs[currentIndex];
                 localRes = fun(currentValue);
-                // console.log(`${eventName} arg ${currentIndex} fun(${currentValue}) ${localRes}`);
+                console.log(`${eventName} arg ${currentIndex} fun(${currentValue}) ${localRes}`);
                 localRes = localRes === true;
             } else if (inputParamTypes[currentIndex].type === 'address') {
                 localRes = ethers.utils.getAddress(currentValue) === ethers.utils.getAddress(eventArgs[currentIndex]);
-                // console.log(`${eventName} arg ${currentIndex} ${currentValue} === ${eventArgs[currentIndex]}  ${localRes}`);
+                console.log(`${eventName} arg ${currentIndex} ${currentValue} === ${eventArgs[currentIndex]}  ${localRes}`);
             } else if (inputParamTypes[currentIndex].type === 'uint256') {
                 localRes = currentValue.eq(eventArgs[currentIndex]);
-                // console.log(`${eventName} arg ${currentIndex} ${currentValue} === ${eventArgs[currentIndex]}  ${localRes}`);
+                console.log(`${eventName} arg ${currentIndex} ${currentValue} === ${eventArgs[currentIndex]}  ${localRes}`);
             } else {
                 localRes = currentValue === eventArgs[currentIndex];
                 console.log(`Unexpected type (edit containsEvent function to handle:)`);
