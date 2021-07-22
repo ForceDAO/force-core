@@ -86,51 +86,49 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
-
+                
 
                 before(async () => {
-                    console.log("Before Hook 1");
                     _strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
-                    let sushiRoutes = await _strategyInstance.getSushiRoutes();
 
-                });
-                // before(async () => {
+                        const {
+                            strategyInstance,
+                            miniChefV2Instance,
+                            rewarderInstance,
+                            underlyingInstance,
+                            vaultInstance,
+                            depositAmountForSelf,
+                            miniChefBalancePreDeposit,
+                            miniChefBalancePostDeposit,
+                            amountInMinichef,
+                            rewarderReportedRewards,
+                            firstHardWorkTxnReceipt,
+                            governanceSigner
+                        } = await firstHardWorkFixture(fixtureClaimable(fixtureDeposit(fixtureStrategySet(fixture()))));
 
-                //     const {
-                //         strategyInstance,
-                //         miniChefV2Instance,
-                //         rewarderInstance,
-                //         underlyingInstance,
-                //         vaultInstance,
-                //         depositAmountForSelf,
-                //         miniChefBalancePreDeposit,
-                //         miniChefBalancePostDeposit,
-                //         amountInMinichef,
-                //         sushiRewardAmount,
-                //         rewarderReportedRewards,
-                //         firstHardWorkTxnReceipt,
-                //         governanceSigner
-                //     } = await firstHardWorkFixture(fixtureDeposit(fixtureStrategySet(fixture())));
+                        _strategyInstance = strategyInstance;
+                        _miniChefV2Instance = miniChefV2Instance;
+                        _rewarderInstance = rewarderInstance;
+                        _underlyingInstance = underlyingInstance;
+                        _vaultInstance = vaultInstance;
+                        _depositAmountForSelf = depositAmountForSelf;
+                        _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
+                        _miniChefBalancePostDeposit = miniChefBalancePostDeposit;
+                        _amountInMinichef = amountInMinichef;
+                        _rewarderReportedRewards = rewarderReportedRewards;
+                        _txnReceipt = firstHardWorkTxnReceipt;
+                        _governanceSigner = governanceSigner;
 
-                //     _governanceSigner = governanceSigner;
-                //     _amountInMinichef = amountInMinichef;
-                //     _strategyInstance = strategyInstance;
-                //     _sushiRewardAmount = sushiRewardAmount;
-                //     _miniChefV2Instance = miniChefV2Instance;
-                //     _rewarderReportedRewards = rewarderReportedRewards;
-                //     _rewarderInstance = rewarderInstance;
-                //     _underlyingInstance = underlyingInstance;
-                //     _vaultInstance = vaultInstance;
-                //     _depositAmountForSelf = depositAmountForSelf;
-                //     _miniChefBalancePostDeposit = miniChefBalancePostDeposit;
-                //     _miniChefBalancePreDeposit = miniChefBalancePreDeposit;
-                //     _txnReceipt = firstHardWorkTxnReceipt;
-                    
+                        await advanceTime(ONE_DAY);
+                        await _miniChefV2Instance.updatePool(await _strategyInstance.poolId());
+                        await _rewarderInstance.updatePool(await _strategyInstance.poolId());
+                        await ethers.provider.send("evm_mine", []);
+                        
+                        _sushiRewardAmount = await _miniChefV2Instance.pendingSushi(await _strategyInstance.poolId(), _strategyInstance.address);
+                        
+                        _rewarderReportedRewards = await _rewarderInstance.pendingToken(await _strategyInstance.poolId(), _strategyInstance.address);
+                        _txnReceipt = await (await _vaultInstance.doHardWork()).wait();
 
-
-
-                it("should sell Sushi", async () => {
-                    expect(await _strategyInstance.sellSushi()).to.be.true;
                 });
 
                 describe("verify Strategy Initialization", () => {
@@ -147,11 +145,20 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                       expect(sushiRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_1);
                     });
                 });
+                 
+                // Deposit
+                // Advance One Day
+                
+                it("should have sell sushi set to be true", async () => {
+                    expect(await _strategyInstance.sellSushi()).to.be.true;
+                });
 
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
                     // Liquidate Reward Token in MasterChefHodlStrategy
-                    // Deposit
-                    // Advance One Day
+                    it("should have liquidate reward token set to be true", async () => {
+                        expect(await _strategyInstance.liquidateRewardToken()).to.be.true;
+                    });
+
                    
     
                     });
