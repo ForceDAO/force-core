@@ -6,7 +6,14 @@ import { ethers, network } from "hardhat";
 import { HardhatNetworkForkingConfig, HardhatNetworkUserConfig } from "hardhat/types";
 
 import { advanceTime, containsEvent, isWithin } from "../../../helpers/util";
-import { SUSHI_ADDRESS } from "../../../polygon-mainnet-fork-test-config";
+import { SUSHI_ADDRESS,
+     MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT,
+     SUSHI_LP_USDC_USDT_WMATIC_ROUTE_0,
+     SUSHI_LP_USDC_USDT_WMATIC_ROUTE_1,
+     SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0,
+     SUSHI_LP_USDC_USDT_SUSHI_ROUTE_1
+     } from "../../../polygon-mainnet-fork-test-config";
+
 import { StrategyTestData, UserInfo } from "./masterchef-sushihodl-strategy-testprep-helper";
 
 require("dotenv").config();
@@ -75,6 +82,25 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
 
         const hodlAndNotifyBehavior = async () => {
             describe("sellSushi", () => {
+                before(async () => {
+                    _strategyInstance = await ethers.getContractAt("MasterChefHodlStrategy", MASTER_CHEF_HODL_STRATEGY_ADDRESS_USDC_USDT);
+
+                })
+                describe("verify Strategy Initialization", () => {
+
+                    it("WMatic routes ", async () => {
+                      const wMaticRoutes = await _strategyInstance.getWmaticRoutes();
+                      expect(wMaticRoutes[0]).to.have.members(SUSHI_LP_USDC_USDT_WMATIC_ROUTE_0);
+                      expect(wMaticRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_WMATIC_ROUTE_1);
+                    });
+              
+                    it("Sushi routes ", async () => {
+                      const sushiRoutes = await _strategyInstance.getSushiRoutes();
+                      expect(sushiRoutes[0]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_0);
+                      expect(sushiRoutes[1]).to.have.members(SUSHI_LP_USDC_USDT_SUSHI_ROUTE_1);
+                    });
+                });
+
                 describe("rewardTokenBalance > minLiquidateTokens", () => {
                     it("should emit approve amount for route of 0");
                     it("should emit approve amount for route of rewardTokenBalance");
@@ -964,7 +990,7 @@ export async function sushiHodlBehavior(strategyTestData: () => Promise<Strategy
                             });
     
                             describe("exitRewardPoolBehavior", exitRewardPoolBehaviorWhenClaimAllowed);
-                            // describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
+                            describe("hodlAndNotifyBehavior", hodlAndNotifyBehavior);
                         });
 
                         describe("When Claim Not Allowed", () => {
