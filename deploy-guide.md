@@ -224,6 +224,35 @@ npx hardhat verify-sushihodl-strategy --strategyname SUSHIHODL-USDC-USDT-V1 --ne
 
 ### update TotalSupplyCap
 
+- WMATIC-WETH
+
+```sh
+ npx hardhat set-totalsupplycap --underlyingname WMATIC-WETH --totalsupplycap [AMOUNT] --network polygonmainnet
+```
+
+- USDC-WETH
+
+```sh
+ npx hardhat set-totalsupplycap --underlyingname USDC-WETH --totalsupplycap [AMOUNT] --network polygonmainnet
+```
+
+- WETH-USDT
+
+```sh
+ npx hardhat set-totalsupplycap --underlyingname WETH-USDT --totalsupplycap [AMOUNT] --network polygonmainnet
+```
+
+- WETH-DAI
+
+```sh
+ npx hardhat set-totalsupplycap --underlyingname WETH-DAI --totalsupplycap [AMOUNT] --network polygonmainnet
+```
+
+- USDC-USDT
+
+```sh
+ npx hardhat set-totalsupplycap --underlyingname USDC-USDT --totalsupplycap [AMOUNT] --network polygonmainnet
+```
 
 
 ## Post-Deployment Activities on Strategy

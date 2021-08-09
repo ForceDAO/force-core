@@ -1,6 +1,6 @@
 export const network = "polygonmainnet";
-export const deployerAddress = "0x9782968954A2948EB5A611235b7E3D227457DeC0";
-export const controllerAddress = "0x9782968954A2948EB5A611235b7E3D227457DeC0";
-export const storageAddress = "0x7E428A383D0F3A3B8e2D4a0cA2cDde8792878e2c";
-export const staticsHelperAddress = "0xC1f99f723C7bDF1313140BFA29390138F1b325bf";
-export const sushiHodlStrategyFactoryAddress = "0x8289E89e234A753A962a2C495382A28b5cB975D1";
+export const deployerAddress = "0x9C83239f65AC889164ACc7b8AC28155BA2DC1795";
+export const controllerAddress = "0x9C83239f65AC889164ACc7b8AC28155BA2DC1795";
+export const storageAddress = "0x8dC3259991E22Ee5783aC5a15C371219e90A2c64";
+export const staticsHelperAddress = "0x6050c3eDe0eBfa89b9c5c95A4db9185C82F83b47";
+export const sushiHodlStrategyFactoryAddress = "0x7926A6c0De1C12332BF157526d981E6969912388";
