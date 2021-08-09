@@ -13,6 +13,7 @@ import "../../hardworkInterface/IVault.sol";
 import "./BaseUpgradeableStrategy.sol";
 import "./IMiniChefV2.sol";
 
+
 contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
 
   using SafeMathUpgradeable for uint256;
@@ -258,13 +259,13 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
     //liquidate the Sushi Rewards
     if (sellSushi()) {
       (address[] memory sushiPath0, address[] memory sushiPath1) = getSushiRoutes();
-      liquidityAdded.add(liquidateRewardToken(sushiTokenAddress(), sushiPath0, sushiPath1));
+      liquidityAdded = liquidityAdded.add(liquidateRewardToken(sushiTokenAddress(), sushiPath0, sushiPath1));
     }
 
     //liquidate the WMatic Rewards
     if (sellWMatic()) {
       (address[] memory maticPath0, address[] memory maticPath1) = getWmaticRoutes();
-      liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
+      liquidityAdded = liquidityAdded.add(liquidateRewardToken(wmaticTokenAddress(), maticPath0, maticPath1));
     }
 
     //compute Fee and transfer Fee to controller
@@ -352,7 +353,7 @@ contract MasterChefHodlStrategy is IStrategy, BaseUpgradeableStrategy {
       token1Amount,
       1,  // min
       1,  // min
-      vault(),
+      address(this),
       block.timestamp
     );
 

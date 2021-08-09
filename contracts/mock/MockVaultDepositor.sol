@@ -1,34 +1,59 @@
+//SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "../hardworkInterface/IVault.sol";
-import "../hardworkInterface/IStrategy.sol";
-import "../Controllable.sol";
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract MockVaultDepositor {
-  using SafeERC20Upgradeable for IERC20Upgradeable;
+    using SafeERC20 for IERC20;
     using Address for address;
-    using SafeMathUpgradeable for uint256;
+    using SafeMath for uint256;
 
     function depositFor(
-        IERC20Upgradeable underlying,
+        address beneficiary,
+        IERC20 underlying,
         IVault vault,
         uint256 amount
-    ) external {
+    ) public {
         underlying.safeTransferFrom(msg.sender, address(this), amount);
         underlying.safeApprove(address(vault), amount);
-        vault.depositFor(amount, msg.sender);
+        vault.depositFor(amount, beneficiary);
     }
 
     function deposit(
-        IERC20Upgradeable underlying,
+        IERC20 underlying,
         IVault vault,
         uint256 amount
-    ) external {
+    ) public {
+        underlying.safeTransferFrom(msg.sender, address(this), amount);
         underlying.safeApprove(address(vault), amount);
         vault.deposit(amount);
+    }
+
+    function depositAndWithdraw(
+        IERC20 underlying,
+        IVault vault,
+        uint256 amount
+    )
+        external
+    {
+        deposit(underlying, vault, amount);
+        vault.withdraw(amount);
+    }
+
+    function depositForAndWithdraw(
+        address beneficiary,
+        IERC20 underlying,
+        IVault vault,
+        uint256 amount
+    )
+        external
+    {
+        depositFor(beneficiary, underlying, vault, amount);
+        vault.withdraw(amount);
     }
 }

@@ -1,7 +1,9 @@
-const { BigNumber, constants } = require("ethers");
 import { ethers, upgrades, network } from "hardhat";
 import { getImplementationAddress } from '@openzeppelin/upgrades-core';
 import { expect, use } from "chai";
+import { BigNumber, constants, Contract } from "ethers";
+
+const amountToMint = BigNumber.from("10000");
 
 describe("Whitelisting Functions",  () => {
     var governance: any;
@@ -28,6 +30,8 @@ describe("Whitelisting Functions",  () => {
     const underlyingDecimalsBN = BigNumber.from(10).pow(BigNumber.from(underlyingDecimals));
     const totalSupplyCap = BigNumber.from(1000).mul(underlyingDecimalsBN);
 
+    let mockDepositor: Contract;
+
     beforeEach(async function () {
       [governance, controller, whitelistSigner, strangerSigner] = await ethers.getSigners();
       governanceAddress = await governance.getAddress();
@@ -40,37 +44,45 @@ describe("Whitelisting Functions",  () => {
         params: [governanceAddress]}
       );
 
+      const MockDepositor = await ethers.getContractFactory("MockVaultDepositor");
+      mockDepositor = await MockDepositor.deploy();
+
+      
       StorageContract = await ethers.getContractFactory("Storage");
       storageInstance = await StorageContract.deploy();
       
       await storageInstance.setController(controllerAddress, { from: governanceAddress });
-
+      
       // create the underlying token
       const MockToken = await ethers.getContractFactory("MockToken");
       underlying = await MockToken.deploy();
       underlyingAddress = underlying.address;
-
+      
+      
       Vault = await ethers.getContractFactory("Vault");
-
+      
       vaultProxyInst = await upgrades.deployProxy(Vault, 
-      [storageInstance.address, underlying.address, 100, 100, totalSupplyCap],
-       {
-         initializer: 'initializeVault(address,address,uint256,uint256,uint256)', 
-         unsafeAllow: ['constructor'],
-         unsafeAllowCustomTypes: true
-      });
-      vaultProxyAddress = vaultProxyInst.address;
-      vaultImplementationAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
+        [storageInstance.address, underlying.address, 100, 100, totalSupplyCap],
+        {
+          initializer: 'initializeVault(address,address,uint256,uint256,uint256)', 
+          unsafeAllow: ['constructor'],
+          unsafeAllowCustomTypes: true
+        });
+        vaultProxyAddress = vaultProxyInst.address;
+        vaultImplementationAddress = await getImplementationAddress(network.provider, vaultProxyAddress);
+
+        await underlying.mint(governance.address, amountToMint);
+        await underlying.approve(mockDepositor.address, amountToMint);
     });
 
     describe( "Add to Whitelist", () => {
 
-        it('Revert from non-owner', async () => {
+        it('should revert from non-owner', async () => {
             await expect(storageInstance.connect(strangerSigner).addToWhiteList(whitelistAddress))
             .to.be.revertedWith("Not governance");
         });
 
-        it('Should add to whitelist', async () => {
+        it('should add to whitelist', async () => {
             let isWhiteListed = await storageInstance.whiteList(whitelistAddress)
             expect(isWhiteListed).to.be.false;
 
@@ -82,13 +94,13 @@ describe("Whitelisting Functions",  () => {
 
    describe('remove From WhiteList', () => {
 
-    it('Revert from non-owner', async () => {
+    it('should revert from non-owner', async () => {
       await expect(
         storageInstance.connect(strangerSigner).removeFromWhiteList(whitelistAddress)
       ).to.be.revertedWith("Not governance");
     });
 
-    it('Should remove from whitelist', async () => {
+    it('should remove from whitelist', async () => {
       await storageInstance.addToWhiteList(whitelistAddress);
       let isWhiteListed = await storageInstance.whiteList(whitelistAddress);
       expect(isWhiteListed).to.be.true;
@@ -99,13 +111,48 @@ describe("Whitelisting Functions",  () => {
     });
   });
 
-  describe('Deposit from Whitelisted Accounts', () => {
-    it('Deposit from whitelisted contracts');
-    it('should fail to deposit and withdraw in the same block');
-  });
+  describe('deposit from a contract', () => {
 
-  describe('Deposit from non-Whitelisted Accounts', () => {
-    it('Revert to deposit from non-whitelisted contracts');
+    it('Revert to deposit from non-whitelisted contracts', async () => {
+
+      expect(await storageInstance.whiteList(mockDepositor.address)).to.be.false;
+
+      await expect(
+        mockDepositor.depositFor(governanceAddress, underlying.address, vaultProxyInst.address, amountToMint)
+      ).to.be.revertedWith('This smart contract is not whitelisted');
+
+      await expect(
+        mockDepositor.deposit(underlying.address, vaultProxyInst.address, amountToMint)
+        ).to.be.revertedWith('This smart contract is not whitelisted');
+    });
+
+    it('Deposit from whitelisted contracts', async () => {
+      
+      await storageInstance.addToWhiteList(mockDepositor.address);
+      expect(await storageInstance.whiteList(mockDepositor.address)).to.be.true;
+
+      await mockDepositor.depositFor(governanceAddress, underlying.address, vaultProxyInst.address, amountToMint.div(2));
+      expect(await vaultProxyInst.balanceOf(governance.address)).to.equal(amountToMint.div(2));
+
+      await mockDepositor.deposit(underlying.address, vaultProxyInst.address, amountToMint.div(2));
+      expect(await vaultProxyInst.balanceOf(mockDepositor.address)).to.equal(amountToMint.div(2));
+
+    });
+
+    it('should fail to deposit and withdraw in the same block', async () => {
+
+      await storageInstance.addToWhiteList(mockDepositor.address);
+      expect(await storageInstance.whiteList(mockDepositor.address)).to.be.true;
+
+      await expect(
+        mockDepositor.depositAndWithdraw(underlying.address, vaultProxyInst.address, amountToMint)
+      ).to.be.revertedWith('withdraw: withdraw in same block not permitted');
+
+      await expect(
+        mockDepositor.depositForAndWithdraw(governanceAddress, underlying.address, vaultProxyInst.address, amountToMint)
+      ).to.be.revertedWith('withdraw: withdraw in same block not permitted');
+
+    });
   });
 
 });

@@ -1,31 +1,42 @@
-import { Signer } from "ethers";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { BigNumber } from "ethers";
 import { Logger } from "tslog";
 const logger: Logger = new Logger();
 
-export interface TestStrategy {
+export interface Strategy {
     strategyAddress: string;
     underlying: string;
     miniChefV2: string;
+    mockDepositorAddress: string;
+    complexRewarderTime: string;
 }
 
-export interface TestVault {
+export interface Vault {
     vaultAddress: string;
     underlying: string;
+    uniFactory: string;
     toInvestNumerator: number;
     toInvestDenominator: number;
     totalSupplyCap: number;
+    storageAddress: string;
 }
 
-export interface TestAccounts {
-   governanceSigner: Signer;
-   controllerSigner: Signer;
-   depositorSigner: Signer;
+export interface Accounts {
+   governanceSigner: SignerWithAddress;
+   controllerSigner: SignerWithAddress;
+   depositorSigner: SignerWithAddress;
+   beneficiarySigner: SignerWithAddress;
 }
 
 export interface StrategyTestData {
-    testVault: TestVault;
-    testStrategy: TestStrategy;
-    testAccounts: TestAccounts;
+    Vault: Vault;
+    Strategy: Strategy;
+    Accounts: Accounts;
+}
+
+export interface UserInfo {
+    amount: BigNumber;
+    rewardDebt: BigNumber;
 }
 
 export function prepareForStrategyTest(strategyTestData : StrategyTestData) {
@@ -47,7 +58,7 @@ export function prepareForStrategyTest(strategyTestData : StrategyTestData) {
       */
 }
 
-export function impersonteAccounts(testAccountsForImpersonation : TestAccounts) {
+export function impersonteAccounts(testAccountsForImpersonation : Accounts) {
       
 
 }
@@ -57,11 +68,11 @@ export function deployStrategyFactoryForTest (governanceAddress : string) {
       
 }
 
-export function deployStrategyForTest (testStrategy : TestStrategy, governanceAddress : string) {
+export function deployStrategyForTest (testStrategy : Strategy, governanceAddress : string) {
       
 }
 
-export function deployVaultForTest (vaultInit : TestVault, governanceAddress : string) {
+export function deployVaultForTest (vaultInit : Vault, governanceAddress : string) {
 
       
 }
