@@ -64,10 +64,10 @@ const config: HardhatUserConfig = {
       blockGasLimit: 0x1fffffffffffff,
     },
     polygonmainnet: {
-      url: `https://polygon-mainnet.infura.io/v3/${INFURA_PROJECT_ID}`,
+      url: `https://polygon-mainnet.infura.io/v3/${INFURA_POLYGON_MAINNET_KEY}`,
       chainId: 137,
       accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
-      gasPrice: ethers.utils.parseUnits("150", "gwei").toNumber(),
+      gasPrice: ethers.utils.parseUnits("25", "gwei").toNumber(),
       gasMultiplier: 10,
       timeout: 12000000,
     },
