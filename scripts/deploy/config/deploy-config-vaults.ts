@@ -55,7 +55,7 @@ export const vaults: VaultData = {
             underlying: "0x6FF62bfb8c12109E8000935A6De54daD83a4f39f",
             toInvestNumerator: 1000,
             toInvestDenominator: 1000,
-            totalSupplyCap: "85730000000000000"
+            totalSupplyCap: "167960000000000000000"
         }
     },
     "USDC-USDT": {
