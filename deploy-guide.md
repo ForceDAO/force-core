@@ -295,32 +295,7 @@ npx hardhat verify-sushihodl-strategy --strategyname SUSHIHODL-USDC-USDT-V1 --ne
 
 ### Change Proxy Upgrade Admin
 
-- WMATIC-WETH
-
 ```sh
- npx hardhat set-proxy-admin --underlyingname WMATIC-WETH --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
+ npx hardhat transfer-proxy-admin-owner --proxyadmin 0xCE306b73cce8123FDEb5bDC40769955932b5Ed91 --newowner 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
 ```
 
-- USDC-WETH
-
-```sh
- npx hardhat set-proxy-admin --underlyingname USDC-WETH --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
-```
-
-- WETH-USDT
-
-```sh
- npx hardhat set-proxy-admin --underlyingname WETH-USDT --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
-```
-
-- WETH-DAI
-
-```sh
- npx hardhat set-proxy-admin --underlyingname WETH-DAI --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
-```
-
-- USDC-USDT
-
-```sh
- npx hardhat set-proxy-admin --underlyingname USDC-USDT --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
-```

@@ -5,6 +5,7 @@
 ## Mainnet - Deployed Contracts:
 
 - table for contract-name and associated deployment-script & in order of execution-sequence ascending
+- ProxyAdmin: 0xCE306b73cce8123FDEb5bDC40769955932b5Ed91
 - Controller: 0x98eB66A5482eC00800996c09109F3d651929F407
 
 ---
