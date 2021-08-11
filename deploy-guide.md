@@ -254,4 +254,73 @@ npx hardhat verify-sushihodl-strategy --strategyname SUSHIHODL-USDC-USDT-V1 --ne
  npx hardhat set-totalsupplycap --underlyingname USDC-USDT --totalsupplycap 9808000000 --network polygonmainnet
 ```
 
+### Set Controller
 
+```sh
+ npx hardhat set-controller --network polygonmainnet
+```
+
+
+### set-liquidation
+
+- WMATIC-WETH
+
+```sh
+ npx hardhat set-liquidation --strategyname SUSHIHODL-WMATIC-WETH-V1 --network polygonmainnet
+```
+
+- USDC-WETH
+
+```sh
+ npx hardhat set-liquidation --strategyname SUSHIHODL-USDC-WETH-V1 --network polygonmainnet
+```
+
+- WETH-USDT
+
+```sh
+ npx hardhat set-liquidation --strategyname SUSHIHODL-WETH-USDT-V1 --network polygonmainnet
+```
+
+- WETH-DAI
+
+```sh
+ npx hardhat set-liquidation --strategyname SUSHIHODL-WETH-DAI-V1 --network polygonmainnet
+```
+
+- USDC-USDT
+
+```sh
+ npx hardhat set-liquidation --strategyname SUSHIHODL-USDC-USDT-V1 --network polygonmainnet
+```
+
+### Change Proxy Upgrade Admin
+
+- WMATIC-WETH
+
+```sh
+ npx hardhat set-proxy-admin --underlyingname WMATIC-WETH --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
+```
+
+- USDC-WETH
+
+```sh
+ npx hardhat set-proxy-admin --underlyingname USDC-WETH --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
+```
+
+- WETH-USDT
+
+```sh
+ npx hardhat set-proxy-admin --underlyingname WETH-USDT --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
+```
+
+- WETH-DAI
+
+```sh
+ npx hardhat set-proxy-admin --underlyingname WETH-DAI --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
+```
+
+- USDC-USDT
+
+```sh
+ npx hardhat set-proxy-admin --underlyingname USDC-USDT --proxyadmin 0x98eB66A5482eC00800996c09109F3d651929F407 --network polygonmainnet
+```

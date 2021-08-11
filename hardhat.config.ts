@@ -26,11 +26,13 @@ require("./scripts/vaults/set-strategy.task.ts");
 require("./scripts/vaults/query-vault.task.ts");
 require("./scripts/vaults/set-totalsupplycap.task.ts");
 require("./scripts/vaults/upgrade-vault.task.ts");
+require("./scripts/vaults/set-proxy-admin.task.ts");
 require("./scripts/vaults/query-implementation.task.ts");
 require("./scripts/integration/vault/VaultDeposit.task.ts");
 require("./scripts/integration/vault/do-hardwork.task.ts");
 require("./scripts/integration/vault/withdraw.task.ts");
 require("./scripts/storage/set-controller.task.ts");
+require("./scripts/strategy/set-liquidation.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "";
@@ -68,7 +70,6 @@ const config: HardhatUserConfig = {
       chainId: 137,
       accounts: [`0x${DEPLOYER_PRIVATE_KEY}`],
       gasPrice: ethers.utils.parseUnits("25", "gwei").toNumber(),
-      gasMultiplier: 10,
       timeout: 12000000,
     },
     mainnet: {
