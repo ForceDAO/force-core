@@ -6,6 +6,7 @@ import { strict as assert } from 'assert';
 import { network as globalConfigNetwork, storageAddress }  from "./config/deploy-config-global";
 import { network as vaultConfigNetwork, vaults, VaultData, Vault, VaultInit }  from "./config/deploy-config-vaults";
 import { getImplementationAddressOfProxy } from "../helper/transaction-event-log-query";
+import { ethers } from "ethers";
 
 task("deploy-vault", "Deploys a new Vault contract")
   .addParam("underlyingname","name of the underlying, for Example: USDC-USDT")
@@ -21,7 +22,7 @@ task("deploy-vault", "Deploys a new Vault contract")
   assert(vaultInit.underlying != "", "vaultInit argument: underlying is invalid");
   assert(vaultInit.toInvestNumerator > 0, "vaultInit argument: toInvestNumerator is invalid");
   assert(vaultInit.toInvestDenominator > 0, "vaultInit argument: toInvestDenominator is invalid");
-  assert(vaultInit.totalSupplyCap > 0, "vaultInit argument: totalSupplyCap is invalid");
+  assert(ethers.BigNumber.from(vaultInit.totalSupplyCap).gt(0), "vaultInit argument: totalSupplyCap is invalid");
 
   log.info(`deploying Vault on network: ${hre.network.name}`);
   const vaultContract = await hre.ethers.getContractFactory(`contracts/Vault.sol:Vault`);

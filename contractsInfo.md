@@ -5,7 +5,7 @@
 ## Mainnet - Deployed Contracts:
 
 - table for contract-name and associated deployment-script & in order of execution-sequence ascending
-- Deployer: 0x9C83239f65AC889164ACc7b8AC28155BA2DC1795
+- Controller: 0x98eB66A5482eC00800996c09109F3d651929F407
 
 ---
 
@@ -35,7 +35,7 @@
 
 |Sequence | Contract Name | Script Name | Constructor Arguments | Deployed Contract Address | PolygonScan |
 |---|---|---|---|---|---|
-|1| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0x7926A6c0De1C12332BF157526d981E6969912388 | https://polygonscan.com/address/0x7926A6c0De1C12332BF157526d981E6969912388#code |
+|1| SushiHodlStrategyFactory | deploy-sushihodl-factory.task.ts | - |  0xFEbA6bDC3ccE74A977E9aa7E55964a9AE8C4F290 | https://polygonscan.com/address/0xFEbA6bDC3ccE74A977E9aa7E55964a9AE8C4F290#code |
 
 ---
 
@@ -52,12 +52,12 @@
 
 | Contract Name |  VaultProxy Address | VaultProxy On PolygonScan | Vault-Implementation On PolygonScan |
 |---|---|---|---|
-| Vault | 0xD2ae88fA23B4cE9eA3b187E7f97c5AD191B79cce | https://polygonscan.com/address/0xD2ae88fA23B4cE9eA3b187E7f97c5AD191B79cce#code | https://polygonscan.com/address/0xd06B3080931611b53a7a1A1C0FeD9c2549eda169#code |
+| Vault | 0x7400DFCd9a001B15Affa0c5e2ED23C4fF25095A0 | https://polygonscan.com/address/0x7400DFCd9a001B15Affa0c5e2ED23C4fF25095A0#code | https://polygonscan.com/address/0x25f68Fce1199b3C88a4F073D72E6c1E06736beE9#code |
 
 
 | Contract Name | Deployed Strategy Address | Strategy On PolygonScan | StrategyInfo |
 |---|---|---|---|
-| MasterChefHodlStrategy | 0xe5f7913c7ecede09455ae424aa82cb5745065e64 | https://polygonscan.com/address/0xe5f7913c7ecede09455ae424aa82cb5745065e64#code |  [Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L23-L36)|
+| MasterChefHodlStrategy | 0xa51d2cad8a0c6b5fbea86faf91b64dc8238c98d8 | https://polygonscan.com/address/0xa51d2cad8a0c6b5fbea86faf91b64dc8238c98d8#code |  [Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L23-L36)|
 
 
 ------
@@ -71,12 +71,12 @@
 
 | Contract Name |  VaultProxy Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
 |---|---|---|---|
-| Vault | 0xA6a82e1226a9838a0BBA82983F59fA60EFC7A495 | https://polygonscan.com/address/0xA6a82e1226a9838a0BBA82983F59fA60EFC7A495#code | https://polygonscan.com/address/0xd06B3080931611b53a7a1A1C0FeD9c2549eda169#code |
+| Vault | 0xA79dBa8DC71C9A646e991D02712437Ae7cCfbEeB | https://polygonscan.com/address/0xA79dBa8DC71C9A646e991D02712437Ae7cCfbEeB#code | https://polygonscan.com/address/0x25f68Fce1199b3C88a4F073D72E6c1E06736beE9#code |
 
 
 | Contract Name | Deployed Strategy Address | Strategy On PolygonScan | StrategyInfo |
 |---|---|---|---|
-| MasterChefHodlStrategy | 0x12b9d44404a627a63c692f36befabd511b129df7 | https://polygonscan.com/address/0x12b9d44404a627a63c692f36befabd511b129df7#code | [Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L37-L50) |
+| MasterChefHodlStrategy | 0xaaf1f4833667bbd88f8f13796c803fde1313b6e3 | https://polygonscan.com/address/0xaaf1f4833667bbd88f8f13796c803fde1313b6e3#code | [Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L37-L50) |
 
 
 ------
@@ -90,12 +90,12 @@
 
 | Contract Name |  VaultProxy Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
 |---|---|---|---|
-| Vault | 0x65480dd72d5ee4F0f80A1E7651D9b61D74eb1B54 | https://polygonscan.com/address/0x65480dd72d5ee4F0f80A1E7651D9b61D74eb1B54#code | https://polygonscan.com/address/0xd06B3080931611b53a7a1A1C0FeD9c2549eda169#code |
+| Vault | 0x705E15c2067643b9d4C9a03833B15b01fa758cE5 | https://polygonscan.com/address/0x705E15c2067643b9d4C9a03833B15b01fa758cE5#code | https://polygonscan.com/address/0x25f68Fce1199b3C88a4F073D72E6c1E06736beE9#code |
 
 
 | Contract Name | Deployed Strategy Address | Strategy On PolygonScan | StrategyInfo |
 |---|---|---|---|
-| MasterChefHodlStrategy | 0x353c07853293489b884dfae25317b37b4cb64ac8 | https://polygonscan.com/address/0x353c07853293489b884dfae25317b37b4cb64ac8#code |[Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L51-L64) |
+| MasterChefHodlStrategy | 0x4b0b0ee58b27e8ec6d83d5d19326dd655d5ffbd9 | https://polygonscan.com/address/0x4b0b0ee58b27e8ec6d83d5d19326dd655d5ffbd9#code |[Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L51-L64) |
 
 ------
 
@@ -108,12 +108,12 @@
 
 | Contract Name |  VaultProxy Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
 |---|---|---|---|
-| Vault | 0xbbE43ff771E3ee65328C74731758d9E2327D6d3e | https://polygonscan.com/address/0xbbE43ff771E3ee65328C74731758d9E2327D6d3e#code | https://polygonscan.com/address/0xd06B3080931611b53a7a1A1C0FeD9c2549eda169#code |
+| Vault | 0x51eD427cf626344aB0eB9E4E5BdD4ADE5803ee1D | https://polygonscan.com/address/0x51eD427cf626344aB0eB9E4E5BdD4ADE5803ee1D#code | https://polygonscan.com/address/0x25f68Fce1199b3C88a4F073D72E6c1E06736beE9#code |
 
 
 | Contract Name | Deployed Strategy Address | Strategy On PolygonScan | StrategyInfo |
 |---|---|---|---|
-| MasterChefHodlStrategy | 0xc67ad3245015826cfbfc05d230df16b1fcfca8e0 | https://polygonscan.com/address/0xc67ad3245015826cfbfc05d230df16b1fcfca8e0#code |[Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L65-L78) |
+| MasterChefHodlStrategy | 0xc314183de29444d21991d1dba3133365909d8423 | https://polygonscan.com/address/0xc314183de29444d21991d1dba3133365909d8423#code |[Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L65-L78) |
 
 ------
 
@@ -125,9 +125,9 @@
 
 | Contract Name |  VaultProxy Address | VaultProxy  On PolygonScan | Vault-Implementation On PolygonScan |
 |---|---|---|---|
-| Vault | 0xBA256eA59255D6a0e1564749768536d00b8b002e | https://polygonscan.com/address/0xBA256eA59255D6a0e1564749768536d00b8b002e#code | https://polygonscan.com/address/0xd06B3080931611b53a7a1A1C0FeD9c2549eda169#code |
+| Vault | 0x127F52249fa07810a9c3937B3D2d3369859fF6Ab | https://polygonscan.com/address/0x127F52249fa07810a9c3937B3D2d3369859fF6Ab#code | https://polygonscan.com/address/0x25f68Fce1199b3C88a4F073D72E6c1E06736beE9#code |
 
 
 | Contract Name | Deployed Strategy Address | Strategy On PolygonScan |StrategyInfo |
 |---|---|---|---|
-| MasterChefHodlStrategy | 0x414bba779e6fc932666385a27800ac0a8f09b57e | https://polygonscan.com/address/0x414bba779e6fc932666385a27800ac0a8f09b57e#code | [Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L79-L92) |
+| MasterChefHodlStrategy | 0x88bd5756c862bf9325ad537905c72b1ca4986c7a | https://polygonscan.com/address/0x88bd5756c862bf9325ad537905c72b1ca4986c7a#code | [Strategy Config](https://github.com/ForceDAO/force-core/blob/develop/scripts/deploy/strategy/sushiHODL/config/deploy-sushiHodl-polygon-mainnet-config.ts#L79-L92) |

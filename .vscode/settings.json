@@ -5,6 +5,8 @@
         "Numberish",
         "SUSHISWAP",
         "WMATIC",
-        "iface"
+        "iface",
+        "proxyadmin",
+        "underlyingname"
     ]
 }
