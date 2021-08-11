@@ -259,6 +259,11 @@ npx hardhat verify-sushihodl-strategy --strategyname SUSHIHODL-USDC-USDT-V1 --ne
 ```sh
  npx hardhat set-controller --network polygonmainnet
 ```
+### Set Governance
+
+```sh
+ npx hardhat set-governance --network polygonmainnet
+```
 
 
 ### set-liquidation

@@ -32,6 +32,7 @@ require("./scripts/integration/vault/VaultDeposit.task.ts");
 require("./scripts/integration/vault/do-hardwork.task.ts");
 require("./scripts/integration/vault/withdraw.task.ts");
 require("./scripts/storage/set-controller.task.ts");
+require("./scripts/storage/set-governance.task.ts");
 require("./scripts/strategy/set-liquidation.task.ts");
 
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
